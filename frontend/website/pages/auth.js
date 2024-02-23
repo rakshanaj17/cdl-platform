@@ -57,7 +57,6 @@ export default function ({ data }) {
   const [severity, setSeverity] = useState("error");
   const [authMessage, setAuthMessage] = useState("");
 
-
   const [showProgress, setShowProgress] = useState(false);
 
   const handleClick = () => {

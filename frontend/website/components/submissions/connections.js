@@ -7,6 +7,8 @@ import { Stack } from '@mui/system';
 import { Tooltip } from '@mui/material';
 import { InfoOutlined } from '@mui/icons-material';
 import { BASE_URL_CLIENT, BASE_URL_SERVER, SEARCH_ENDPOINT } from '../../static/constants';
+import useCDLProgressBarStore from '../../store/cdlProgressBar';
+import DynamicLogo from '../logo/dynamicLogo';
 
 export default function Connections({ submissionDataResponse, id }) {
     const { submissionId, submissionIncomingConnections, submissionOutgoingConnections, setSubmissionProps } = useSubmissionStore();
@@ -46,6 +48,8 @@ export default function Connections({ submissionDataResponse, id }) {
 
     }
 
+    const { isProgressBarOpen, openProgressBar, closeProgressBar, setProgressBarProps } = useCDLProgressBarStore();
+
     return (
         <>
             <Stack flexDirection='column' alignItems={'center'}>
@@ -61,11 +65,12 @@ export default function Connections({ submissionDataResponse, id }) {
                 <Grid container rowSpacing={1} columnSpacing={1} justifyContent={'space-between'}>
 
                     <Grid item style={{ padding: '3ch' }} >
-                        {/* <Typography variant='h6' gutterBottom>
+                        {/* <Typography variant='h6' gutterBottom> */}
 
-                            {"Submissions that mention this one" + " "}
+                        {/* {"Submissions that mention this one" + " "} */}
 
-                        </Typography> */}
+                        {/* </Typography> */}
+
 
                         {submissionIncomingConnections ?
                             (<Box display="flex" flexDirection="column" gap={1}>
