@@ -5,8 +5,6 @@ import jsCookie from "js-cookie";
 import dynamic from 'next/dynamic'
 import SubmissionForm from "./forms/submissionForm"
 
-
-
 import Router from "next/router";
 
 import {
@@ -48,6 +46,12 @@ import Image from "next/image";
 import useSubmissionStore from "../store/submissionStore";
 import { BASE_URL_CLIENT, GET_SUBMISSION_ENDPOINT, WEBSITE_URL } from "../static/constants";
 import useUserDataStore from "../store/userData";
+
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "./ui/resizable";
 
 
 const baseURL_client = process.env.NEXT_PUBLIC_FROM_CLIENT + "api/";
@@ -465,8 +469,6 @@ function Header(props) {
       logout(event);
     }
   };
-
-
 
   // for some reason, adding && != undefined makes box render weirdly
   if (!loggedOut) {
