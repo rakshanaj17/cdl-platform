@@ -479,7 +479,6 @@ function Header(props) {
               justifyContent={"space-between"}
               alignItems={"center"}
               sx={{ minHeight: "65px", overflow: "hidden" }}
-
             >
               <Grid className="flex items-center space-x-2 text-2xl mr-2 mt-2 font-medium text-white-500 dark:text-white-100">
                 <a href="/">
@@ -609,6 +608,8 @@ function Header(props) {
               )}
             </Grid>
           </Toolbar>
+
+          {/* Dialog/Modal UI for adding new submission */}
           <Dialog open={openNewSubTitleDialog} >
             <DialogTitle>
               {" "}
@@ -668,6 +669,8 @@ function Header(props) {
               <Button onClick={handleNewSubmissionRequest}>Create</Button>
             </DialogActions>
           </Dialog>
+
+          {/* Dialog box for submission batch upload */}
           <Dialog open={openSubmission} onClose={handleCloseSubmission} fullWidth maxWidth="md">
             (
             <div>
@@ -832,24 +835,6 @@ function Header(props) {
                 <span className="mb-2">TextData</span>
               </div>
 
-              {/* Add links below based on what to show on About page when logged out */}
-
-              {/* Desktop Menu */}
-              {/* <div className="hidden text-center lg:flex lg:items-center">
-                <ul className="items-center justify-end flex-1 pt-6 list-none lg:pt-0 lg:flex">
-                  {Object.entries(loggedOutSettings).map(([key, item]) => (
-
-                    <li key={key}>
-                      <a className="no-underline" href={`/${item.value}`}>
-                        <a className="block px-4 py-2 text-white rounded-md dark:text-white-300 hover:text-white-500 focus:text-white-500 focus:bg-white-100 dark:focus:bg-white-800 focus:outline-none no-underline">
-                          {item.label}
-                        </a>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div> */}
-
               <div className="mr-3 space-x-4 lg:flex nav__item ">
                 {!loggedOut ? (
                   <a href="/" className="w-full px-6 py-2 text-center text-white bg-blue-500 rounded-md lg:ml-5 no-underline">
@@ -860,9 +845,6 @@ function Header(props) {
                     Log in
                   </a>
                 )}
-
-                {/* WIP- Dark mode */}
-                {/* <ThemeChanger /> */}
 
               </div>
 

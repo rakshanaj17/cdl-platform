@@ -139,12 +139,11 @@ function DrawerComp(props) {
       </Drawer>
       <IconButton
         sx={{ color: "white", marginLeft: "auto" }}
-        onClick={handleNewSubmissionRequest}
-      // setOpenDrawer(!openDrawer)}
+        onClick={() => { setOpenDrawer(!openDrawer) }}
       >
         <MenuIcon color="white" />
       </IconButton>
-    </React.Fragment>
+    </React.Fragment >
   );
 };
 
