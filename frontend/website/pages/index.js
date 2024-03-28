@@ -11,13 +11,17 @@ import Select from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 import Footer from "../components/footer";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, IconButton } from "@mui/material";
 import { ArrowUpwardOutlined } from "@mui/icons-material";
 import { Router, useRouter } from "next/router";
 import RecentlyAccessedSubmissions from "../components/recentlyAccessedSubmissions";
 import Setup from "./setup";
+import dynamic from "next/dynamic";
 
+const HomeConnections = dynamic(() => import("./homeconnections"), {
+  ssr: false,
+});
 const baseURL_server = process.env.NEXT_PUBLIC_FROM_SERVER + "api/";
 const baseURL_client = process.env.NEXT_PUBLIC_FROM_CLIENT + "api/";
 const recommendationsEndPoint = "recommend";
@@ -26,14 +30,13 @@ const getCommunitiesEndpoint = "getCommunities";
 const searchEndpoint = "search?";
 
 function Home({ data, community_joined_data, user_own_submissions,recently_accessed_submissions }) {
-
   const router = useRouter();
   const [items, setItems] = useState(data.recommendation_results_page);
   const [page, setPage] = useState(parseInt(data.current_page) + 1);
   const [latestRecommendationId, setLatestRecommendationId] = useState(data.recommendation_id)
   const [endOfRecommendations, setEndOfRecommendations] = useState((data.recommendation_results_page.length) < 10)
   // set 'explore_similar_extension' as default method
-  const [selectedRecOption, setSelectedRecOption] = useState("explore_similar_extension");
+  const [selectedRecOption, setSelectedRecOption] = useState("recent");
   const [onboardingStep, setOnboardingStep] = useState(0);
   let extensionId = "aafcjihpcjlagambenogkhobogekppgp";
   let imgSrc = "/tree48.png";
@@ -58,7 +61,7 @@ function Home({ data, community_joined_data, user_own_submissions,recently_acces
     const img = await checkExtension();
     if (!img) {
       if (community_joined_data.community_info.length > 0) {
-        if (user_own_submissions.total_num_results >= 1) {
+        if (user_own_submissions['nodes'].length >= 1) {
           setOnboardingStep(0);
         } else {
           setOnboardingStep(3);
@@ -199,7 +202,18 @@ function Home({ data, community_joined_data, user_own_submissions,recently_acces
           <br/>
           <RecentlyAccessedSubmissions rec_acc_sub_data={recently_accessed_submissions}/>
           <br/>
-          <Grid item style={{ width : '60%' }} >
+          <Grid item style={{ width : '60%', marginTop: '10px' }} >
+            <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
+          </Grid>
+          <Grid
+            style={{display: "flex", width: "60%", height: "450px", flexDirection: "column"}}>
+              <Grid item width={'95%'}>
+                <h4 style={{marginLeft: "3%"}}>Visualizing Your Submissions</h4>
+              </Grid>
+              <HomeConnections nds={user_own_submissions['nodes']}
+                               eds={user_own_submissions['edges']}/>
+          </Grid>
+          <Grid item style={{ width : '60%', marginTop: '10px' }} >
             <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
           </Grid>
           <Grid
@@ -221,13 +235,13 @@ function Home({ data, community_joined_data, user_own_submissions,recently_acces
                   labelId="select-small"
                   id="select-recommendation-type"
                   name="method"
-                  defaultValue={"explore_similar_extension"}
+                  defaultValue={"recent"}
                   value={selectedRecOption}
                   onChange={handleRecTypeChange}
                 >
                   {/* Currently is : User Submission History + Extension opens searches*/}
                   <MenuItem value="explore_similar_extension">Explore</MenuItem>
-                  <MenuItem value="recent">Most Recent</MenuItem>
+                  <MenuItem value="recent">New Submissions</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -248,9 +262,9 @@ function Home({ data, community_joined_data, user_own_submissions,recently_acces
               <h4 style={{ textAlign: 'center' }} > You've reached the end of your recommendations.</h4>
               :
               <>
-                <h6 style={{ textAlign: 'center' }}> No recommendations to display. Try creating a few submissions to see recommendations. <br /> <br />
+                <h6 style={{ textAlign: 'center' }}> No recommendations to display. <br /> <br />
                   {/* Currently is : href needs to be updated to make new submission model open*/}
-                  <a variant="outline" href={"/communities"}>{" Click here to create a community!"}</a></h6>
+                  <a variant="outline" href={"/communities"}>{" Click here to create or join a community!"}</a></h6>
               </>}
           >
             <Grid item>
@@ -322,7 +336,7 @@ export async function getServerSideProps(context) {
     };
   } else {
     var recommendationURL = baseURL_server + recommendationsEndPoint;
-    recommendationURL += "?method=" + "explore_similar_extension" + "&page=0";
+    recommendationURL += "?method=" + "recent" + "&page=0";
     const res = await fetch(recommendationURL, {
       headers: new Headers({
         Authorization: context.req.cookies.token,
@@ -343,7 +357,7 @@ export async function getServerSideProps(context) {
     });
 
     var searchURL = baseURL_server + searchEndpoint;
-    searchURL += "own_submissions=True" + "&community=all";
+    searchURL += "own_submissions=True" + "&community=all&source=visualizeConnections";
     const userOwnSubmissions = await fetch(searchURL, {
       headers: new Headers({
         Authorization: context.req.cookies.token,

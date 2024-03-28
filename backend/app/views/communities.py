@@ -122,13 +122,18 @@ def get_communities_helper(current_user, return_dict=False):
 					is_admin = True
 			except:
 				pass
-		community_struct.append({
+
+		comm_item = {
 			"community_id": str(community.id),
 			"name": community.name,
 			"description": community.description,
-			"join_key": community.join_key,
 			"is_admin": is_admin
-		})
+		}
+
+		if is_admin:
+			comm_item["join_key"] = community.join_key
+
+		community_struct.append(comm_item)
 
 	if return_dict:
 		new_community_struct = {}
@@ -155,6 +160,7 @@ def create_community(current_user):
 		200 : dictionary JSON with "status" as "ok" and success message "message"
 		500 : dictionary JSON with "status" as "error" and error message "message"
 	"""
+	## TODO update docs with is_public and community_homepage_url
 	try:
 		user_id = current_user.id
 		ip = request.remote_addr
@@ -207,6 +213,7 @@ def create_community(current_user):
 				return response.error("Must be a community admin to edit the title or description.",
 				                      Status.UNAUTHORIZED)
 
+			## TODO update here with community_homepage_url and is_public
 			insert_obj = {}
 			if community_name:
 				insert_obj["name"] = community_name
@@ -305,7 +312,7 @@ def leave_community(current_user):
 		print(e)
 		return response.error("Failed to leave community, please try again later.", Status.INTERNAL_SERVER_ERROR)
 
-def update_relevance_stats(stats, submission_id, relevance, judgement_exists=None):
+def update_relevance_stats(stats, submission_id, relevance):
 	'''
 	Updates the judgement of the user for the submission if it exists else creates a new record
 	Args:
@@ -318,14 +325,10 @@ def update_relevance_stats(stats, submission_id, relevance, judgement_exists=Non
 		Boolean value indicating if the update was successful
 
 	'''
-	if judgement_exists.relevance == relevance:
-		return True 
-	
-	result  = {}
 	if relevance == 1:
 		likes_result = stats.update_stats(submission_id, "likes", 1)
 		if likes_result['nModified'] == 1:
-			dislikes_result = relevance_record = stats.update_stats(submission_id, "dislikes", -1)
+			dislikes_result = stats.update_stats(submission_id, "dislikes", -1)
 			return dislikes_result['nModified'] == 1
 		
 	elif relevance == 0:
@@ -383,7 +386,8 @@ def log_rel_judgment(ip, user_id, judgments):
 		if not judgement_exists: 
 			stats_result = update_stats_for_new_relevance(stats, submission_id, relevance)
 		else:
-			stats_result = update_relevance_stats(stats,submission_id,relevance)
+			if judgement_exists.relevance != relevance:
+				stats_result = update_relevance_stats(stats,submission_id,relevance)
 
 		judgment = Judgment(ip, user_id, judgments)
 		cdl_judgments = Judgments()
