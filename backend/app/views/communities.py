@@ -12,6 +12,8 @@ from app.models.communities import Communities, Community
 from app.models.community_logs import CommunityLogs
 from app.models.users import Users
 from app.models.judgment import *
+from app.models.relevance_judgements import *
+from app.models.submission_stats import *
 from app.views.logs import log_community_action
 
 communities = Blueprint('communities', __name__)
@@ -303,7 +305,57 @@ def leave_community(current_user):
 		print(e)
 		return response.error("Failed to leave community, please try again later.", Status.INTERNAL_SERVER_ERROR)
 
+def update_relevance_stats(stats, submission_id, relevance, judgement_exists=None):
+	'''
+	Updates the judgement of the user for the submission if it exists else creates a new record
+	Args:
+		- stats: submission_stats db instance
+		- submission_id: submission_id of the submission for which the user submits the judgement
+		- relevance: like or dislike (1/0)
+		- judgement_exists: indicates if it's the user's first judgement for the submission or not
+	
+	Return:
+		Boolean value indicating if the update was successful
 
+	'''
+	if judgement_exists.relevance == relevance:
+		return True 
+	
+	result  = {}
+	if relevance == 1:
+		likes_result = stats.update_stats(submission_id, "likes", 1)
+		if likes_result['nModified'] == 1:
+			dislikes_result = relevance_record = stats.update_stats(submission_id, "dislikes", -1)
+			return dislikes_result['nModified'] == 1
+		
+	elif relevance == 0:
+		dislikes_result = stats.update_stats(submission_id, "dislikes", 1)
+		if dislikes_result['nModified'] == 1:
+			likes_result = stats.update_stats(submission_id, "likes", -1)
+			return likes_result['nModified'] == 1
+		
+	return False
+
+
+def update_stats_for_new_relevance(stats,submission_id, relevance):
+	'''
+	Creates a new document in the submission_stats db to record the user's judgement for the submission
+	Args:
+		- stats: submission_stats db instance
+		- submission_id: submission_id of the submission for which the user submits the judgement
+		- relevance: like or dislike (1/0)	
+	Return:
+		Boolean value indicating if the insertion was successful
+
+	'''
+	result = {}
+	if relevance == 1:
+		result = stats.update_stats(submission_id, "likes", 1)
+	elif relevance == 0:
+		result= stats.update_stats(submission_id, "dislikes", 1)
+	
+	return result['nModified'] == 1
+	
 # Judgments
 def log_rel_judgment(ip, user_id, judgments):
 	"""
@@ -317,6 +369,22 @@ def log_rel_judgment(ip, user_id, judgments):
 	TODO: change return value to .acknowledged
 	"""
 	try:
+		submission_id, relevance = None, None
+		for k,v in judgments.items():
+			submission_id = ObjectId(k)
+			relevance = v 
+		relevance_judgement = Relevance(user_id,submission_id,relevance)
+		submission_judgements = Relevance_Judgements()
+		judgement_exists = submission_judgements.find_one({"submission_id":submission_id,"user_id":user_id})
+		submission_judgements.update_relevance(relevance_judgement)
+
+		stats = SubmissionStats()
+		stats_result = None
+		if not judgement_exists: 
+			stats_result = update_stats_for_new_relevance(stats, submission_id, relevance)
+		else:
+			stats_result = update_relevance_stats(stats,submission_id,relevance)
+
 		judgment = Judgment(ip, user_id, judgments)
 		cdl_judgments = Judgments()
 		return cdl_judgments.insert(judgment)
@@ -343,7 +411,6 @@ def get_rel_judgment_count(user_id):
 		return response.error("Failed to get relevant judgements count, please try again later.",
 		                      Status.INTERNAL_SERVER_ERROR)
 
-
 @communities.route("/api/submitRelJudgments", methods=["POST"])
 @token_required
 def submit_rel_judgments(current_user):
@@ -353,11 +420,14 @@ def submit_rel_judgments(current_user):
 		current_user : (dictionary): the user recovered from the JWT token.
 		request data (website) with a mapping between result IDs and 1/0 labels.
 			Example:
-				{"28_63094100d999b482814f371c_d4f6481c-e8ec-488a-bf71-2da4cf26fb1b: "1"}
+				# {"28_63094100d999b482814f371c_d4f6481c-e8ec-488a-bf71-2da4cf26fb1b: "1"}
+				# where
+				# 28 is the rank,
+				# 63094100d999b482814f371c is the submission id, and
+				# d4f6481c-e8ec-488a-bf71-2da4cf26fb1b is the query hash.
+				{"63094100d999b482814f371c: "1"}
 				where
-				28 is the rank,
-				63094100d999b482814f371c is the submission id, and
-				d4f6481c-e8ec-488a-bf71-2da4cf26fb1b is the query hash.
+				63094100d999b482814f371c is the submission id
 
 				This result ID should be included in the search result items.
 	Returns:
@@ -380,4 +450,4 @@ def submit_rel_judgments(current_user):
 		traceback.print_exc()
 		return response.error("Failed to submit relevant judgement, please try again later.",
 		                      Status.INTERNAL_SERVER_ERROR)
-	
+

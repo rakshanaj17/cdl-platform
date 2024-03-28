@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import math
 
 from bson import ObjectId, json_util
 from flask import Blueprint, request, redirect
@@ -10,6 +11,7 @@ import traceback
 import time
 import random
 import requests
+
 
 from app.helpers.helpers import token_required, build_display_url, build_result_hash, build_redirect_url, \
     format_time_for_display, validate_submission, hydrate_with_hash_url, create_page, hydrate_with_hashtags, \
@@ -32,7 +34,7 @@ from app.views.logs import log_connection, log_submission, log_click, log_commun
     log_search, log_recommendation_request, log_recommendation_click, log_webpage
 from elastic.manage_data import ElasticManager
 from app.models.users import Users
-
+from app.models.submission_stats import SubmissionStats
 
 functional = Blueprint('functional', __name__)
 CORS(functional)
@@ -1523,7 +1525,7 @@ def get_recently_accessed_submissions(current_user):
             submission_id_value = item["submission_id"]["$oid"]
             submission_url = format_url("",submission_id_value)
             updated_item = {
-                "explanation" : item["explanation"],
+                #"explanation" : item["explanation"],
                 "submission_url" : submission_url
             }
             updated_user_recent_submissions_list.append(updated_item)
@@ -1758,7 +1760,23 @@ def cache_search(query, search_id, index, communities, user_id, own_submissions=
                 print("\t Neural Rerank not available")
 
 
-            submission_pages = sorted(submissions_pages, reverse=True, key=lambda x: x["score"])
+            def ranking(x):
+                print("submissionid, keyword match score",x["submission_id"],x["score"])
+                submissions = SubmissionStats()
+                metrics = submissions.find_one({"submission_id":ObjectId(x["submission_id"])})
+                metrics_sum = 0
+                if metrics:
+                    metrics_sum = metrics.search_clicks + metrics.recomm_clicks + metrics.views
+                else:
+                    metrics_sum = 1 #webpages recommendations
+                metric_score = math.log10(metrics_sum)
+                score = (x["score"] * 0.9) + (metric_score * 0.1) 
+                print("submission_id, score", x["submission_id"],score,metrics_sum)
+                return score
+            submission_pages = sorted(submissions_pages, reverse=True, key=ranking)#lambda x: x["score"])
+            
+            
+            #pages = sorted(submissions_pages, reverse=True, key=ranking)
 
         pages = deduplicate(submission_pages)
         print("\tDedup: ", time.time() - start_time)
@@ -1787,18 +1805,26 @@ def format_webpage_for_display(webpage, search_id):
     submission["stats"] = {
         "views": 0,
         "clicks": 0,
-        "shares": 0
+        "shares": 0,
+        "likes": 0,
+        "dislikes":0
     }
-    cdl_searches_clicks = SearchesClicks()
-    num__search_clicks = cdl_searches_clicks.count({"submission_id": submission["submission_id"], "type": "click_search_result"})
-    submission["stats"]["clicks"] = num__search_clicks
+    cdl_submission_stats = SubmissionStats()
+    submission_stats = cdl_submission_stats.find_one({"submission_id": submission["_id"]})
+    submission["stats"]["clicks"] = submission_stats.search_clicks +  submission_stats.recomm_clicks
+    submission["stats"]["views"] = submission_stats.views
+    submission["stats"]["likes"] = submission_stats.likes
+    submission["stats"]["dislikes"] = submission_stats.dislikes
+    # cdl_searches_clicks = SearchesClicks()
+    # num__search_clicks = cdl_searches_clicks.count({"submission_id": submission["submission_id"], "type": "click_search_result"})
+    # submission["stats"]["clicks"] = num__search_clicks
 
-    cdl_recommendations_clicks = RecommendationsClicks()
-    num_rec_clicks = cdl_recommendations_clicks.count({"submission_id": submission["submission_id"]})
-    submission["stats"]["clicks"] += num_rec_clicks
+    # cdl_recommendations_clicks = RecommendationsClicks()
+    # num_rec_clicks = cdl_recommendations_clicks.count({"submission_id": submission["submission_id"]})
+    # submission["stats"]["clicks"] += num_rec_clicks
 
-    num_views = cdl_searches_clicks.count({"submission_id": submission["submission_id"], "type": "submission_view"})
-    submission["stats"]["views"] = num_views
+    # num_views = cdl_searches_clicks.count({"submission_id": submission["submission_id"], "type": "submission_view"})
+    # submission["stats"]["views"] = num_views
 
     submission["communities"] = {}
     submission["communities_part_of"] = {}
@@ -1850,21 +1876,32 @@ def format_submission_for_display(submission, current_user, search_id):
     submission["stats"] = {
         "views": 0,
         "clicks": 0,
-        "shares": 0
+        "shares": 0,
+        "likes": 0,
+        "dislikes":0
     }
     num_shares = sum([len(submission["communities"][str(id)]) for id in submission["communities"]])
     submission["stats"]["shares"] = num_shares
+    
+    cdl_submission_stats = SubmissionStats()
+    submission_stats = cdl_submission_stats.find_one({"submission_id": submission["_id"]})
+    #print("Submission stats function.py",submission_stats)
+    submission["stats"]["clicks"] = submission_stats.search_clicks +  submission_stats.recomm_clicks
+    submission["stats"]["views"] = submission_stats.views
+    submission["stats"]["likes"] = submission_stats.likes
+    submission["stats"]["dislikes"] = submission_stats.dislikes
+    
 
-    cdl_searches_clicks = SearchesClicks()
-    num__search_clicks = cdl_searches_clicks.count({"submission_id": submission["_id"], "type": "click_search_result"})
-    submission["stats"]["clicks"] = num__search_clicks
+    # cdl_searches_clicks = SearchesClicks()
+    # num__search_clicks = cdl_searches_clicks.count({"submission_id": submission["_id"], "type": "click_search_result"})
+    # submission["stats"]["clicks"] = num__search_clicks
 
-    cdl_recommendations_clicks = RecommendationsClicks()
-    num_rec_clicks = cdl_recommendations_clicks.count({"submission_id": submission["_id"]})
-    submission["stats"]["clicks"] += num_rec_clicks
+    # cdl_recommendations_clicks = RecommendationsClicks()
+    # num_rec_clicks = cdl_recommendations_clicks.count({"submission_id": submission["_id"]})
+    # submission["stats"]["clicks"] += num_rec_clicks
 
-    num_views = cdl_searches_clicks.count({"submission_id": submission["_id"], "type": "submission_view"})
-    submission["stats"]["views"] = num_views
+    # num_views = cdl_searches_clicks.count({"submission_id": submission["_id"], "type": "submission_view"})
+    # submission["stats"]["views"] = num_views
 
     # for deleting the entire submission
     if submission["user_id"] == user_id:

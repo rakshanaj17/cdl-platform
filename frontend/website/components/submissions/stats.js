@@ -3,12 +3,17 @@ import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
+import ThumbDownRoundedIcon from "@mui/icons-material/ThumbDownRounded";
+import ThumbUpRoundedIcon from "@mui/icons-material/ThumbUpRounded";
 import Box from '@mui/material/Box';
 import { Tooltip, Typography } from '@mui/material';
 import useSubmissionStore from '../../store/submissionStore';
 
-export default function SubmissionStatistics() {
+
+export default function SubmissionStatistics({ submitRelevanceJudgements }) {
     const { submissionStats } = useSubmissionStore();
+
+    
     return (
         <>
             <Box
@@ -23,6 +28,22 @@ export default function SubmissionStatistics() {
                     borderColor: 'gray',
                 }}
             >
+                <Tooltip title="Like">
+                    <IconButton size="small" aria-label="Like" onClick={(event) => submitRelevanceJudgements(event, 1)} >
+                        <ThumbUpRoundedIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+                <Typography sx={{ borderRight: '1px solid #ccc', paddingX: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                    {submissionStats.likes}
+                </Typography>
+                <Tooltip title="Dislike">
+                    <IconButton size="small" aria-label="Dislike" onClick={(event) => submitRelevanceJudgements(event, 0)}>
+                        <ThumbDownRoundedIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+                <Typography sx={{ borderRight: '1px solid #ccc', paddingX: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                    {submissionStats.dislikes}
+                </Typography>
                 <Tooltip title="The number of times that this submission has been viewed.">
                     <IconButton size="small" aria-label="view">
                         <VisibilityIcon fontSize="small" />

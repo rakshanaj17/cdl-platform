@@ -9,7 +9,7 @@ import LocalLibraryRoundedIcon from '@mui/icons-material/LocalLibraryRounded';
 import useSubmissionStore from "../../store/submissionStore";
 import useSnackbarStore from "../../store/snackBar";
 
-export default function SubmissionDetails(subData) {
+export default function SubmissionDetails(subData ) {
 
     const {
         submissionTitle,
@@ -46,6 +46,34 @@ export default function SubmissionDetails(subData) {
     const [message, setMessage] = useState("");
     const [severity, setSeverity] = useState("error");
     const [openDelete, setOpenDelete] = useState(false);
+    
+    const submitRelevanceJudgements = async function (event, rel) {
+        event.preventDefault();
+        let URL = BASE_URL_CLIENT + "submitRelJudgments";
+        // Judgement key-value pair
+        let judgement = {};
+
+        judgement[submissionId] = rel;
+        const res = await fetch(URL, {
+          method: "POST",
+          body: JSON.stringify(judgement),
+          headers: new Headers({
+            Authorization: jsCookie.get("token"),
+            "Content-Type": "application/json",
+          }),
+        });
+        const response = await res.json();
+        if (res.status == 200) {
+          setSeverity("success");
+        } else {
+          setSeverity("error");
+        }
+        setMessage(response.message);
+        handleClick();
+      };
+    
+    
+    
 
     const mapCommunitiesToNames = (commResponse) => {
         let idNameMap = {};
@@ -942,7 +970,8 @@ export default function SubmissionDetails(subData) {
                             display: "flex",
                             flex: 1,
                         }}>
-                            <SubmissionStatistics />
+                            
+                            <SubmissionStatistics submitRelevanceJudgements={submitRelevanceJudgements}/>
                         </div>
 
                     </Stack>
