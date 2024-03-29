@@ -497,7 +497,7 @@ export default function SubmissionForm(props) {
                             }}
                         />
                     </div>
-                    <div  style={{ marginLeft: '1050px'}}>{replySubWordCount} / 5000 words typed and {replySubcharCount} / 50000 char typed </div>
+                    <div  style={{ float: 'left'}}> {replySubcharCount} / 50,000 characters</div>
                     <Box sx={{ bgcolor: 'background.paper' }}>
                         {suggestions ? suggestions : "Pro-tip: Type [[search terms]] followed by a space to auto-link a submission that matches your search terms."}
                         <FormGroup>
@@ -604,7 +604,7 @@ export default function SubmissionForm(props) {
                                         },
                                     }}
                                 />
-                               <div  style={{ marginLeft: '1500px'}}> {submissionDescription.split(/\s+/).filter(Boolean).length} / 5000 words typed and {submissionDescription.length} / 50000 char typed </div>
+                               <div  style={{ float: 'left'}}> {submissionDescription.length} / 50,000 characters </div>
                                 <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose} >
                                     <Alert
                                         severity={severity}
@@ -688,7 +688,7 @@ export default function SubmissionForm(props) {
                                     }}
                                 />
                             </div>
-                            <div  style={{ marginLeft: '1500px'}}> {submissionDescription.split(/\s+/).filter(Boolean).length} / 5000 words typed and {submissionDescription.length} / 50000 char typed </div>
+                            <div  style={{ float: 'left'}}> {submissionDescription.length} / 50,000 characters </div>
                             <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose} >
                                 <Alert
                                     severity={severity}
@@ -788,7 +788,7 @@ export default function SubmissionForm(props) {
                                     }}
                                 />
                             </div>
-                            <div  style={{ marginLeft: '1500px'}}> {submissionDescription.split(/\s+/).filter(Boolean).length} / 5000 words typed and {submissionDescription.length} / 50000 char typed </div>
+                            <div  style={{float: 'left' }}> {submissionDescription.length} / 50,000 characters </div>
                             <Box sx={{ bgcolor: 'background.paper' }}>
                                 {submissionSuggestions ? submissionSuggestions : "Pro-tip: Type [[search terms]] followed by a space to auto-link a submission that matches your search terms."}
                             </Box>
