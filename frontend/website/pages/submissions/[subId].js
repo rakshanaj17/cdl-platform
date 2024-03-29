@@ -27,7 +27,8 @@ export default function SubmissionPage({ errorCode, data, id, target }) {
     submissionSourceUrl,
     submissionIsAnonymous,
     submissionCommunity,
-    setSubmissionProps
+    setSubmissionProps,
+    originalTitle
   } = useSubmissionStore();
 
 
@@ -132,7 +133,7 @@ export default function SubmissionPage({ errorCode, data, id, target }) {
   return (<>
 
     <Head>
-      <title>{`${submissionTitle} - TextData`}</title>
+      <title>{`${originalTitle} - TextData`}</title>
       <link rel="icon" href="/images/tree32.png" />
     </Head>
 
