@@ -1546,11 +1546,15 @@ def get_recently_accessed_submissions(current_user):
         for item in json_user_recent_submissions_list:
             submission_id_value = item["submission_id"]["$oid"]
             submission_url = format_url("", submission_id_value)
-            updated_item = {
-                "explanation": item["explanation"],
-                "submission_url": submission_url
-            }
-            updated_user_recent_submissions_list.append(updated_item)
+            try:
+                updated_item = {
+                    "explanation": item["explanation"],
+                    "submission_url": submission_url
+                }
+                updated_user_recent_submissions_list.append(updated_item)
+            except Exception as e:
+                print(e)
+                traceback.print_exc()
         return updated_user_recent_submissions_list
 
     except Exception as e:
