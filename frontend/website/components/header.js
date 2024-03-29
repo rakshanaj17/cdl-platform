@@ -620,7 +620,7 @@ function Header(props) {
           <Dialog open={openNewSubTitleDialog} >
             <DialogTitle>
               {" "}
-              Title for new Submission
+              Title for New Submission
             </DialogTitle>
             <DialogContent>
               <Stack direction={'column'} textAlign={'center'} spacing={2}>
