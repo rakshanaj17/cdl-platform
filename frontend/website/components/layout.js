@@ -59,7 +59,9 @@ export default function Layout({ children }) {
                 <Header />
             </div>
 
-            <div className="h-full max-h-[600px] items-stretch" style={{ marginTop: '70px', display: 'flex' }}>
+            <div className="h-full min-h-[600px] items-stretch" style={{ marginTop: '70px', display: 'flex' }}>
+
+                {/* <div className="flex flex-col min-h-[590px] " style={{ marginTop: '70px', display: 'flex' }}> */}
                 {
                     !isLoggedOut &&
                     <div style={{ overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'gray white' }} className='bg-gray-100'>

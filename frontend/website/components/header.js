@@ -554,7 +554,10 @@ function Header(props) {
                   <Grid item sx={{ flexGrow: 0, ml: "1%" }}>
                     <Tooltip title="Account Information">
                       <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                        <Avatar />
+                        {/* <Avatar />  */}
+                        <Typography variant="h6" sx={{ border: 2, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', borderColor: '#ceddeb', backgroundColor: '#ceddeb', color: '#1976d2' }}>
+                          {dropdowndata.username ? dropdowndata.username[0].toUpperCase() : 'A'}
+                        </Typography>
                       </IconButton>
                     </Tooltip>
                   </Grid>

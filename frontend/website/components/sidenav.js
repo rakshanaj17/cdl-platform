@@ -7,7 +7,7 @@ import { BASE_URL_CLIENT, SEARCH_ENDPOINT } from '../static/constants';
 import jsCookie from 'js-cookie';
 
 import { CollapsibleCommunity } from './communitycollapsible';
-import { Grid, Paper } from '@mui/material';
+import { Divider, Grid, Paper } from '@mui/material';
 import useQuickAccessStore from '../store/quickAccessStore';
 
 
@@ -53,9 +53,10 @@ export default function SideNav() {
                         <Grid container direction={'column'}>
 
                             <Grid item textAlign={'center'}>
-                                <h5 className="text-sm font ">
+                                <h5 className="text-sm font">
                                     Your Submissions
                                 </h5>
+                                <Divider />
                             </Grid>
 
                             <Grid item>

@@ -277,7 +277,8 @@ function SearchResult(props) {
       id={"card_id" + props.search_idx}
       className="mt-2"
       sx={{
-        width: '85%',
+        // width: '85%',
+        minWidth: '600px',
         padding: "15px",
         border: "1px solid #ddd",
         margin: 'auto',

@@ -150,12 +150,21 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
             </Typography>
 
           </Grid>
-          <Grid item sx={{ position: 'absolute', top: 0, right: 0 }}>
+          <Grid item sx={{ position: 'absolute', top: 0, right: 5 }}>
             <a
+              style={{
+                border: '1px solid #1976d2',
+                padding: '5px 10px',
+                textDecoration: 'none',
+                borderRadius: '5px',
+                display: 'inline-block',
+                margin: '5px',
+                fontSize: '14px',
+              }}
               target="_blank"
               rel="noopener noreferrer"
               href={"/export?search_id=" + data.search_id}
-              style={{ color: '#1976d2' }}
+
             >
               Export Search Results
             </a>
@@ -165,13 +174,13 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         <Grid item sx={{ textAlign: 'center' }}>
         </Grid>
 
-        <Grid container borderTop={"1px solid lightgray"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+        <Grid container minWidth={'600px'} width={'100ch'} direction={'column'} borderTop={"1px solid lightgray"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
           <InfiniteScroll
             dataLength={items.length}
             next={loadMoreResults}
             hasMore={page % 5 == 0 ? false : true}
             loader="" >
-            <Grid item>
+            <Grid item margin={'auto'}>
               {items !== undefined && items.length !== 0 &&
                 items.map(function (d, idx) {
                   return (
