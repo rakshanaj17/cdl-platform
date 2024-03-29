@@ -72,6 +72,7 @@ export default function SubmissionForm(props) {
     const [sourceURL, setSourceURL] = useState(props?.source_url)
     const [title, setTitle] = useState(props?.title)
     const [description, setDescription] = useState(props?.description)
+    const [replySubcharCount, setReplySubCharCount] = useState(props.description ? props.description.length : 0);
 
     const [suggestions, setSuggestions] = useState(null)
 
@@ -83,6 +84,13 @@ export default function SubmissionForm(props) {
 
     const [isAnonymous, setAnonymous] = useState(props?.username == undefined)
 
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === "clickaway") {
+          return;
+        }
+        setOpenSnackbar(false);
+      };
+    
     const handleAnonymous = async (event) => {
 
         if (props.isAConnection) {
@@ -176,11 +184,13 @@ export default function SubmissionForm(props) {
     }
 
     const setDescriptionListener = async (text) => {
+        
 
         if (props.isAConnection) {
             // console.log('2')
 
             setDescription(text)
+            setReplySubCharCount(text.length);
 
             const regex = /\[\[([^\]]+)\]\]/g;
             const matches = [];
@@ -473,6 +483,8 @@ export default function SubmissionForm(props) {
                             }}
                         />
                     </div>
+                    <div  style={{ float: 'left'}}> {replySubcharCount} / 50,000 characters</div>
+                    <br />
                     <Box sx={{ bgcolor: 'background.paper' }}>
                         {suggestions ? suggestions : "Pro-tip: Type [[search terms]] followed by a space to auto-link a submission that matches your search terms."}
                         <FormGroup>
@@ -579,6 +591,16 @@ export default function SubmissionForm(props) {
                                         },
                                     }}
                                 />
+                               <div  style={{ float: 'left'}}> {submissionDescription.length} / 50,000 characters </div>
+                                <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose} >
+                                    <Alert
+                                        severity={severity}
+                                        sx={{ width: "100%" }}
+                                    >
+                                        {message}
+                                    </Alert>
+                                </Snackbar>
+                                <br />
                                 <Box sx={{ bgcolor: 'background.paper' }}>
                                     {submissionSuggestions ? submissionSuggestions : "Pro-tip: Type [[search terms]] followed by a space to auto-link a submission that matches your search terms."}
                                 </Box>
@@ -654,6 +676,15 @@ export default function SubmissionForm(props) {
                                     }}
                                 />
                             </div>
+                            <div  style={{ float: 'left'}}> {submissionDescription.length} / 50,000 characters </div>
+                            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose} >
+                                <Alert
+                                    severity={severity}
+                                    sx={{ width: "100%" }}
+                                >
+                                    {message}
+                                </Alert>
+                            </Snackbar>
                         </div>
                     }
 
@@ -745,6 +776,8 @@ export default function SubmissionForm(props) {
                                     }}
                                 />
                             </div>
+                            <div  style={{float: 'left' }}> {submissionDescription.length} / 50,000 characters </div>
+                            <br />
                             <Box sx={{ bgcolor: 'background.paper' }}>
                                 {submissionSuggestions ? submissionSuggestions : "Pro-tip: Type [[search terms]] followed by a space to auto-link a submission that matches your search terms."}
                             </Box>
