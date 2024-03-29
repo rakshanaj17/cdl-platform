@@ -1707,13 +1707,13 @@ def cache_search(query, search_id, index, communities, user_id, own_submissions=
                 req_communities = list(communities.keys())
                 if len(req_communities) == 1:
                     number_of_hits, hits = elastic_manager.get_submissions(user_id, community_id=req_communities[0],
-                                                                           page=index)
+                                                                           page=0, page_size=10000)
                 else:
-                    number_of_hits, hits = elastic_manager.get_submissions(user_id, page=index)
+                    number_of_hits, hits = elastic_manager.get_submissions(user_id, page=0, page_size=10000)
 
             # Case where we are viewing all submissions to a community
             else:
-                number_of_hits, hits = elastic_manager.get_community(list(communities.keys())[0], page=index)
+                number_of_hits, hits = elastic_manager.get_community(list(communities.keys())[0], page=0, page_size=10000)
             submission_pages = create_page(hits, communities)
         else:
             if toggle_submission_results:
@@ -1785,6 +1785,7 @@ def cache_search(query, search_id, index, communities, user_id, own_submissions=
                 print("\t Neural Rerank not available")
 
             submission_pages = sorted(submissions_pages, reverse=True, key=lambda x: x["score"])
+
 
         pages = deduplicate(submission_pages)
         print("\tDedup: ", time.time() - start_time)
