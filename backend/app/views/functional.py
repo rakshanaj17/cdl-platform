@@ -1917,7 +1917,8 @@ def format_submission_for_display(submission, current_user, search_id):
             hydrated_user_communities[community_id]["valid_action"] = "save"
 
         del hydrated_user_communities[community_id]["is_admin"]
-        del hydrated_user_communities[community_id]["join_key"]
+        if "join_key" in hydrated_user_communities[community_id]:
+            del hydrated_user_communities[community_id]["join_key"]
         del hydrated_user_communities[community_id]["community_id"]
 
     submission["communities"] = hydrated_user_communities
