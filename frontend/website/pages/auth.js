@@ -63,8 +63,7 @@ export default function ({ data }) {
 
   const { communityData, setcommunityData } = useQuickAccessStore();
   const [showProgress, setShowProgress] = useState(false);
-
-  const { setUserDataStoreProps } = useUserDataStore();
+  const { userCommunities, isLoggedOut, setLoggedOut, setUserDataStoreProps } = useUserDataStore();
 
   const handleClick = () => {
     setOpen(true);
@@ -107,6 +106,7 @@ export default function ({ data }) {
       let resJson = await res.json();
       if (res.status === 200) {
         jsCookie.set("token", resJson.token);
+        setLoggedOut(false);
 
         // adding dropdown data to local storage
         updateDropDownSearch();
@@ -149,6 +149,7 @@ export default function ({ data }) {
       let resJson = await res.json();
       if (res.status === 200) {
         jsCookie.set("token", resJson.token);
+        setLoggedOut(false);
         updateDropDownSearch();
         setShowProgress(false)
         Router.push("/");

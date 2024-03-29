@@ -6,6 +6,7 @@ import SideNav from "./sidenav";
 import useQuickAccessStore from "../store/quickAccessStore";
 import { Divider, Paper } from "@mui/material";
 import jsCookie from "js-cookie";
+import useUserDataStore from "../store/userData";
 
 
 export default function Layout({ children }) {
@@ -18,7 +19,7 @@ export default function Layout({ children }) {
     // Set a default width for the second div when the SideNav is not visible
     const secondDivWidth = isOpen ? '75%' : '100%';
 
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const { isLoggedOut, setLoggedOut } = useUserDataStore();
     // for resizable sidebar
     const sidebarRef = useRef(null);
     const [isResizing, setIsResizing] = useState(false);
@@ -59,11 +60,13 @@ export default function Layout({ children }) {
             </div>
 
             <div className="h-full max-h-[600px] items-stretch" style={{ marginTop: '70px', display: 'flex' }}>
-                <div style={{ overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'gray white' }} className='bg-gray-100'>
-                    <div>
-                        <SideNav />
-                    </div>
-                </div>
+                {
+                    !isLoggedOut &&
+                    <div style={{ overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'gray white' }} className='bg-gray-100'>
+                        <div>
+                            <SideNav />
+                        </div>
+                    </div>}
                 <Divider orientation="vertical" flexItem style={{ color: 'grey' }} />
 
                 <div style={{ flex: '1', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>

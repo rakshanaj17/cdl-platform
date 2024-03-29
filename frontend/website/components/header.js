@@ -191,7 +191,7 @@ function Header(props) {
   const [openSubmission, setOpenSubmission] = useState(false);
 
   const { submissionMode, submissionCommunitiesNameMap, setSubmissionProps } = useSubmissionStore();
-  const { userCommunities, setUserDataStoreProps } = useUserDataStore();
+  const { userCommunities, isLoggedOut, setLoggedOut, setUserDataStoreProps } = useUserDataStore();
   const [selectedCommunity, setSelectedCommunity] = useState("");
 
   const handleClickSubmission = () => {
@@ -356,7 +356,7 @@ function Header(props) {
       },
     },
   });
-  const [loggedOut, setLoggedOut] = useState(false);
+  // const [loggedOut, setLoggedOut] = useState(false);
   const { communityData, setcommunityData } = useQuickAccessStore();
   const [dropdowndata, setDropDownData] = useState({});
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -400,9 +400,9 @@ function Header(props) {
       updateDropDownSearch();
       // window.location.reload()
     }
-    setLoggedOut(
-      jsCookie.get("token") == "" || jsCookie.get("token") == undefined
-    );
+
+    setLoggedOut(jsCookie.get("token") == "" || jsCookie.get("token") == undefined);
+
   }, [jsCookie.get("token")]);
 
   useEffect(() => {
@@ -474,7 +474,7 @@ function Header(props) {
 
 
   // for some reason, adding && != undefined makes box render weirdly
-  if (!loggedOut) {
+  if (!isLoggedOut) {
     return (<>
       <ThemeProvider theme={theme}>
         <AppBar>
@@ -838,7 +838,7 @@ function Header(props) {
               </div>
 
               <div className="mr-3 space-x-4 lg:flex nav__item ">
-                {!loggedOut ? (
+                {!isLoggedOut ? (
                   <a href="/" className="w-full px-6 py-2 text-center text-white bg-blue-500 rounded-md lg:ml-5 no-underline">
                     Home
                   </a>
