@@ -4,17 +4,17 @@ import Graph from "react-graph-vis";
 // For Pop up
 import "vis-network/styles/vis-network.css";
 
-export default function HomeConnections({nds, eds}) {
-    const [graph, setGraph] = useState({nodes: nds, edges: eds});
-    const [tNodes, setTNodes] = useState(nds);
-    const [tEdges, setTEdges] = useState(eds);
-    const [isClient, setIsClient] = useState(false);
+export default function HomeConnections({ nds, eds }) {
+  const [graph, setGraph] = useState({ nodes: nds, edges: eds });
+  const [tNodes, setTNodes] = useState(nds);
+  const [tEdges, setTEdges] = useState(eds);
+  const [isClient, setIsClient] = useState(false);
 
-    useEffect(() => {
-      setTNodes(nds);
-      setGraph(eds);
-      setGraph({nodes: nds, edges: eds});
-    }, [nds, eds])
+  useEffect(() => {
+    setTNodes(nds);
+    setGraph(eds);
+    setGraph({ nodes: nds, edges: eds });
+  }, [nds, eds])
 
   // const graph = {
   //   nodes: [
