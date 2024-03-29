@@ -47,9 +47,14 @@ export default function SideNav() {
                         </IconButton >
                     </div>
                     :
-                    <div style={{
-                        minWidth: '250px',
-                    }}>
+                    <div
+
+                        style={{
+                            minWidth: '250px',
+                            maxHeight: '90vh',
+                            overflowY: 'auto',
+                            scrollbarWidth: 'thin', scrollbarColor: 'gray white'
+                        }}>
                         <Grid container direction={'column'}>
 
                             <Grid item textAlign={'center'}>

@@ -99,7 +99,8 @@ export function CollapsibleCommunity({ community }) {
                             <div
                                 onClick={() => { window.open(WEBSITE_URL + "submissions/" + sub.submission_id, "_blank"); }}
                                 className="px-5 py-1 text-xs link-style">
-                                {sub.explanation.substring(0, 24) + "..."}
+                                {sub.explanation.substring(0, 24)}
+                                {sub.explanation.length > 24 ? "..." : ""}
                             </div>
                         </Tooltip>
                         :
