@@ -3,7 +3,6 @@ import IconButton from '@mui/material/IconButton';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import { Lightbulb } from '@mui/icons-material';
 import useUserDataStore from '../store/userData';
-import { BASE_URL_CLIENT, SEARCH_ENDPOINT } from '../static/constants';
 import jsCookie from 'js-cookie';
 
 import { CollapsibleCommunity } from './communitycollapsible';
@@ -50,7 +49,7 @@ export default function SideNav() {
                     <div
 
                         style={{
-                            minWidth: '250px',
+                            maxWidth: '300px',
                             maxHeight: '90vh',
                             overflowY: 'auto',
                             scrollbarWidth: 'thin', scrollbarColor: 'gray white'
@@ -87,7 +86,7 @@ export default function SideNav() {
                                 position: 'fixed',
                                 width: '10px',
                                 height: '10px',
-                                left: '241px',
+                                left: '258px',
                                 top: '50%',
                                 transform: 'translateY(-50%) rotate(90deg)',
                                 border: 'solid',
