@@ -1832,7 +1832,7 @@ def format_webpage_for_display(webpage, search_id):
         "dislikes":0
     }
     cdl_submission_stats = SubmissionStats()
-    submission_stats = cdl_submission_stats.find_one({"submission_id": submission["_id"]})
+    submission_stats = cdl_submission_stats.find_one({"submission_id": submission["submission_id"]})
     submission["stats"]["clicks"] = submission_stats.search_clicks +  submission_stats.recomm_clicks
     submission["stats"]["views"] = submission_stats.views
     submission["stats"]["likes"] = submission_stats.likes

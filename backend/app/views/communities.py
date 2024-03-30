@@ -1,7 +1,7 @@
 import json
 from bson import ObjectId
 from flask import Blueprint, request
-from flask_cors import CORS
+from flask_cors import CORS 
 import traceback
 
 from app.db import *
@@ -453,5 +453,49 @@ def submit_rel_judgments(current_user):
 		print(e)
 		traceback.print_exc()
 		return response.error("Failed to submit relevant judgement, please try again later.",
+		                      Status.INTERNAL_SERVER_ERROR)
+
+
+@communities.route("/api/fetchSubmissionStats", methods=["GET"])
+@token_required
+def fetch_submission_stats(current_user):
+	"""
+	Endpoint for submitting a relevance judgment
+	Arguments:
+		current_user : (dictionary): the user recovered from the JWT token.
+	Returns
+		200 : JSON with "status" as "ok" and a success "message".
+	"""
+	try:
+		submission_id = request.args.get("submissionId")
+		if not submission_id:
+			return response.error("Submission ID is missing", Status.BAD_REQUEST)
+		stats = SubmissionStats()
+		submission_stats = stats.find_one({"submission_id":ObjectId(submission_id)})
+		
+		# submission_stats_dict = submission_stats.__dict__()
+		# submission_stats_dict["submission_id"] = str(submission_stats_dict["submission_id"])
+		# submission_stats_dict["_id"]= str(submission_stats_dict["_id"])
+		submission_stats_dict = {}
+		# submission_stats_dict["_id"] = str(submission_stats.submission_id)
+		# submission_stats_dict["submission_id"] = submission_id
+		#submission_stats_dict["views"] = submission_stats.views
+		submission_stats_dict["likes"] = submission_stats.likes
+		submission_stats_dict["dislikes"] = submission_stats.dislikes
+		#submission_stats_dict["clicks"] = submission_stats.search_clicks +  submission_stats.recomm_clicks
+		#submission_stats_dict["shares"] = 0
+
+		
+		
+		
+		print(submission_stats_dict)
+		if submission_stats:
+			return response.success({"data": submission_stats_dict}, Status.OK)
+	
+		return response.error("Something went wrong. Please try again later", Status.INTERNAL_SERVER_ERROR)
+	except Exception as e:
+		print(e)
+		traceback.print_exc()
+		return response.error("Failed to retrieve submission stats, please try again later.",
 		                      Status.INTERNAL_SERVER_ERROR)
 

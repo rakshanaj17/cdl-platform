@@ -13,6 +13,7 @@ import Alert from '@mui/material/Alert';
 export default function SubmissionDetails(subData ) {
 
     const {
+        submissionStats,
         submissionTitle,
         submissionDescription,
         submissionSourceUrl,
@@ -47,8 +48,10 @@ export default function SubmissionDetails(subData ) {
     const [severity, setSeverity] = useState("error");
     const [openDelete, setOpenDelete] = useState(false);
     
+    
     const submitRelevanceJudgements = async function (event, rel) {
         event.preventDefault();
+        try{
         let URL = BASE_URL_CLIENT + "submitRelJudgments";
         // Judgement key-value pair
         let judgement = {};
@@ -70,10 +73,39 @@ export default function SubmissionDetails(subData ) {
         }
         setMessage(response.message);
         handleClick();
+    }
+    catch (error) {
+        console.error('Error submitting relevance judgements:', error);
+        // Handle error (e.g., display error message to user)
+      }
       };
     
-    
-    
+      const fetchSubmissionStats = async () => {
+        try {
+          // Assuming BASE_URL_CLIENT is defined elsewhere in your code
+          const URL = BASE_URL_CLIENT + "fetchSubmissionStats?submissionId=" + submissionId; // Adjust the URL as per your backend endpoint
+          const response = await fetch(URL, {
+            method: "GET",
+            headers: {
+              Authorization: jsCookie.get("token"),
+              "Content-Type": "application/json",
+            },
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to fetch submission stats: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          console.log("result in fetch",result);
+          
+          setSubmissionProps({submissionStats:{...submissionStats,
+
+            likes:result.data.likes ,
+            dislikes: result.data.dislikes}});
+        } catch (error) {
+          console.error('Error fetching submission stats:', error);
+        }
+      };
 
     const mapCommunitiesToNames = (commResponse) => {
         let idNameMap = {};
@@ -978,7 +1010,7 @@ export default function SubmissionDetails(subData ) {
                             flex: 1,
                         }}>
                             
-                            <SubmissionStatistics submitRelevanceJudgements={submitRelevanceJudgements}/>
+                            <SubmissionStatistics submitRelevanceJudgements={submitRelevanceJudgements} fetchSubmissionStats = {fetchSubmissionStats}/>
                         </div>
 
                     </Stack>

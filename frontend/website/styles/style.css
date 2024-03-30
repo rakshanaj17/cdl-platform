@@ -396,3 +396,8 @@ div::-webkit-scrollbar-track {
   background-color: #f1f1f1;
   /* Set the color of the scrollbar track */
 }
+
+.MuiIconButton-root.Mui-selected {
+  background-color: #fff !important;
+  color: #007bff !important;
+}

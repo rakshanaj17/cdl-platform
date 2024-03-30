@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMemo, useState, useEffect,useCallback } from 'react';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -10,10 +11,44 @@ import { Tooltip, Typography } from '@mui/material';
 import useSubmissionStore from '../../store/submissionStore';
 
 
-export default function SubmissionStatistics({ submitRelevanceJudgements }) {
+export default function SubmissionStatistics({ submitRelevanceJudgements, fetchSubmissionStats }) {
     const { submissionStats } = useSubmissionStore();
+    const [likeButtonState, setLikeButtonState] = useState(false);
+    const [dislikeButtonState, setDislikeButtonState] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
+    useEffect(() => {
+         fetchSubmissionStats();
+      }, []);
     
+      const handleLike = useCallback(async (event) => {
+        event.preventDefault();
+        if (likeButtonState) {
+            return; 
+        }
+        setIsLoading(true);
+        await submitRelevanceJudgements(event, 1);
+        await fetchSubmissionStats();
+        setLikeButtonState(true);
+        setDislikeButtonState(false);
+        setIsLoading(false);
+      },[likeButtonState,submissionStats])
+
+      const handleDislike = useCallback( async (event) => {
+        event.preventDefault();
+        if (dislikeButtonState) {
+            return; 
+        }
+        setIsLoading(true);
+        await submitRelevanceJudgements(event, 0);
+        await fetchSubmissionStats();
+        setDislikeButtonState(true);
+        setLikeButtonState(false);
+        setIsLoading(false);
+      },[dislikeButtonState,submissionStats]);
+   
+    const submissionProps = useMemo(() => ({ submissionStats }), [submissionStats]);
+
     return (
         <>
             <Box
@@ -29,7 +64,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements }) {
                 }}
             >
                 <Tooltip title="Like">
-                    <IconButton size="small" aria-label="Like" onClick={(event) => submitRelevanceJudgements(event, 1)} >
+                    <IconButton size="small" aria-label="Like" onClick={handleLike} className={likeButtonState === true ? "Mui-selected" : ""} disabled={isLoading} > {/* {(event) => submitRelevanceJudgements(event, 1)}*/}
                         <ThumbUpRoundedIcon fontSize="small" />
                     </IconButton>
                 </Tooltip>
@@ -37,7 +72,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements }) {
                     {submissionStats.likes}
                 </Typography>
                 <Tooltip title="Dislike">
-                    <IconButton size="small" aria-label="Dislike" onClick={(event) => submitRelevanceJudgements(event, 0)}>
+                    <IconButton size="small" aria-label="Dislike" onClick={handleDislike} className={dislikeButtonState === true ? "Mui-selected" : ""} disabled={isLoading}>
                         <ThumbDownRoundedIcon fontSize="small" />
                     </IconButton>
                 </Tooltip>
