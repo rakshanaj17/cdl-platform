@@ -27,7 +27,8 @@ export default function SubmissionPage({ errorCode, data, id, target }) {
     submissionSourceUrl,
     submissionIsAnonymous,
     submissionCommunity,
-    setSubmissionProps
+    setSubmissionProps,
+    originalTitle
   } = useSubmissionStore();
 
 
@@ -132,16 +133,14 @@ export default function SubmissionPage({ errorCode, data, id, target }) {
   return (<>
 
     <Head>
-      <title>{`${submissionTitle} - TextData`}</title>
+      <title>{`${originalTitle} - TextData`}</title>
       <link rel="icon" href="/images/tree32.png" />
     </Head>
 
-    <Header />
-
-    <div className="allResults">
+    <div>
       {
         data ? (
-          <Stack spacing={1} alignItems={'center'}>
+          <Stack marginLeft={3} spacing={1} alignItems={'center'}>
             <SubmissionDetails
               data={data}
               changeMode={changemode}
@@ -150,7 +149,6 @@ export default function SubmissionPage({ errorCode, data, id, target }) {
             <NoteEditor
             />
             <SubmissionExtensions data={data} id={id} target={target} />
-            <Footer />
           </Stack>
 
         ) : (

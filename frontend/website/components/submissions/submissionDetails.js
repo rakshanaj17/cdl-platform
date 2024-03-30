@@ -863,7 +863,7 @@ export default function SubmissionDetails(subData ) {
 
                         </div>
 
-                        {submissionData.submission.type !== "webpage" ? <>
+                        {submissionCanDelete && submissionData.submission.type !== "webpage" ? <>
                             <div style={{
                                 display: "flex",
                                 flex: 1,

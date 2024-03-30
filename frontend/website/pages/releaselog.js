@@ -33,7 +33,7 @@ export default function ReleaseLog() {
       </h1>
 
       <h2 className="text-3xl mb-4"  style={{ margin: "20px 0px 0px 0px" }}>
-        ??, 2024
+        March 29th, 2024
       </h2>
 
       <h5 className="text-2xl font-bold mb-3" style={{ margin: "10px 0px 0px 0px" }}>
