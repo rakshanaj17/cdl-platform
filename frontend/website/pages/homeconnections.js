@@ -17,7 +17,7 @@ export default function HomeConnections({ nds, eds }) {
   }, [nds, eds])
 
   const options = {
-      autoResize: true,
+    autoResize: true,
     physics: {
       barnesHut: {
         gravitationalConstant: -9000,
@@ -69,7 +69,7 @@ export default function HomeConnections({ nds, eds }) {
   };
 
   return (
-    <>
+    <div className="border 1px h-full">
       <Graph
         graph={graph}
         options={options}
@@ -89,6 +89,6 @@ export default function HomeConnections({ nds, eds }) {
           });
         }}
       />
-    </>
+    </div>
   );
 }

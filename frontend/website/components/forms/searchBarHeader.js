@@ -128,7 +128,7 @@ function searchBarHeader(props) {
 
                 <Stack spacing={2}
                     style={{
-                        width: props.isSmall ? '260px' : '60%', borderRadius: '5px',
+                        width: props.isSmall ? '200px' : '60%', borderRadius: '5px',
                         position: "relative", paddingRight: "5px"
                     }}>
                     <Autocomplete
@@ -268,7 +268,7 @@ function searchBarHeader(props) {
                             />
                         }
 
-                        label={<Typography fontSize={'0.8rem'}>Only My Submissions</Typography>} />
+                        label={<Typography fontSize={'0.8rem'}>{!props.isSmall && 'Only My Submissions'}</Typography>} />
                 </FormControl>
             </form>
         </>

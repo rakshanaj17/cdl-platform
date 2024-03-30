@@ -196,27 +196,37 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
           justifyContent={"center"}
           alignItems={"center"}
         >
-
           <Grid item marginTop={'1%'}>
             <div style={{ textAlign: 'center' }}>
               <h1>TextData</h1>
             </div>
           </Grid>
-          <br />
-          <RecentlyAccessedSubmissions rec_acc_sub_data={recently_accessed_submissions} />
 
-          <Grid item style={{ width: '60%', marginTop: '25px' }} >
-            <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
+          <Grid item style={{ width: '100ch' }} >
+            <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
+          </Grid>
+
+          <Grid
+            style={{ display: "flex", width: "100ch", flexDirection: "column" }}>
+            <h4>Recently Accessed Submissions</h4>
+          </Grid>
+          <Grid item>
+            <RecentlyAccessedSubmissions rec_acc_sub_data={recently_accessed_submissions} />
+          </Grid>
+
+
+          <Grid item style={{ width: '100ch' }} >
+            <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
           </Grid>
           <Grid
-            style={{ display: "flex", width: "60%", height: "450px", flexDirection: "column" }}>
-            <Grid item width={'95%'}>
-              <h4 style={{ marginLeft: "3%" }}>Visualizing Your Submissions</h4>
+            style={{ display: "flex", width: "100ch", height: "500px", flexDirection: "column" }}>
+            <Grid item >
+              <h4 >Visualizing Your Submissions</h4>
             </Grid>
             <HomeConnections nds={user_own_submissions['nodes']}
               eds={user_own_submissions['edges']} />
           </Grid>
-          <Grid item style={{ width: '60%', marginTop: '10px' }} >
+          <Grid item style={{ width: '100ch', marginTop: '10px' }} >
             <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
           </Grid>
           <Grid
@@ -255,6 +265,11 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
           display={"flex"}
           justifyContent={"center"}
           alignItems={"center"}
+          minWidth={'600px'}
+          margin={'auto'}
+          width={'100ch'}
+          direction={'column'}
+          borderTop={"1px solid lightgray"}
         >
           <InfiniteScroll
             dataLength={items.length}
@@ -265,12 +280,13 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
               <h4 style={{ textAlign: 'center', marginTop: '15px' }} > You've reached the end of your recommendations.</h4>
               :
               <>
+                <br />
                 <h6 style={{ textAlign: 'center' }}> No recommendations to display. <br /> <br />
                   {/* Currently is : href needs to be updated to make new submission model open*/}
                   <a variant="outline" href={"/communities"}>{" Click here to create or join a community!"}</a></h6>
               </>}
           >
-            <Grid item>
+            <Grid item margin={'auto'}>
               {(items !== undefined && items.length > 0) &&
                 items.map(function (d, idx) {
                   return (
