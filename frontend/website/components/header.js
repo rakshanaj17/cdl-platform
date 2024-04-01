@@ -362,6 +362,7 @@ function Header(props) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -389,6 +390,7 @@ function Header(props) {
   };
 
   useEffect(() => {
+    console.log(userCommunities)
     if (window.localStorage.getItem("dropdowndata")) {
       var responseComm = JSON.parse(window.localStorage.getItem("dropdowndata"))
       setDropDownData(responseComm);

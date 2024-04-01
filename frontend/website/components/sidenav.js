@@ -49,7 +49,7 @@ export default function SideNav() {
                     <div
 
                         style={{
-                            maxWidth: '300px',
+                            width: '300px',
                             maxHeight: '90vh',
                             overflowY: 'auto',
                             scrollbarWidth: 'thin', scrollbarColor: 'gray white'
@@ -86,7 +86,7 @@ export default function SideNav() {
                                 position: 'fixed',
                                 width: '10px',
                                 height: '10px',
-                                left: '258px',
+                                left: '288px',
                                 top: '50%',
                                 transform: 'translateY(-50%) rotate(90deg)',
                                 border: 'solid',

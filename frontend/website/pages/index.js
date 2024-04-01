@@ -21,6 +21,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChatWindow from "../components/chatwindow";
+import useUserDataStore from "../store/userData";
 
 const HomeConnections = dynamic(() => import("./homeconnections"), {
   ssr: false,
@@ -43,6 +44,8 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
   const [onboardingStep, setOnboardingStep] = useState(0);
   let extensionId = "aafcjihpcjlagambenogkhobogekppgp";
   let imgSrc = "/tree48.png";
+
+  const { userCommunities, user_id, setUserDataStoreProps } = useUserDataStore();
 
   let homePageContent = <Setup head="Onboarding" updateStep={onboardingStep}></Setup>;
 
@@ -87,6 +90,7 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
 
   useEffect(async () => {
     await checkOnboarding();
+    setUserDataStoreProps({ userCommunities: community_joined_data.community_info });
   }, []);
 
   const handleIndexFinish = (data) => {
@@ -210,7 +214,7 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
             style={{ display: "flex", width: "100ch", flexDirection: "column" }}>
             <h4>Recently Accessed Submissions</h4>
           </Grid>
-          <Grid item>
+          <Grid item width={'100ch'}>
             <RecentlyAccessedSubmissions rec_acc_sub_data={recently_accessed_submissions} />
           </Grid>
 
