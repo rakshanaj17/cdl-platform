@@ -95,9 +95,7 @@ export default function SubmissionDetails(subData ) {
             throw new Error(`Failed to fetch submission stats: ${response.status}`);
           }
           
-          const result = await response.json();
-          console.log("result in fetch",result);
-          
+          const result = await response.json(); 
           setSubmissionProps({submissionStats:{...submissionStats,
 
             likes:result.data.likes ,
@@ -107,6 +105,28 @@ export default function SubmissionDetails(subData ) {
         }
       };
 
+      const fetchSubmissionJudgement = async (submissionId) => {
+        try {
+          // Assuming BASE_URL_CLIENT is defined elsewhere in your code
+          const URL = BASE_URL_CLIENT + "fetchSubmissionJudgement?submissionId=" + submissionId; // Adjust the URL as per your backend endpoint
+          const response = await fetch(URL, {
+            method: "GET",
+            headers: {
+              Authorization: jsCookie.get("token"),
+              "Content-Type": "application/json",
+            },
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to fetch submission judgement: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          return result.data;
+          
+        } catch (error) {
+          console.error('Error fetching submission judgement:', error);
+        }
+      };
     const mapCommunitiesToNames = (commResponse) => {
         let idNameMap = {};
         for (var key in commResponse) {
@@ -1010,7 +1030,7 @@ export default function SubmissionDetails(subData ) {
                             flex: 1,
                         }}>
                             
-                            <SubmissionStatistics submitRelevanceJudgements={submitRelevanceJudgements} fetchSubmissionStats = {fetchSubmissionStats}/>
+                            <SubmissionStatistics submitRelevanceJudgements={submitRelevanceJudgements} fetchSubmissionStats = {fetchSubmissionStats} fetchSubmissionJudgement={fetchSubmissionJudgement}/>
                         </div>
 
                     </Stack>

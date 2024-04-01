@@ -11,15 +11,81 @@ import { Tooltip, Typography } from '@mui/material';
 import useSubmissionStore from '../../store/submissionStore';
 
 
-export default function SubmissionStatistics({ submitRelevanceJudgements, fetchSubmissionStats }) {
-    const { submissionStats } = useSubmissionStore();
+export default function SubmissionStatistics({ submitRelevanceJudgements, fetchSubmissionStats, fetchSubmissionJudgement }) {
+    const { submissionStats,submissionId } = useSubmissionStore();
     const [likeButtonState, setLikeButtonState] = useState(false);
     const [dislikeButtonState, setDislikeButtonState] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const likeState = localStorage.getItem('likeButtonState');
+            const dislikeState = localStorage.getItem('dislikeButtonState');
+            if (likeState !== null) {
+                setLikeButtonState(likeState === 'true');
+            }
+            else{
+                var judgement = fetchSubmissionJudgement(submissionId);
+                if( judgement === '1')
+                {
+                    setLikeButtonState(true);
+                    setDislikeButtonState(false);
+                    localStorage.setItem('likeButtonState', 'true');
+                    localStorage.setItem('dislikeButtonState', 'false');
+                }
+                else if( judgement === '0')
+                {
+                        setLikeButtonState(false);
+                        setDislikeButtonState(true);
+                        localStorage.setItem('likeButtonState', 'false');
+                        localStorage.setItem('dislikeButtonState', 'true');
+                    
+                }
+                else
+                {
+                        setLikeButtonState(false);
+                        setDislikeButtonState(false);
+                        localStorage.setItem('likeButtonState', 'false');
+                        localStorage.setItem('dislikeButtonState', 'false');
+                    
+                }
+
+            }
+            if (dislikeState !== null) {
+                setDislikeButtonState(dislikeState === 'true');
+            }
+            else{
+                var judgement = fetchSubmissionJudgement(submissionId);
+                if( judgement === '1')
+                {
+                    setLikeButtonState(true);
+                    setDislikeButtonState(false);
+                    localStorage.setItem('likeButtonState', 'true');
+                    localStorage.setItem('dislikeButtonState', 'false');
+                }
+                else if(judgement === '0')
+                {
+                        setLikeButtonState(false);
+                        setDislikeButtonState(true);
+                        localStorage.setItem('likeButtonState', 'false');
+                        localStorage.setItem('dislikeButtonState', 'true');
+                    
+                }
+                else
+                {
+                        setLikeButtonState(false);
+                        setDislikeButtonState(false);
+                        localStorage.setItem('likeButtonState', 'false');
+                        localStorage.setItem('dislikeButtonState', 'false');
+                    
+                }
+            }
+        };
+        if(submissionId.length > 0){
          fetchSubmissionStats();
-      }, []);
+        }
+      }, [likeButtonState,dislikeButtonState,submissionId,submissionStats]);
     
       const handleLike = useCallback(async (event) => {
         event.preventDefault();
@@ -31,6 +97,10 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
         await fetchSubmissionStats();
         setLikeButtonState(true);
         setDislikeButtonState(false);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('likeButtonState', 'true');
+            localStorage.setItem('dislikeButtonState', 'false');
+        };
         setIsLoading(false);
       },[likeButtonState,submissionStats])
 
@@ -44,6 +114,12 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
         await fetchSubmissionStats();
         setDislikeButtonState(true);
         setLikeButtonState(false);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('dislikeButtonState', 'true');
+            localStorage.setItem('likeButtonState', 'false');
+        };
+        // localStorage.setItem('dislikeButtonState', 'true');
+        // localStorage.setItem('likeButtonState', 'false');
         setIsLoading(false);
       },[dislikeButtonState,submissionStats]);
    
