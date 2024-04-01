@@ -13,6 +13,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import jsCookie from "js-cookie";
 import Stack from '@mui/material/Stack';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
+import useUserDataStore from '../../store/userData';
 
 
 
@@ -75,6 +76,7 @@ function searchBarHeader(props) {
     const baseURL_client = process.env.NEXT_PUBLIC_FROM_CLIENT + "api/";
     const AUTOCOMPLETE_ENDPOINT = baseURL_client + "autocomplete"
 
+    const { userCommunities } = useUserDataStore();
 
     useEffect(() => {
         const fetchSuggestions = async () => {
@@ -243,7 +245,7 @@ function searchBarHeader(props) {
                         }}
                     >
                         <MenuItem value="all">All</MenuItem>
-                        {props.dropdowndata && props.dropdowndata.map(function (d, idx) {
+                        {userCommunities && userCommunities.map(function (d, idx) {
                             return (
                                 <MenuItem key={idx} value={d.community_id}>
                                     {d.name.length > 50 ?

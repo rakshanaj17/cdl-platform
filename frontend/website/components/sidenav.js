@@ -50,7 +50,8 @@ export default function SideNav() {
 
                         style={{
                             width: '300px',
-                            maxHeight: '90vh',
+                            // height: '90vh',
+                            maxHeight: '900px',
                             overflowY: 'auto',
                             scrollbarWidth: 'thin', scrollbarColor: 'gray white'
                         }}>

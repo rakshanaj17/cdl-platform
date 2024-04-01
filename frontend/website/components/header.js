@@ -191,7 +191,7 @@ function Header(props) {
   const [openSubmission, setOpenSubmission] = useState(false);
 
   const { submissionMode, submissionCommunitiesNameMap, setSubmissionProps } = useSubmissionStore();
-  const { userCommunities, isLoggedOut, setLoggedOut, setUserDataStoreProps } = useUserDataStore();
+  const { userCommunities, username, isLoggedOut, setLoggedOut, setUserDataStoreProps } = useUserDataStore();
   const [selectedCommunity, setSelectedCommunity] = useState("");
 
   const handleClickSubmission = () => {
@@ -389,9 +389,9 @@ function Header(props) {
 
   };
 
-  useEffect(() => {
-    console.log(userCommunities)
-    if (window.localStorage.getItem("dropdowndata")) {
+  useEffect(async () => {
+    if (window.localStorage.getItem("dropdowndata") && window.localStorage.getItem("dropdowndata").status != 'error') {
+
       var responseComm = JSON.parse(window.localStorage.getItem("dropdowndata"))
       setDropDownData(responseComm);
       setcommunityData(responseComm.community_info);
@@ -399,7 +399,7 @@ function Header(props) {
       setUserDataStoreProps({ username: responseComm.username });
 
     } else {
-      updateDropDownSearch();
+      await updateDropDownSearch();
       // window.location.reload()
     }
 
@@ -456,6 +456,12 @@ function Header(props) {
     event.preventDefault();
     jsCookie.remove("token");
     localStorage.removeItem("dropdowndata");
+
+    setcommunityData([]);
+    setUserDataStoreProps({ userCommunities: [] });
+    setUserDataStoreProps({ username: [] });
+    setLoggedOut(true);
+
     Router.push("/");
   };
 
@@ -505,7 +511,7 @@ function Header(props) {
               <Grid item sx={{ flexGrow: 1 }}>
                 {props.renderSearchBar != undefined ? (
                   <Typography className="user_name" fontSize={15}>
-                    &nbsp; Welcome, {dropdowndata.username}
+                    &nbsp; Welcome, {username}
                   </Typography>
                 ) : (
                   <SearchBarHeader dropdowndata={dropdowndata.community_info} isMedium={isMedium} isSmall={isSmall} />
@@ -519,7 +525,7 @@ function Header(props) {
                     handleUserClickMenu={handleUserClickMenu}
                     // handleClickSubmission={handleClickSubmission}
                     handleClickSubmission={() => { handleClickOpenNewSubTitleDialog(true) }}
-                    username={dropdowndata.username}
+                    username={username}
                     style={{ position: 'sticky', top: '0', right: '0' }}
                   />
                 </Grid>
@@ -557,10 +563,13 @@ function Header(props) {
                   <Grid item sx={{ flexGrow: 0, ml: "1%" }}>
                     <Tooltip title="Account Information">
                       <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                        {/* <Avatar />  */}
-                        <Typography variant="h6" sx={{ border: 2, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', borderColor: '#ceddeb', backgroundColor: '#ceddeb', color: '#1976d2' }}>
-                          {dropdowndata.username ? dropdowndata.username[0].toUpperCase() : 'A'}
-                        </Typography>
+
+                        {username ?
+                          <Typography variant="h6" sx={{ border: 2, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', borderColor: '#ceddeb', backgroundColor: '#ceddeb', color: '#1976d2' }}>
+                            {username[0].toUpperCase()}
+                          </Typography>
+                          :
+                          <Avatar />}
                       </IconButton>
                     </Tooltip>
                   </Grid>
@@ -583,7 +592,7 @@ function Header(props) {
                     >
                       <MenuItem>
                         <Typography noWrap>
-                          Hello, {dropdowndata.username}
+                          Hello, {username}
                         </Typography>
                       </MenuItem>
 
