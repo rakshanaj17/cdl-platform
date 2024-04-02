@@ -9,6 +9,7 @@ import jsCookie from "js-cookie";
 import React, { useState, useEffect, useRef } from "react";
 
 import dynamic from 'next/dynamic'
+import Router from 'next/router';
 import { DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, Paper, Select } from "@mui/material";
 import Button from "@mui/material/Button";
 
@@ -83,6 +84,12 @@ export default function SubmissionForm(props) {
     const [currentQuery, setCurrentQuery] = useState("")
 
     const [isAnonymous, setAnonymous] = useState(props?.username == undefined)
+
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    
+    const checkUnsavedChanges = () => {
+          setHasUnsavedChanges(true);
+      };
 
     const handleSnackbarClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -343,6 +350,34 @@ export default function SubmissionForm(props) {
     };
 
     useEffect(() => { }, [submissionIncomingConnections]);
+    useEffect(() => { checkUnsavedChanges() } , [submissionTitle, submissionDescription, submissionSourceUrl, submissionIsAnonymous, submissionCommunity]);
+    useEffect(() => {
+        const handleRouteChangeStart = () => {
+            if (hasUnsavedChanges && !confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                Router.events.emit('routeChangeError');
+                throw 'Abort route change. Please ignore this error.';
+            }
+        };
+
+        Router.events.on('routeChangeStart', handleRouteChangeStart);
+
+        return () => {
+            Router.events.off('routeChangeStart', handleRouteChangeStart);
+        };
+    }, [hasUnsavedChanges]);
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+          if (hasUnsavedChanges) {
+            event.preventDefault();
+            event.returnValue = '';
+          }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+      
+        return () => {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+      }, [hasUnsavedChanges]);
 
     return (
 
