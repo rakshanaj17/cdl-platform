@@ -253,7 +253,7 @@ function SearchResult(props) {
       function (key) {
         return (
           <>
-            <CommunityDisplay k={key} />
+            <CommunityDisplay k={key} name={props.communities_part_of[key]} />
           </>
         );
       }
