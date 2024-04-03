@@ -7,7 +7,7 @@ import traceback
 from app.db import *
 from app.helpers.status import Status
 from app.helpers import response
-from app.helpers.helpers import token_required, format_time_for_display
+from app.helpers.helpers import token_required, format_time_for_display, format_url
 from app.models.communities import Communities, Community
 from app.models.community_logs import CommunityLogs
 from app.models.users import Users
@@ -15,6 +15,8 @@ from app.models.judgment import *
 from app.models.relevance_judgements import *
 from app.models.submission_stats import *
 from app.views.logs import log_community_action
+from app.models.logs import Logs
+
 
 communities = Blueprint('communities', __name__)
 CORS(communities)
@@ -133,6 +135,9 @@ def get_communities_helper(current_user, return_dict=False):
 		if is_admin:
 			comm_item["join_key"] = community.join_key
 
+		comm_item["is_public"] = community.public
+		comm_item["pinned"] = community.pinned
+
 		community_struct.append(comm_item)
 
 	if return_dict:
@@ -160,7 +165,6 @@ def create_community(current_user):
 		200 : dictionary JSON with "status" as "ok" and success message "message"
 		500 : dictionary JSON with "status" as "error" and error message "message"
 	"""
-	## TODO update docs with is_public and community_homepage_url
 	try:
 		user_id = current_user.id
 		ip = request.remote_addr
@@ -168,6 +172,12 @@ def create_community(current_user):
 		community_name = community_info.get("community_name", None)
 		community_description = community_info.get("community_description", None)
 		community_id = community_info.get("community_id", None)
+
+		community_ispublic = community_info.get("community_is_public", None)
+		community_pinned = community_info.get("community_pinned", None)
+			
+		
+		print(community_ispublic, community_pinned)
 
 		if community_name and len(community_name) < 3 or len(community_name) > 100:
 			return response.error("The community name must be between 2 characters and 100 characters.", Status.BAD_REQUEST)
@@ -213,12 +223,16 @@ def create_community(current_user):
 				return response.error("Must be a community admin to edit the title or description.",
 				                      Status.UNAUTHORIZED)
 
-			## TODO update here with community_homepage_url and is_public
 			insert_obj = {}
 			if community_name:
 				insert_obj["name"] = community_name
 			if community_description:
 				insert_obj["description"] = community_description
+			if community_ispublic != None:
+				insert_obj["public"] = community_ispublic
+			if community_pinned:
+				insert_obj["pinned"] = community_pinned
+
 			updated = cdl_communities.update_one({"_id": community_id}, {"$set": insert_obj}, upsert=False)
 			if updated.acknowledged:
 				return response.success({"message": "Community edited successfully!"}, Status.OK)
@@ -227,6 +241,58 @@ def create_community(current_user):
 	except Exception as e:
 		print(e)
 		return response.error("Failed to create community, please try again later.", Status.INTERNAL_SERVER_ERROR)
+
+
+@communities.route("/api/community/<id>", methods=["GET"])
+@token_required
+def community(current_user, id):
+	"""
+	Getting data on a single community
+	Mostly for community homepage
+	"""
+	user_id = current_user.id
+	ip = request.remote_addr
+
+	user_communities = current_user.communities
+	
+	comm_db = Communities()
+	found_comm = comm_db.find_one({"_id": ObjectId(id)})
+	if not found_comm or not found_comm.public or ObjectId(id) not in user_communities:
+		return response.error("Cannot find community.", Status.NOT_FOUND)
+
+	return_obj = {
+		"id": id,
+		"name": found_comm.name,
+		"description": found_comm.description,
+		"public": found_comm.public,
+		"pinned_submissions": []
+	}
+
+	pinned_sub_ids = [x.strip() for x in found_comm.pinned.split(",")]
+	sub_db = Logs()
+	for psid in pinned_sub_ids:
+		try:
+			found_sub = sub_db.find_one({"_id": ObjectId(psid)})
+			if found_sub:
+				all_sub_comms = [str(x) for uid in found_sub.communities for x in found_sub.communities[uid]]
+				# check to make sure submission is actually in community before showing
+				if id and all_sub_comms:
+					return_obj["pinned_submissions"].append({
+						"explanation": found_sub.title,
+						"url": format_url("", id)
+					})
+		except Exception as e:
+			print(e)
+			traceback.print_exc()
+			continue
+	return response.success(return_obj, Status.OK)
+
+
+
+
+
+
+
 
 
 @communities.route("/api/joinCommunity", methods=["POST"])

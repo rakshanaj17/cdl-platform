@@ -75,6 +75,12 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
 
   function findCommunityName(community_id) {
     if (community_id == "all") return community_id + " of your communities"
+
+    // instead, parse the data obj returned by API
+    // to get names of public communities, if present
+    // name is value of id
+    //return data.requested_communities[community_id]
+
     const commArray = JSON.parse(window.localStorage.getItem('dropdowndata')).community_info
     var name;
     for (let i = 0; i < commArray.length; i++) {
@@ -112,12 +118,12 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           <div>
             <Grid item sx={{ textAlign: 'center' }}>
               <h4>Search Results</h4>{" "}
-              {<h6>Community: {searchedCommunity}</h6>}
+              {own_submissions && <Typography textAlign={'center'} variant="caption">Filtered by your own submissions</Typography>}
+
               <Typography>
-                Community: <CommunityDisplay k={community} communities_part_of={Object} />
+                Community: <CommunityDisplay k={community} name={data.requested_communities[community]} communities_part_of={Object} />
               </Typography>
 
-              {own_submissions && <h6>Filtered by your own submissions</h6>}
             </Grid>
             <hr />
             <h5>No results found.</h5>
@@ -146,7 +152,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           <Grid item>
 
             <Typography variant="subtitle2">
-              Community: <CommunityDisplay k={community} />
+            Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
             </Typography>
 
           </Grid>
@@ -174,7 +180,14 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         <Grid item sx={{ textAlign: 'center' }}>
         </Grid>
 
-        <Grid container minWidth={'600px'} width={'100ch'} direction={'column'} borderTop={"1px solid lightgray"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+        <Grid container
+          minWidth={'600px'}
+          width={'100ch'}
+          direction={'column'}
+          borderTop={"1px solid lightgray"}
+          display={"flex"}
+          justifyContent={"center"}
+          alignItems={"center"}>
           <InfiniteScroll
             dataLength={items.length}
             next={loadMoreResults}
@@ -242,7 +255,6 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         </Grid>
 
       </Grid>
-      {/* <Footer alt={true} /> */}
     </div>
   );
 }

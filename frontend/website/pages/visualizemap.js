@@ -50,6 +50,12 @@ export default function VisualizeMap() {
     let cid = "";
     let ownSub = "False";
 
+
+    // TODO: there is a bug here where not pushing to router goes to "all" in community
+    // because query empty at time of build: https://nextjs.org/docs/pages/api-reference/functions/use-router#router-object
+    // also commented out detailed visualization because of too many bugs. need to fix
+    // or do in current viz and redeploy
+
     if (obj != undefined || obj != null || obj != "") {
       src = obj["source"];
       q = obj["query"];
@@ -114,16 +120,13 @@ export default function VisualizeMap() {
       url += "?query=" + router.query["query"] + "&community=all" + "&levelfilter=" + router.query["levelfilter"];
     }
     else {
-      url += "?community=" + router.query["community"] + "&communityName=" + router.query["communityName"] + "&levelfilter=" + router.query["levelfilter"];
+      url += "?community=" + router.query["community"] + "&communityName=" + router.query["communityName"] + "&levelfilter=topics";
     }
     window.location = url;
   }
 
   return (
     <>
-      {
-        source == "visualizeConnections" ? (
-          <>
             <Head>
               <title>Visualize - TextData</title>
               <link rel="icon" href="/images/tree32.png" />
@@ -132,16 +135,6 @@ export default function VisualizeMap() {
               style={{ backgroundColor: "#e5e5e5", borderRadius: "10px", width: width, height: height, marginLeft: '20px' }}>
               {submissions && (
                 <>
-                  <Button variant="outlined"
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      marginLeft: "10px"
-                    }}
-                    onClick={openHierarchicalView}
-                  >
-                    Open Detailed View
-                  </Button>
                   <HomeConnections
                     nds={submissions['nodes']}
                     eds={submissions['edges']}
@@ -155,12 +148,6 @@ export default function VisualizeMap() {
                 {message}
               </Alert>
             </Snackbar>
-          </>
-        ) :
-          (
-            <VisualizeComponent />
-          )
-      }
     </>
   )
 };

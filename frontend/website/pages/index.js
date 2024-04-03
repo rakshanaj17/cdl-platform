@@ -9,7 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import InfiniteScroll from "react-infinite-scroll-component";
 import React, { useEffect, useState } from "react";
-import { Paper, Button, IconButton } from "@mui/material";
+import { Paper, Button, IconButton, Skeleton, Tooltip, Typography } from "@mui/material";
 import { ArrowUpwardOutlined } from "@mui/icons-material";
 import { Router, useRouter } from "next/router";
 import RecentlyAccessedSubmissions from "../components/recentlyAccessedSubmissions";
@@ -21,6 +21,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChatWindow from "../components/chatwindow";
+import useUserDataStore from "../store/userData";
+import { BASE_URL_CLIENT, SEARCH_ENDPOINT } from "../static/constants";
 
 const HomeConnections = dynamic(() => import("./homeconnections"), {
   ssr: false,
@@ -32,17 +34,21 @@ const recentlyAccessedSubmissionsEndpoint = "submission/recentlyaccessed";
 const getCommunitiesEndpoint = "getCommunities";
 const searchEndpoint = "search?";
 
-function Home({ data, community_joined_data, user_own_submissions, recently_accessed_submissions }) {
+function Home({ data, community_joined_data, recently_accessed_submissions }) {
   const router = useRouter();
   const [items, setItems] = useState(data.recommendation_results_page);
   const [page, setPage] = useState(parseInt(data.current_page) + 1);
   const [latestRecommendationId, setLatestRecommendationId] = useState(data.recommendation_id)
   const [endOfRecommendations, setEndOfRecommendations] = useState((data.recommendation_results_page.length) < 10)
+  const [userOwnSubmissions, setUserOwnSubmissions] = useState(null);
+
   // set 'explore_similar_extension' as default method
   const [selectedRecOption, setSelectedRecOption] = useState("recent");
   const [onboardingStep, setOnboardingStep] = useState(0);
   let extensionId = "aafcjihpcjlagambenogkhobogekppgp";
   let imgSrc = "/tree48.png";
+
+  const { userCommunities, user_id, setUserDataStoreProps } = useUserDataStore();
 
   let homePageContent = <Setup head="Onboarding" updateStep={onboardingStep}></Setup>;
 
@@ -64,7 +70,8 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
     const img = await checkExtension();
     if (!img) {
       if (community_joined_data.community_info.length > 0) {
-        if (user_own_submissions['nodes'].length >= 1) {
+        // if (user_own_submissions['nodes'].length >= 1) {
+        if (recently_accessed_submissions && recently_accessed_submissions.length >= 1) {
           setOnboardingStep(0);
         } else {
           setOnboardingStep(3);
@@ -85,8 +92,35 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
     }
   }
 
+  async function getVizData() {
+    var searchURL = BASE_URL_CLIENT + searchEndpoint;
+    searchURL += "own_submissions=True" + "&community=all&source=visualizeConnections";
+    const users_submissions = await fetch(searchURL, {
+      headers: new Headers({
+        Authorization: jsCookie.get("token"),
+      }),
+    });
+
+    if (users_submissions.status == 200) {
+      const user_own_submissions = await users_submissions.json();
+      setUserOwnSubmissions(user_own_submissions);
+      return user_own_submissions
+    }
+    else {
+      setUserOwnSubmissions(null);
+      return null;
+    }
+
+  }
+
   useEffect(async () => {
     await checkOnboarding();
+    setUserDataStoreProps({ userCommunities: community_joined_data.community_info });
+
+    // get viz data
+    var temp = await getVizData();
+    console.log('received vizdata!');
+
   }, []);
 
   const handleIndexFinish = (data) => {
@@ -196,27 +230,49 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
           justifyContent={"center"}
           alignItems={"center"}
         >
-
           <Grid item marginTop={'1%'}>
             <div style={{ textAlign: 'center' }}>
               <h1>TextData</h1>
             </div>
           </Grid>
-          <br />
-          <RecentlyAccessedSubmissions rec_acc_sub_data={recently_accessed_submissions} />
 
-          <Grid item style={{ width: '60%', marginTop: '25px' }} >
-            <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
+          <Grid item style={{ width: '100ch' }} >
+            <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
           </Grid>
+
           <Grid
-            style={{ display: "flex", width: "60%", height: "450px", flexDirection: "column" }}>
-            <Grid item width={'95%'}>
-              <h4 style={{ marginLeft: "3%" }}>Visualizing Your Submissions</h4>
-            </Grid>
-            <HomeConnections nds={user_own_submissions['nodes']}
-              eds={user_own_submissions['edges']} />
+            style={{ display: "flex", width: "100ch", flexDirection: "column" }}>
+            <h4>Recently Accessed Submissions</h4>
           </Grid>
-          <Grid item style={{ width: '60%', marginTop: '10px' }} >
+          <Grid item width={'100ch'}>
+            <RecentlyAccessedSubmissions rec_acc_sub_data={recently_accessed_submissions} />
+          </Grid>
+
+
+          <Grid item style={{ width: '100ch' }} >
+            <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
+          </Grid>
+
+          <Grid
+            style={{ display: "flex", width: "100ch", height: "500px", flexDirection: "column" }}>
+            <Grid item >
+              <h4 >Visualizing Your Submissions</h4>
+            </Grid>
+            {!userOwnSubmissions ?
+              <Tooltip title={<Typography>Loading</Typography>} placement="top">
+                <Skeleton
+                  animation="wave"
+                  variant="rectangular"
+                  width={"100ch"}
+                  height={"100vh"}
+                />
+              </Tooltip>
+              :
+              <HomeConnections nds={userOwnSubmissions && userOwnSubmissions['nodes']}
+                eds={userOwnSubmissions && userOwnSubmissions['edges']} />
+            }
+          </Grid>
+          <Grid item style={{ width: '100ch', marginTop: '10px' }} >
             <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
           </Grid>
           <Grid
@@ -255,6 +311,11 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
           display={"flex"}
           justifyContent={"center"}
           alignItems={"center"}
+          minWidth={'600px'}
+          margin={'auto'}
+          width={'100ch'}
+          direction={'column'}
+          borderTop={"1px solid lightgray"}
         >
           <InfiniteScroll
             dataLength={items.length}
@@ -265,12 +326,13 @@ function Home({ data, community_joined_data, user_own_submissions, recently_acce
               <h4 style={{ textAlign: 'center', marginTop: '15px' }} > You've reached the end of your recommendations.</h4>
               :
               <>
+                <br />
                 <h6 style={{ textAlign: 'center' }}> No recommendations to display. <br /> <br />
                   {/* Currently is : href needs to be updated to make new submission model open*/}
                   <a variant="outline" href={"/communities"}>{" Click here to create or join a community!"}</a></h6>
               </>}
           >
-            <Grid item>
+            <Grid item margin={'auto'}>
               {(items !== undefined && items.length > 0) &&
                 items.map(function (d, idx) {
                   return (
@@ -359,28 +421,34 @@ export async function getServerSideProps(context) {
 
     var searchURL = baseURL_server + searchEndpoint;
     searchURL += "own_submissions=True" + "&community=all&source=visualizeConnections";
-    const userOwnSubmissions = await fetch(searchURL, {
-      headers: new Headers({
-        Authorization: context.req.cookies.token,
-      }),
-    });
+    // const userOwnSubmissions = await fetch(searchURL, {
+    //   headers: new Headers({
+    //     Authorization: context.req.cookies.token,
+    //   }),
+    // });
 
     const data = await res.json();
     const recently_accessed_submissions = await recentlyAccessedSubmissions.json();
     const community_joined_data = await fetchCommunities.json();
-    const user_own_submissions = await userOwnSubmissions.json();
+    // const user_own_submissions = await userOwnSubmissions.json();
     if (fetchCommunities.status == 200) {
       if (res.status == 200) {
-        if (userOwnSubmissions.status == 200) {
-          if (recentlyAccessedSubmissions.status == 200) {
-            if (context.query.page == undefined) {
-              data.current_page = "0";
-            } else {
-              data.current_page = context.query.page;
-            }
-            return { props: { data, community_joined_data, user_own_submissions, recently_accessed_submissions } };
+        // if (userOwnSubmissions.status == 200) {
+        if (recentlyAccessedSubmissions.status == 200) {
+          if (context.query.page == undefined) {
+            data.current_page = "0";
+          } else {
+            data.current_page = context.query.page;
           }
+          return {
+            props: {
+              data, community_joined_data,
+              // user_own_submissions,
+              recently_accessed_submissions
+            }
+          };
         }
+        // }
       }
     } else if (res.status == 404) {
       return {
