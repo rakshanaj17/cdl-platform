@@ -28,7 +28,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Box from '@mui/material/Box';
 import useSubmissionStore from "../../store/submissionStore";
 import { BASE_URL_CLIENT, BASE_URL_SERVER, GET_SUBMISSION_ENDPOINT } from "../../static/constants";
-import { CloseFullscreenOutlined, CloseOutlined } from "@mui/icons-material";
+import { CloseFullscreenOutlined, CloseOutlined, ElevatorSharp } from "@mui/icons-material";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 const baseURL_client = process.env.NEXT_PUBLIC_FROM_CLIENT + "api/";
@@ -85,11 +85,11 @@ export default function SubmissionForm(props) {
 
     const [isAnonymous, setAnonymous] = useState(props?.username == undefined)
 
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    // const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     
-    const checkUnsavedChanges = () => {
-          setHasUnsavedChanges(true);
-      };
+    // const checkUnsavedChanges = () => {
+    //       setHasUnsavedChanges(true);
+    //   };
 
     const handleSnackbarClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -350,34 +350,38 @@ export default function SubmissionForm(props) {
     };
 
     useEffect(() => { }, [submissionIncomingConnections]);
-    useEffect(() => { checkUnsavedChanges() } , [submissionTitle, submissionDescription, submissionSourceUrl, submissionIsAnonymous, submissionCommunity]);
-    useEffect(() => {
-        const handleRouteChangeStart = () => {
-            if (hasUnsavedChanges && !confirm('You have unsaved changes. Are you sure you want to leave?')) {
-                Router.events.emit('routeChangeError');
-                throw 'Abort route change. Please ignore this error.';
-            }
-        };
+    // useEffect(() => { checkUnsavedChanges() } , [submissionTitle, submissionDescription, submissionSourceUrl, submissionIsAnonymous, submissionCommunity]);
+    // useEffect(() => {
+    //     const handleRouteChangeStart = () => {
+    //         const userChoice = confirm('You have unsaved changes. Are you sure you want to leave?');
+    //         if (hasUnsavedChanges && !userChoice) {
+    //             Router.events.emit('routeChangeError');
+    //             throw 'Abort route change. Please ignore this error.';
+    //         }
+    //         if(userChoice){
+    //             Router.events.emit('')
+    //         }
+    //     };
 
-        Router.events.on('routeChangeStart', handleRouteChangeStart);
+    //     Router.events.on('routeChangeStart', handleRouteChangeStart);
 
-        return () => {
-            Router.events.off('routeChangeStart', handleRouteChangeStart);
-        };
-    }, [hasUnsavedChanges]);
-    useEffect(() => {
-        const handleBeforeUnload = (event) => {
-          if (hasUnsavedChanges) {
-            event.preventDefault();
-            event.returnValue = '';
-          }
-        };
-        window.addEventListener('beforeunload', handleBeforeUnload);
+    //     return () => {
+    //         Router.events.off('routeChangeStart', handleRouteChangeStart);
+    //     };
+    // }, [hasUnsavedChanges]);
+    // useEffect(() => {
+    //     const handleBeforeUnload = (event) => {
+    //       if (hasUnsavedChanges) {
+    //         event.preventDefault();
+    //         event.returnValue = '';
+    //       }
+    //     };
+    //     window.addEventListener('beforeunload', handleBeforeUnload);
       
-        return () => {
-          window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-      }, [hasUnsavedChanges]);
+    //     return () => {
+    //       window.removeEventListener('beforeunload', handleBeforeUnload);
+    //     };
+    //   }, [hasUnsavedChanges]);
 
     return (
 

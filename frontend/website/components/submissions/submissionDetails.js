@@ -9,6 +9,7 @@ import LocalLibraryRoundedIcon from '@mui/icons-material/LocalLibraryRounded';
 import useSubmissionStore from "../../store/submissionStore";
 import useSnackbarStore from "../../store/snackBar";
 import Alert from '@mui/material/Alert';
+import Router from 'next/router';
 
 export default function SubmissionDetails(subData) {
 
@@ -46,6 +47,11 @@ export default function SubmissionDetails(subData) {
     const [message, setMessage] = useState("");
     const [severity, setSeverity] = useState("error");
     const [openDelete, setOpenDelete] = useState(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    
+    const checkUnsavedChanges = () => {
+          setHasUnsavedChanges(true);
+      };
 
     const mapCommunitiesToNames = (commResponse) => {
         let idNameMap = {};
@@ -482,6 +488,7 @@ export default function SubmissionDetails(subData) {
                 let tempSourceUrl = submissionSourceUrl
                 setSubmissionProps({ originalSourceUrl: tempSourceUrl })
                 setSubmissionProps({ ...submissionMode, submissionMode: "view" })
+                setHasUnsavedChanges(false);
             }
         })
         
@@ -528,6 +535,35 @@ export default function SubmissionDetails(subData) {
     useEffect(() => {
         getSubmissionData();
     }, []);
+
+    useEffect(() => { checkUnsavedChanges() } , [submissionTitle, submissionDescription, submissionSourceUrl, submissionIsAnonymous]);
+    useEffect(() => {
+        const handleRouteChangeStart = () => {
+            if (hasUnsavedChanges && !confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                Router.events.emit('routeChangeError');
+                throw 'Abort route change. Please ignore this error.';
+            }
+        };
+
+        Router.events.on('routeChangeStart', handleRouteChangeStart);
+
+        return () => {
+            Router.events.off('routeChangeStart', handleRouteChangeStart);
+        };
+    }, [hasUnsavedChanges]);
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+          if (hasUnsavedChanges) {
+            event.preventDefault();
+            event.returnValue = '';
+          }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+      
+        return () => {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+      }, [hasUnsavedChanges]);
 
 
     return (
