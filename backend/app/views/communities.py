@@ -490,11 +490,6 @@ def submit_rel_judgments(current_user):
 		current_user : (dictionary): the user recovered from the JWT token.
 		request data (website) with a mapping between result IDs and 1/0 labels.
 			Example:
-				# {"28_63094100d999b482814f371c_d4f6481c-e8ec-488a-bf71-2da4cf26fb1b: "1"}
-				# where
-				# 28 is the rank,
-				# 63094100d999b482814f371c is the submission id, and
-				# d4f6481c-e8ec-488a-bf71-2da4cf26fb1b is the query hash.
 				{"63094100d999b482814f371c: "1"}
 				where
 				63094100d999b482814f371c is the submission id
@@ -512,6 +507,7 @@ def submit_rel_judgments(current_user):
 			if submitted_judgments == {}:
 				return response.error("Error: Missing judgment in request.", Status.BAD_REQUEST)
 			update = log_rel_judgment(ip, user_id, submitted_judgments)
+			print("verifying 500 error",update)
 			if update.acknowledged:
 				return response.success({"message": "Relevance judgment successfully saved!"}, Status.OK)
 		return response.error("Something went wrong. Please try again later", Status.INTERNAL_SERVER_ERROR)
@@ -538,10 +534,11 @@ def fetch_submission_stats(current_user):
 			return response.error("Submission ID is missing", Status.BAD_REQUEST)
 		stats = SubmissionStats()
 		submission_stats = stats.find_one({"submission_id":ObjectId(submission_id)})
-		submission_stats_dict = {}
-		submission_stats_dict["likes"] = submission_stats.likes
-		submission_stats_dict["dislikes"] = submission_stats.dislikes
 		if submission_stats:
+			submission_stats_dict = {
+				"likes": submission_stats.likes,
+				"dislikes": submission_stats.dislikes 
+			}	
 			return response.success({"data": submission_stats_dict}, Status.OK)
 	
 		return response.error("Something went wrong. Please try again later", Status.INTERNAL_SERVER_ERROR)
@@ -572,10 +569,10 @@ def fetch_submission_judgement(current_user):
 		user_judgement = judgements.find_one({"submission_id":ObjectId(submission_id),"user_id":user_id})
 		
 		if user_judgement:
-			print("user_judgement.relevance",user_judgement.relevance)
 			return response.success({"data": str(user_judgement.relevance)}, Status.OK)
+		else:
+			return response.success({"data": str(-1)}, Status.OK)
 	
-		return response.error("Something went wrong. Please try again later", Status.INTERNAL_SERVER_ERROR)
 	except Exception as e:
 		print(e)
 		traceback.print_exc()

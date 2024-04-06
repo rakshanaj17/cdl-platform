@@ -52,63 +52,62 @@ export default function SubmissionDetails(subData ) {
     const submitRelevanceJudgements = async function (event, rel) {
         event.preventDefault();
         try{
-        let URL = BASE_URL_CLIENT + "submitRelJudgments";
-        // Judgement key-value pair
-        let judgement = {};
-
-        judgement[submissionId] = rel;
-        const res = await fetch(URL, {
-          method: "POST",
-          body: JSON.stringify(judgement),
-          headers: new Headers({
-            Authorization: jsCookie.get("token"),
-            "Content-Type": "application/json",
-          }),
+            let URL = BASE_URL_CLIENT + "submitRelJudgments";
+            let judgement = {};
+            console.log("in submit rel judgement",submissionId)
+            const submission_id = await submissionId;
+            console.log("in submit rel judgement awaiting",submissionId)
+            judgement[submissionId] = rel;
+            const res = await fetch(URL, {
+            method: "POST",
+            body: JSON.stringify(judgement),
+            headers: new Headers({
+                Authorization: jsCookie.get("token"),
+                "Content-Type": "application/json",
+            }),
         });
         const response = await res.json();
         if (res.status == 200) {
           setSeverity("success");
+          setMessage(response.message);
+          handleClick();
+          return response.message;
         } else {
           setSeverity("error");
+          setMessage(response.message);
+          handleClick();
+          throw new new Error(response.message);
         }
-        setMessage(response.message);
-        handleClick();
-    }
-    catch (error) {
-        console.error('Error submitting relevance judgements:', error);
-        // Handle error (e.g., display error message to user)
-      }
-      };
+        }
+        catch (error) {
+            throw new Error("Failed to submit judgment"|| error);
+        }
+    };
     
-      const fetchSubmissionStats = async () => {
+    const fetchSubmissionStats = async () => {
         try {
-          // Assuming BASE_URL_CLIENT is defined elsewhere in your code
-          const URL = BASE_URL_CLIENT + "fetchSubmissionStats?submissionId=" + submissionId; // Adjust the URL as per your backend endpoint
-          const response = await fetch(URL, {
+            const URL = BASE_URL_CLIENT + "fetchSubmissionStats?submissionId=" + submissionId; 
+            const response = await fetch(URL, {
             method: "GET",
             headers: {
-              Authorization: jsCookie.get("token"),
-              "Content-Type": "application/json",
-            },
-          });
-          if (!response.ok) {
-            throw new Error(`Failed to fetch submission stats: ${response.status}`);
-          }
-          
-          const result = await response.json(); 
-          setSubmissionProps({submissionStats:{...submissionStats,
+                Authorization: jsCookie.get("token"),
+                "Content-Type": "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch submission stats: ${response.status}`);
+            }
 
-            likes:result.data.likes ,
-            dislikes: result.data.dislikes}});
-        } catch (error) {
-          console.error('Error fetching submission stats:', error);
-        }
-      };
+            const result = await response.json(); 
+            return result.data;
+            } catch (error) {
+            console.error('Error fetching submission stats:', error);
+            }
+    };
 
       const fetchSubmissionJudgement = async (submissionId) => {
         try {
-          // Assuming BASE_URL_CLIENT is defined elsewhere in your code
-          const URL = BASE_URL_CLIENT + "fetchSubmissionJudgement?submissionId=" + submissionId; // Adjust the URL as per your backend endpoint
+          const URL = BASE_URL_CLIENT + "fetchSubmissionJudgement?submissionId=" + submissionId; 
           const response = await fetch(URL, {
             method: "GET",
             headers: {
@@ -119,10 +118,8 @@ export default function SubmissionDetails(subData ) {
           if (!response.ok) {
             throw new Error(`Failed to fetch submission judgement: ${response.status}`);
           }
-          
           const result = await response.json();
           return result.data;
-          
         } catch (error) {
           console.error('Error fetching submission judgement:', error);
         }

@@ -12,116 +12,98 @@ import useSubmissionStore from '../../store/submissionStore';
 
 
 export default function SubmissionStatistics({ submitRelevanceJudgements, fetchSubmissionStats, fetchSubmissionJudgement }) {
-    const { submissionStats,submissionId } = useSubmissionStore();
+    const { submissionStats,submissionId, setSubmissionProps } = useSubmissionStore();
     const [likeButtonState, setLikeButtonState] = useState(false);
     const [dislikeButtonState, setDislikeButtonState] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [likeCount,setLikeCount] = useState(0);
+    const [dislikeCount,setDislikeCount] = useState(0);
+    const [isJudgementFetched, setIsJudgementFetched] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const likeState = localStorage.getItem('likeButtonState');
-            const dislikeState = localStorage.getItem('dislikeButtonState');
-            if (likeState !== null) {
-                setLikeButtonState(likeState === 'true');
-            }
-            else{
-                var judgement = fetchSubmissionJudgement(submissionId);
-                if( judgement === '1')
-                {
-                    setLikeButtonState(true);
-                    setDislikeButtonState(false);
-                    localStorage.setItem('likeButtonState', 'true');
-                    localStorage.setItem('dislikeButtonState', 'false');
-                }
-                else if( judgement === '0')
-                {
-                        setLikeButtonState(false);
-                        setDislikeButtonState(true);
-                        localStorage.setItem('likeButtonState', 'false');
-                        localStorage.setItem('dislikeButtonState', 'true');
-                    
-                }
-                else
-                {
-                        setLikeButtonState(false);
-                        setDislikeButtonState(false);
-                        localStorage.setItem('likeButtonState', 'false');
-                        localStorage.setItem('dislikeButtonState', 'false');
-                    
-                }
 
-            }
-            if (dislikeState !== null) {
-                setDislikeButtonState(dislikeState === 'true');
-            }
-            else{
-                var judgement = fetchSubmissionJudgement(submissionId);
-                if( judgement === '1')
-                {
-                    setLikeButtonState(true);
-                    setDislikeButtonState(false);
-                    localStorage.setItem('likeButtonState', 'true');
-                    localStorage.setItem('dislikeButtonState', 'false');
-                }
-                else if(judgement === '0')
-                {
-                        setLikeButtonState(false);
-                        setDislikeButtonState(true);
-                        localStorage.setItem('likeButtonState', 'false');
-                        localStorage.setItem('dislikeButtonState', 'true');
-                    
-                }
-                else
-                {
-                        setLikeButtonState(false);
-                        setDislikeButtonState(false);
-                        localStorage.setItem('likeButtonState', 'false');
-                        localStorage.setItem('dislikeButtonState', 'false');
-                    
-                }
-            }
+        if (!isJudgementFetched && submissionId.length>0) {
+
+                fetchSubmissionJudgement(submissionId)
+                  .then(judgement => {
+                    if (judgement === '1') {
+                      setLikeButtonState(true);
+                      setDislikeButtonState(false);
+                    } else if (judgement === '0') {
+                      setLikeButtonState(false);
+                      setDislikeButtonState(true);
+                    } else {
+                      setLikeButtonState(false);
+                      setDislikeButtonState(false);
+                    }
+                    setIsJudgementFetched(true);
+                  })
+                  .catch(error => {
+                    console.error('Error fetching submission judgement:', error);
+                  });
         };
-        if(submissionId.length > 0){
-         fetchSubmissionStats();
-        }
-      }, [likeButtonState,dislikeButtonState,submissionId,submissionStats]);
-    
+        
+      }, [isJudgementFetched,submissionId]);
+     
+      useEffect(() => {
+
+        if (submissionId.length>0) {
+            
+                  fetchSubmissionStats(submissionId)
+                    .then((response) => {
+                        setLikeCount(response.likes);
+                        setDislikeCount(response.dislikes);
+                    })
+                    .catch(error => {
+                    console.error('Error fetching submission stats', error);
+                    });
+             
+        };
+        
+      }, [likeButtonState,dislikeButtonState]);
+     
+     
       const handleLike = useCallback(async (event) => {
         event.preventDefault();
-        if (likeButtonState) {
-            return; 
+        if(likeButtonState)
+        {
+            return;
         }
         setIsLoading(true);
-        await submitRelevanceJudgements(event, 1);
-        await fetchSubmissionStats();
-        setLikeButtonState(true);
-        setDislikeButtonState(false);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('likeButtonState', 'true');
-            localStorage.setItem('dislikeButtonState', 'false');
-        };
-        setIsLoading(false);
-      },[likeButtonState,submissionStats])
+        submitRelevanceJudgements(event,1)
+        .then((response)=>{
+            setLikeButtonState(true);
+            setDislikeButtonState(false);
+        })
+        .catch((error)=> {
+            console.log("Error in saving like judgement",error);
+        })
+        .finally(()=>{
+            setIsLoading(false);
+        })   
+       
+      },[submissionId])
 
       const handleDislike = useCallback( async (event) => {
         event.preventDefault();
-        if (dislikeButtonState) {
-            return; 
+        if(dislikeButtonState)
+        {
+            return;
         }
         setIsLoading(true);
-        await submitRelevanceJudgements(event, 0);
-        await fetchSubmissionStats();
-        setDislikeButtonState(true);
-        setLikeButtonState(false);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('dislikeButtonState', 'true');
-            localStorage.setItem('likeButtonState', 'false');
-        };
-        // localStorage.setItem('dislikeButtonState', 'true');
-        // localStorage.setItem('likeButtonState', 'false');
-        setIsLoading(false);
-      },[dislikeButtonState,submissionStats]);
+        submitRelevanceJudgements(event,0)
+        .then((response)=>{
+            setLikeButtonState(false);
+            setDislikeButtonState(true);
+        })
+        .catch((error)=> {
+            console.log("Error in saving dislike judgement",error);
+        })
+        .finally(()=>{
+            setIsLoading(false);
+        })   
+       
+      },[submissionId]);
    
     const submissionProps = useMemo(() => ({ submissionStats }), [submissionStats]);
 
@@ -145,7 +127,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
                     </IconButton>
                 </Tooltip>
                 <Typography sx={{ borderRight: '1px solid #ccc', paddingX: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                    {submissionStats.likes}
+                    {likeCount}{/*submissionStats.likes*/}
                 </Typography>
                 <Tooltip title="Dislike">
                     <IconButton size="small" aria-label="Dislike" onClick={handleDislike} className={dislikeButtonState === true ? "Mui-selected" : ""} disabled={isLoading}>
@@ -153,7 +135,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
                     </IconButton>
                 </Tooltip>
                 <Typography sx={{ borderRight: '1px solid #ccc', paddingX: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                    {submissionStats.dislikes}
+                {dislikeCount} {/* {submissionStats.dislikes} */}
                 </Typography>
                 <Tooltip title="The number of times that this submission has been viewed.">
                     <IconButton size="small" aria-label="view">
