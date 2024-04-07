@@ -20,10 +20,10 @@ class Users(Mongo):
 			user_db["username"],
 			user_db["email"],
 			user_db["hashed_password"],
-			user_db["communities"],
-			user_db.get("followed_communities", []),
-			user_db.get("time", 0),
-			user_db["_id"]
+			communities=user_db["communities"],
+			followed_communities=user_db.get("followed_communities", []),
+			created=user_db.get("time", 0),
+			id=user_db["_id"]
 		)
 
 	def insert(self, user):
