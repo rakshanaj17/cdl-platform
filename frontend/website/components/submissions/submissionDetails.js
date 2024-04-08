@@ -54,9 +54,7 @@ export default function SubmissionDetails(subData ) {
         try{
             let URL = BASE_URL_CLIENT + "submitRelJudgments";
             let judgement = {};
-            console.log("in submit rel judgement",submissionId)
             const submission_id = await submissionId;
-            console.log("in submit rel judgement awaiting",submissionId)
             judgement[submissionId] = rel;
             const res = await fetch(URL, {
             method: "POST",
