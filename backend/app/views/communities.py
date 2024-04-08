@@ -507,7 +507,6 @@ def submit_rel_judgments(current_user):
 			if submitted_judgments == {}:
 				return response.error("Error: Missing judgment in request.", Status.BAD_REQUEST)
 			update = log_rel_judgment(ip, user_id, submitted_judgments)
-			print("verifying 500 error",update)
 			if update.acknowledged:
 				return response.success({"message": "Relevance judgment successfully saved!"}, Status.OK)
 		return response.error("Something went wrong. Please try again later", Status.INTERNAL_SERVER_ERROR)

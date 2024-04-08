@@ -19,6 +19,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
     const [likeCount,setLikeCount] = useState(0);
     const [dislikeCount,setDislikeCount] = useState(0);
     const [isJudgementFetched, setIsJudgementFetched] = useState(false);
+    //const [isNoInitialJudgement,setIsNoInitialJudgement] = useState(false);
 
     useEffect(() => {
 
@@ -35,6 +36,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
                     } else {
                       setLikeButtonState(false);
                       setDislikeButtonState(false);
+                      //setIsNoInitialJudgement(true);
                     }
                     setIsJudgementFetched(true);
                   })
@@ -60,7 +62,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
              
         };
         
-      }, [likeButtonState,dislikeButtonState]);
+      }, [likeButtonState,dislikeButtonState,submissionId]);
      
      
       const handleLike = useCallback(async (event) => {
