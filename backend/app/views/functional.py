@@ -1099,7 +1099,12 @@ def search(current_user):
 
         ip = request.remote_addr
         user_id = current_user.id
+
+        # combine joined and followed communities
         user_communities = current_user.communities
+        for x in current_user.followed_communities:
+            if x not in user_communities:
+                user_communities.append(x)
 
         # flag for searching over webpage index
         toggle_webpage_results = True
@@ -1412,7 +1417,15 @@ def get_recommendations(current_user, toggle_webpage_results=True):
 
         user_id_str = str(user_id)
 
-        communities = get_communities_helper(current_user, return_dict=True)["community_info"]
+        communities = get_communities_helper(current_user, return_dict=True)
+        combined_joined_followed = {}
+        for x in communities["community_info"]:
+            combined_joined_followed[x] = communities["community_info"][x]
+        for x in communities["followed_community_info"]:
+            combined_joined_followed[x] = communities["followed_community_info"][x]
+
+        communities = combined_joined_followed
+        
         rc_dict = {}
         for community_id in requested_communities:
             try:

@@ -99,22 +99,54 @@ def get_communities_helper(current_user, return_dict=False):
 		return_dict : boolean : to return as a dictionary.
 	Returns:
 		A dictionary with
-			community_info: a list of dicts, each containing community_id, name, join_key, is_admin. If return_dict is true, then this is a dictionary mapped with the community_id.
+			community_info: for joined communities, a list of dicts, each containing 
+				community_id
+				name
+				description
+				pinned
+				is_public
+				join_key (if admin)
+				is_admin. 
+
+				If return_dict is true, then this is a dictionary mapped with the community_id.
+
+			followed_community_info: for followed communities, a list of dicts, each containing
+				community_id
+				name
+				description
 			username: the username of the user.
 	"""
 
 	user_communities = current_user.communities
+	user_followed_communities = current_user.followed_communities
 	user_id = current_user.id
+
+	cdl_communities = Communities()
+
+	user_followed_communities_struct = []
+	for community_id in user_followed_communities:
+		community = cdl_communities.find_one({"_id": community_id})
+		## TODO probably need to handle here the case where a public community becomes private
+		## what to do with the followers?
+		if not community:
+			print(f"Could not find community for community id: {community_id} and user id: {user_id}")
+			continue
+		comm_item = {
+			"community_id": str(community.id),
+			"name": community.name,
+			"description": community.description
+		}
+		user_followed_communities_struct.append(comm_item)
+		
 
 	community_struct = []
 	for community_id in user_communities:
 		if user_id == community_id:
 			continue
-		cdl_communities = Communities()
 		community = cdl_communities.find_one({"_id": community_id})
 		if not community:
 			print(f"Could not find community for community id: {community_id} and user id: {user_id}")
-			break
+			continue
 		else:
 			is_admin = False
 
@@ -146,7 +178,16 @@ def get_communities_helper(current_user, return_dict=False):
 			new_community_struct[community["community_id"]] = community
 		community_struct = new_community_struct
 
-	return {"community_info": community_struct, "username": current_user.username}
+		new_followed_community_struct = {}
+		for community in user_followed_communities_struct:
+			new_followed_community_struct[community["community_id"]] = community
+		user_followed_communities_struct = new_followed_community_struct
+
+
+
+	return {"community_info": community_struct, 
+		 	"followed_community_info": user_followed_communities_struct, 
+			"username": current_user.username}
 
 
 @communities.route("/api/createCommunity", methods=["POST", "PATCH"])
@@ -254,6 +295,7 @@ def community(current_user, id):
 	ip = request.remote_addr
 
 	user_communities = current_user.communities
+	user_followed_communities = current_user.followed_communities
 	
 	comm_db = Communities()
 	found_comm = comm_db.find_one({"_id": ObjectId(id)})
@@ -265,8 +307,15 @@ def community(current_user, id):
 		"name": found_comm.name,
 		"description": found_comm.description,
 		"public": found_comm.public,
+		"following": False,
+		"joined": False,
 		"pinned_submissions": []
 	}
+
+	if ObjectId(id) in user_communities:
+		return_obj["joined"] = True
+	if ObjectId(id) in user_followed_communities:
+		return_obj["following"] = True
 
 	pinned_sub_ids = [x.strip() for x in found_comm.pinned.split(",")]
 	sub_db = Logs()
@@ -290,6 +339,74 @@ def community(current_user, id):
 
 
 
+@communities.route("/api/followCommunity", methods=["POST"])
+@token_required
+def follow_community(current_user):
+	"""
+	Endpoint for following or unfollowing a community.
+	Arguments
+		current_user : (dictionary) : the user recovered from the JWT token
+		A request data JSON with
+			community_id : (str) : the ID of the community
+			command : (str) : either "follow" or "unfollow"
+	Returns:
+		200 : dictionary JSON with "status" as "ok" and success message "message"
+		500 : dictionary JSON with "status" as "error" and error message "message"
+	"""
+	try:
+		user_id = current_user.id
+		ip = request.remote_addr
+
+		req_data = request.data
+		community_id = req_data.get("community_id", None)
+		command = req_data.get("command", None)
+
+		if not community_id:
+			return response.error("Missing community ID in request.", Status.BAD_REQUEST)
+		if command not in ["follow", "unfollow"]:
+			return response.error("Command must be follow or unfollow.", Status.BAD_REQUEST)
+
+		comm_db = Communities()
+		try:
+			community_id_objid = ObjectId(community_id)
+			comm_db.find_one({"_id": community_id_objid})
+			if not comm_db or comm_db.public == False:
+				return response.error("Cannot find community.", Status.BAD_REQUEST)
+		except Exception as e:
+			print(e)
+			traceback.print_exc()
+			return response.error("Invalid community ID.", Status.BAD_REQUEST)
+		
+		user_communities_followed = current_user.followed_communities
+
+
+		if command == "follow":
+			if community_id_objid in user_communities_followed:
+				return response.error("You already follow this community.", Status.BAD_REQUEST)
+			
+			users_db = Users()
+			updated = users_db.update_one({"_id": user_id}, {"$push": {"followed_communities": community_id_objid}}, upsert=False)
+			if updated.acknowledged:
+				if updated.acknowledged:
+					log_community_action(ip, user_id, community_id_objid, "FOLLOW")
+					return response.success({"message": "Community successfully followed!"}, Status.OK)
+				
+		elif command == "unfollow":
+			if community_id_objid not in user_communities_followed:
+				return response.error("You do not follow this community.", Status.BAD_REQUEST)
+			
+			users_db = Users()
+			updated_unfollowed = [x for x in user_communities_followed if x != community_id_objid]
+			updated = users_db.update_one({"_id": user_id}, {"followed_communities": updated_unfollowed}, upsert=False)
+			if updated.acknowledged:
+				if updated.acknowledged:
+					log_community_action(ip, user_id, community_id_objid, "UNFOLLOW")
+					return response.success({"message": "Community successfully unfollowed!"}, Status.OK)
+
+	except Exception as e:
+		print(e)
+		traceback.print_exc()
+		return response.error("Failed to follow community, please try again later.", Status.INTERNAL_SERVER_ERROR)
 
 
 
