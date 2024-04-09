@@ -60,9 +60,10 @@ export default function CommunitiesDeck(props) {
                 key={idx}
               >
                 <CommunityBox
-                  link={
-                    "/search?community=" + community.community_id + "&page=0"
-                  }
+                  // link={
+                  //   "/search?community=" + community.community_id + "&page=0"
+                  // }
+                  link={"/community" + community.community_id}
                   isAdmin={community.is_admin}
                   communityId={community.community_id}
                   joinKey={community.join_key}

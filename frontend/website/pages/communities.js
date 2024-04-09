@@ -165,11 +165,9 @@ function Communities({ data, history_data }, props) {
             </TabsList>
             <TabPanel value={0}>
               {" "}
-              {/* <Header /> */}
               <CommunitiesDeck community_info={data.community_info} />
             </TabPanel>
             <TabPanel value={1}>
-              {/* <Header /> */}
               <CommunityHistory
                 auth={jsCookie.get("token")}
                 data={history_data}
@@ -186,7 +184,6 @@ function Communities({ data, history_data }, props) {
             </Alert>
           </Snackbar>
         </Box>
-        {/* <Footer alt={true} /> */}
       </div>
     );
   }
