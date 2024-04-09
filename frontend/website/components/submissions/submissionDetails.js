@@ -532,7 +532,12 @@ export default function SubmissionDetails(subData) {
     }, []);
 
     useEffect(() => {
-        const handleRouteChangeStart = (event) => {
+        const handleRouteChangeStart = (url) => {
+            if(url == '/'){
+                console.log(`Route change to ${url} started`);
+                Router.events.off('routeChangeStart', handleRouteChangeStart);
+            } else {
+
             if (hasUnsavedChanges == true){
 
             if(!confirm('You have unsaved changes. Are you sure you want to leave?')) {
@@ -541,6 +546,7 @@ export default function SubmissionDetails(subData) {
                 throw 'Abort route change. Please ignore this error.';
                 }
             }
+        }
         };
 
         if(hasUnsavedChanges == false){
