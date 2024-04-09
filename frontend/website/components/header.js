@@ -454,29 +454,13 @@ function Header(props) {
 
   const logout = async (event) => {
     event.preventDefault();
-    const A = jsCookie.get("token");
-    const B = localStorage.getItem("dropdowndata");
-
     jsCookie.remove("token");
     localStorage.removeItem("dropdowndata");
-
-    const C = communityData;
-    const D = userCommunities;
-    const E = username;
     setcommunityData([]);
     setUserDataStoreProps({ userCommunities: [] });
     setUserDataStoreProps({ username: [] });
     setLoggedOut(true);
-    try{
-      const w = await Router.push("/");
-    }catch(e){
-      jsCookie.set("token",A);
-      localStorage.setItem("dropdowndata",B);
-      setcommunityData(C);
-      setUserDataStoreProps({userCommunities: D, username: E});
-      setLoggedOut(false);
-      console.log(e);
-    }
+    Router.push("/");
   };
 
   const handleUserClickMenu = (event, option) => {
