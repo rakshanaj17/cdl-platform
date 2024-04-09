@@ -30,7 +30,8 @@ const useSubmissionStore = create((set) => ({
     submissionSaveCommunityIDList: [],
 
     isAConnection: false,
-
+    hasUnsavedChanges: false,
+    //replySubHasUnsavedChanges: false,
     setSubmissionProps: (props) => set((state) => ({ ...state, ...props })),
 }));
 

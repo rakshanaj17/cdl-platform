@@ -61,9 +61,10 @@ export default function SubmissionForm(props) {
         submissionSaveCommunityID,
         submissionRemoveCommunityIDList,
         submissionSaveCommunityIDList,
-        setSubmissionProps
+        setSubmissionProps,
+        hasUnsavedChanges,
     } = useSubmissionStore();
-
+    
     // States for Alerts
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [severity, setSeverity] = React.useState("error");
@@ -85,11 +86,7 @@ export default function SubmissionForm(props) {
 
     const [isAnonymous, setAnonymous] = useState(props?.username == undefined)
 
-    // const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-    
-    // const checkUnsavedChanges = () => {
-    //       setHasUnsavedChanges(true);
-    //   };
+    const [replySubHasUnsavedChanges, setReplySubHasUnsavedChanges] = useState(false);
 
     const handleSnackbarClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -103,18 +100,21 @@ export default function SubmissionForm(props) {
         if (props.isAConnection) {
             if (isAnonymous) {
                 setAnonymous(false)
+                setReplySubHasUnsavedChanges(true)
             } else {
                 setAnonymous(true)
+                setReplySubHasUnsavedChanges(true)
             }
         }
 
         else {
             if (submissionIsAnonymous) {
                 setSubmissionProps({ ...submissionIsAnonymous, submissionIsAnonymous: false })
+                setSubmissionProps({hasUnsavedChanges : true})
 
             } else {
                 setSubmissionProps({ ...submissionIsAnonymous, submissionIsAnonymous: true })
-
+                setSubmissionProps({hasUnsavedChanges : true})
             }
         }
     }
@@ -129,10 +129,12 @@ export default function SubmissionForm(props) {
             // console.log(description)
             var new_desc = description.replace(regex, replacement_text)
             setDescription(new_desc)
+            setReplySubHasUnsavedChanges(true);
         }
         else {
             var new_desc = submissionDescription.replace(regex, replacement_text)
             setSubmissionProps({ submissionDescription: new_desc })
+            setSubmissionProps({ hasUnsavedChanges: true })
         }
         setCurrentQuery("")
         if (props.isAConnection) {
@@ -196,6 +198,7 @@ export default function SubmissionForm(props) {
 
             setDescription(text)
             setReplySubCharCount(text.length);
+            setReplySubHasUnsavedChanges(true);
 
             const regex = /\[\[([^\]]+)\]\]/g;
             const matches = [];
@@ -217,6 +220,7 @@ export default function SubmissionForm(props) {
         else {
 
             setSubmissionProps({ submissionDescription: text })
+            setSubmissionProps({ hasUnsavedChanges: true })
             const regex = /\[\[([^\]]+)\]\]/g;
             const matches = [];
             let match;
@@ -287,6 +291,7 @@ export default function SubmissionForm(props) {
                 if (!errorCode) {
                     let newIncomingSubs = [...submissionIncomingConnections, newConnection.submission];
                     setSubmissionProps({ submissionIncomingConnections: newIncomingSubs });
+                    setReplySubHasUnsavedChanges(false);
                 }
             }
             else {
@@ -350,38 +355,46 @@ export default function SubmissionForm(props) {
     };
 
     useEffect(() => { }, [submissionIncomingConnections]);
-    // useEffect(() => { checkUnsavedChanges() } , [submissionTitle, submissionDescription, submissionSourceUrl, submissionIsAnonymous, submissionCommunity]);
-    // useEffect(() => {
-    //     const handleRouteChangeStart = () => {
-    //         const userChoice = confirm('You have unsaved changes. Are you sure you want to leave?');
-    //         if (hasUnsavedChanges && !userChoice) {
-    //             Router.events.emit('routeChangeError');
-    //             throw 'Abort route change. Please ignore this error.';
-    //         }
-    //         if(userChoice){
-    //             Router.events.emit('')
-    //         }
-    //     };
+    
+    useEffect(() => {
+        const handleRouteChangeStart = () => { 
+            if (replySubHasUnsavedChanges == true){
+             if(!confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                Router.events.emit('routeChangeError');
+                throw 'Abort route change. Please ignore this error.';
+            }
+        }
+        };
+        if(replySubHasUnsavedChanges == false) {
+            Router.events.off('routeChangeStart', handleRouteChangeStart);
+        }
+        if(replySubHasUnsavedChanges == true) {
+            Router.events.on('routeChangeStart', handleRouteChangeStart);
+        }
+       
+        return () => {
+            Router.events.off('routeChangeStart', handleRouteChangeStart);
+        };
+    }, [replySubHasUnsavedChanges]);
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+          if (replySubHasUnsavedChanges == true) {
+            event.preventDefault();
+            event.returnValue = '';
+          }
+        };
 
-    //     Router.events.on('routeChangeStart', handleRouteChangeStart);
-
-    //     return () => {
-    //         Router.events.off('routeChangeStart', handleRouteChangeStart);
-    //     };
-    // }, [hasUnsavedChanges]);
-    // useEffect(() => {
-    //     const handleBeforeUnload = (event) => {
-    //       if (hasUnsavedChanges) {
-    //         event.preventDefault();
-    //         event.returnValue = '';
-    //       }
-    //     };
-    //     window.addEventListener('beforeunload', handleBeforeUnload);
+        if(replySubHasUnsavedChanges == false) {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        }
+        if(replySubHasUnsavedChanges == true) {
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        }
       
-    //     return () => {
-    //       window.removeEventListener('beforeunload', handleBeforeUnload);
-    //     };
-    //   }, [hasUnsavedChanges]);
+        return () => {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+      }, [replySubHasUnsavedChanges]);
 
     return (
 
@@ -409,7 +422,10 @@ export default function SubmissionForm(props) {
                         fullWidth
                         variant="standard"
                         value={sourceURL}
-                        onChange={(event) => setSourceURL(event.target.value)}
+                        onChange={(event) => {
+                            setSourceURL(event.target.value)
+                            setReplySubHasUnsavedChanges(true);
+                        }}
                     />
                     <TextField
                         margin="dense"
@@ -417,7 +433,10 @@ export default function SubmissionForm(props) {
                         label="Submission Title"
                         variant="standard"
                         value={title}
-                        onChange={(event) => setTitle(event.target.value)}
+                        onChange={(event) => {
+                            setTitle(event.target.value)
+                            setReplySubHasUnsavedChanges(true);
+                        }}
                         style={{ width: "50%" }} // Increase the width to 100%
                     />
 
@@ -434,7 +453,10 @@ export default function SubmissionForm(props) {
                             style={{ backgroundColor: "white" }}
                             label="Select Community"
                             value={community}
-                            onChange={(event) => setCommunity(event.target.value)}
+                            onChange={(event) => {
+                                setCommunity(event.target.value)
+                                setReplySubHasUnsavedChanges(true)
+                            }}
                         >
                             {props.communitiesNameMap && Array.isArray(props.communitiesNameMap) &&
                                 props.communitiesNameMap.map(function (d, idx) {
@@ -555,7 +577,10 @@ export default function SubmissionForm(props) {
                                 fullWidth
                                 variant="standard"
                                 value={submissionSourceUrl}
-                                onChange={(event) => setSubmissionProps({ submissionSourceUrl: event.target.value })}
+                                onChange={(event) => {
+                                    setSubmissionProps({ submissionSourceUrl: event.target.value })
+                                    setSubmissionProps({hasUnsavedChanges: true})
+                                }}
                             />
                             <TextField
                                 margin="dense"
@@ -564,7 +589,10 @@ export default function SubmissionForm(props) {
                                 fullWidth
                                 variant="standard"
                                 value={submissionTitle}
-                                onChange={(event) => setSubmissionProps({ submissionTitle: event.target.value })}
+                                onChange={(event) => {
+                                    setSubmissionProps({ submissionTitle: event.target.value })
+                                    setSubmissionProps({ hasUnsavedChanges : true})
+                                }}
                             />
                             <br />
                             <div data-color-mode="light" >
@@ -735,7 +763,10 @@ export default function SubmissionForm(props) {
                                 fullWidth
                                 variant="standard"
                                 value={submissionSourceUrl}
-                                onChange={(event) => setSubmissionProps({ submissionSourceUrl: event.target.value })}
+                                onChange={(event) => {
+                                    setSubmissionProps({ submissionSourceUrl: event.target.value })
+                                    setSubmissionProps({hasUnsavedChanges: true})
+                                }}
                             />
                             <TextField
                                 margin="dense"
@@ -744,7 +775,10 @@ export default function SubmissionForm(props) {
                                 fullWidth
                                 variant="standard"
                                 value={submissionTitle}
-                                onChange={(event) => setSubmissionProps({ submissionTitle: event.target.value })}
+                                onChange={(event) => {
+                                    setSubmissionProps({ submissionTitle: event.target.value })
+                                    setSubmissionProps({ hasUnsavedChanges : true})
+                                }}
                             />
                             <br />
                             <br />

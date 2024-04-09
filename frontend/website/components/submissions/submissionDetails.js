@@ -37,7 +37,8 @@ export default function SubmissionDetails(subData) {
         submissionRedirectUrl,
         isAConnection,
         submissionHashtags,
-        setSubmissionProps
+        setSubmissionProps,
+        hasUnsavedChanges,
     } = useSubmissionStore();
 
     const { isSnackBarOpen, snackBarMessage, snackBarSeverity, openSnackbar, closeSnackbar, setSnackBarProps } = useSnackbarStore();
@@ -47,11 +48,6 @@ export default function SubmissionDetails(subData) {
     const [message, setMessage] = useState("");
     const [severity, setSeverity] = useState("error");
     const [openDelete, setOpenDelete] = useState(false);
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-    
-    const checkUnsavedChanges = () => {
-          setHasUnsavedChanges(true);
-      };
 
     const mapCommunitiesToNames = (commResponse) => {
         let idNameMap = {};
@@ -442,7 +438,7 @@ export default function SubmissionDetails(subData) {
     };
 
     const changeMode = () => {
-
+    
         if (submissionMode === "edit") {
             let temp = originalDescription
             // if (originalDescription) {
@@ -455,9 +451,9 @@ export default function SubmissionDetails(subData) {
 
             let tempSourceUrl = originalSourceUrl
             setSubmissionProps({ submissionSourceUrl: tempSourceUrl })
-
-
+            setSubmissionProps({ hasUnsavedChanges: false })
             setSubmissionProps({ ...submissionMode, submissionMode: "view" });
+
         } else {
             let tempDesc = submissionDescription
             setSubmissionProps({ originalDescription: tempDesc })
@@ -467,15 +463,14 @@ export default function SubmissionDetails(subData) {
 
             let tempSourceUrl = submissionSourceUrl
             setSubmissionProps({ originalSourceUrl: tempSourceUrl })
-
-
+            
+            setSubmissionProps({ hasUnsavedChanges: true })
             setSubmissionProps({ ...submissionMode, submissionMode: "edit" });
+
         }
     }
 
     const submitSubmissionChanges = () => {
-
-        
 
         handleSubmit().then(isSuccessful => {
             if(isSuccessful){
@@ -488,10 +483,10 @@ export default function SubmissionDetails(subData) {
                 let tempSourceUrl = submissionSourceUrl
                 setSubmissionProps({ originalSourceUrl: tempSourceUrl })
                 setSubmissionProps({ ...submissionMode, submissionMode: "view" })
-                setHasUnsavedChanges(false);
+                
+                setSubmissionProps({ hasUnsavedChanges: false })
             }
         })
-        
     }
 
 
@@ -536,30 +531,46 @@ export default function SubmissionDetails(subData) {
         getSubmissionData();
     }, []);
 
-    useEffect(() => { checkUnsavedChanges() } , [submissionTitle, submissionDescription, submissionSourceUrl, submissionIsAnonymous]);
     useEffect(() => {
-        const handleRouteChangeStart = () => {
-            if (hasUnsavedChanges && !confirm('You have unsaved changes. Are you sure you want to leave?')) {
+        const handleRouteChangeStart = (event) => {
+            if (hasUnsavedChanges == true){
+
+            if(!confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                
                 Router.events.emit('routeChangeError');
                 throw 'Abort route change. Please ignore this error.';
+                }
             }
         };
 
-        Router.events.on('routeChangeStart', handleRouteChangeStart);
-
+        if(hasUnsavedChanges == false){
+            Router.events.off('routeChangeStart', handleRouteChangeStart);
+        }
+        if(hasUnsavedChanges == true){
+            Router.events.on('routeChangeStart', handleRouteChangeStart);
+        }
+        
         return () => {
             Router.events.off('routeChangeStart', handleRouteChangeStart);
         };
     }, [hasUnsavedChanges]);
+
     useEffect(() => {
         const handleBeforeUnload = (event) => {
-          if (hasUnsavedChanges) {
+          if (hasUnsavedChanges == true) {
             event.preventDefault();
             event.returnValue = '';
           }
         };
-        window.addEventListener('beforeunload', handleBeforeUnload);
-      
+
+        if(hasUnsavedChanges == false) {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        }
+
+        if(hasUnsavedChanges == true) {
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        }
+        
         return () => {
           window.removeEventListener('beforeunload', handleBeforeUnload);
         };
