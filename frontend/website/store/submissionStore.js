@@ -31,7 +31,6 @@ const useSubmissionStore = create((set) => ({
 
     isAConnection: false,
     hasUnsavedChanges: false,
-    //replySubHasUnsavedChanges: false,
     setSubmissionProps: (props) => set((state) => ({ ...state, ...props })),
 }));
 

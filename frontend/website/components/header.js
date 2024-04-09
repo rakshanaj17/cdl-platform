@@ -477,9 +477,6 @@ function Header(props) {
       setLoggedOut(false);
       console.log(e);
     }
-    
-    
-    //Router.push("/");
   };
 
   const handleUserClickMenu = (event, option) => {
