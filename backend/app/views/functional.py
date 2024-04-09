@@ -18,6 +18,9 @@ from app.helpers.helpers import token_required, build_display_url, build_result_
     deduplicate, combine_pages, standardize_url, extract_hashtags, format_url, build_display_url
 from app.helpers import response
 from app.helpers.helper_constants import RE_URL_DESC
+from app.helpers.prompts import context_qgen_prompt, context_intent_qgen_prompt, contextquery_qgen_s1,\
+    contextquery_qgen_s2, contextquery_qgen_s3, contextquery_qgen_prefix, context_qgen_prompt_beforesent,\
+    context_qgen_prompt_aftersent
 from app.helpers.status import Status
 from app.helpers.scraper import ScrapeWorker
 from app.helpers.topic_map import TopicMap
@@ -861,6 +864,7 @@ def generate(current_user):
                 gen_questions: given a context, generate some questions
                 summarize : given a context, summarize the selection
                 web: given a question, open a tab and search the web
+                summary_rag: given search results, summarize them all 
 	Returns:
 		200 : generated text.
     """
@@ -886,8 +890,9 @@ def generate(current_user):
     query = req.get("query", "")[:1000]
     mode = req.get("mode", "")
     url = req.get("url", "")
+    search_id = req.get("search_id", "")
 
-    if not mode or mode not in ["qa", "summarize", "gen_questions", "contextual_qa", "web"]:
+    if not mode or mode not in ["qa", "summarize", "gen_questions", "contextual_qa", "web", "summary_rag"]:
         return response.error("Mode missing or unsupported.", Status.BAD_REQUEST)
 
     if mode == "web":
@@ -896,11 +901,53 @@ def generate(current_user):
                                              "url": url})
         return response.success({"output": "https://www.google.com/search?q=" + query}, Status.OK)
 
+    elif mode == "qa":
+        if not query:
+            return {"message": "Query required for question-answer mode."}, 400
+        prompt = "Answer the following question with fewer than 100 words. Question: " + query + ". Answer: "
+
+    elif mode == "contextual_qa":
+        if not context:
+            return {"message": "Context required for in-context question generation."}, 400
+        if not query:
+            return {"message": "Query required for in-context question generation."}, 400
+        
+        prompt = context_intent_qgen_prompt + '"' + context + '" INTENT: ' + query + '" --> QUESTIONS:'        
+
+    elif mode == "gen_questions":
+        if not context:
+            return {"message": "Context required for question generation."}, 400
+
+        prompt = context_qgen_prompt + '"' + context + '" --> QUESTIONS:'
+
+    elif mode == "summarize":
+        if not context:
+            return {"message": "Context required for summarization."}, 400
+        prompt = context + "... Please summarize the previous text, and only reply with the summary. Summary: "
+
+    elif mode == "summary_rag":
+        if not search_id:
+            return {"message": "URL for exporting search results not provided"}, 400
+        exported_results = export_helper(user_id=str(user_id), search_id=str(search_id))['data']
+        all_results = [{"Title "+str(index+1): item['title'] + ". 'Description' - " +item['description']} for index, item in enumerate(exported_results)]
+        context='You are a helpful assistant that summarizes multiple notes about a given topic, clusters important themes, and provides a comprehensive summary of all notes across all the themes.'
+        if len(exported_results)==1:
+            context='You are a helpful assistant that explains a given topic, and provides a comprehensive summary.'
+            to_ask_1 = f"""Please provide a summary on a note on the topic and the description as -  {all_results}."""
+        else:  
+            to_ask_1 = f"""\
+            The following are a set of text notes known by me - 
+            {all_results}
+            Take these and distill it into a final summary of the main themes, without listing them. 
+            Answer: 
+            """
+        prompt = context + to_ask_1
+
     neural_api = os.environ.get("neural_api")
     if not neural_api:
         return response.error("Generation not currently supported.", Status.NOT_IMPLEMENTED)
     try:
-        resp = requests.post(neural_api + "/neural/generate", json={"context": context, "query": query, "mode": mode})
+        resp = requests.post(neural_api + "/neural/generate", json={"input": prompt})
         resp_json = resp.json()
 
         if resp.status_code == 200:
@@ -1642,7 +1689,6 @@ def get_recently_accessed_submissions(current_user):
         traceback.print_exc()
         return response.error("Failed to get recently accessed submissions, please try again later.",
                               Status.INTERNAL_SERVER_ERROR)
-
 
 ### HELPERS that cannot be removed (yet)###
 
