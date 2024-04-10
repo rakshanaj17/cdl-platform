@@ -42,6 +42,7 @@ def insert_stats(submission_id, mongo_client, database_name):
             "likes":0,
             "dislikes":0
         }
+        return
 
         try:
             stats_collection.insert_one(stats_data)
@@ -64,6 +65,7 @@ if __name__ == "__main__":
 
     for i,submission_id in enumerate(submission_ids):
         insert_stats(str(submission_id), mongo_client, database_name)
+        print(i)
         if i % 100 == 0: print(i / len(submission_ids))
 
     print("Backfill completed.")

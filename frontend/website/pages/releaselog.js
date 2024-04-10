@@ -44,6 +44,12 @@ export default function ReleaseLog() {
             <li className="list-item">Likes and dislikes for submissions</li>
             <li className="list-item">Scoring search results by popularity</li>
         </ul>
+      <h5 className="text-2xl font-bold mb-3" style={{ margin: "10px 0px 0px 0px" }}>
+        Bug Fixes
+      </h5>
+        <ul className="list-disc pl-6">
+            <li className="list-item">Visualization refresh now does not revert</li>
+        </ul>
 
       <h2 className="text-3xl mb-4"  style={{ margin: "20px 0px 0px 0px" }}>
         March 29th, 2024
