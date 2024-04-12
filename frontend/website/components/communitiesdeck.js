@@ -70,6 +70,7 @@ export default function CommunitiesDeck(props) {
                   description={community.description}
                   pinned={community.pinned}
                   is_public={community.is_public}
+                  followDeck={props.followDeck}
                 >
                   {community.name}
                 </CommunityBox>

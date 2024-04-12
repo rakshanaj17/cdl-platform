@@ -271,7 +271,7 @@ def create_community(current_user):
 				insert_obj["description"] = community_description
 			if community_ispublic != None:
 				insert_obj["public"] = community_ispublic
-			if community_pinned:
+			if community_pinned != None:
 				insert_obj["pinned"] = community_pinned
 
 			updated = cdl_communities.update_one({"_id": community_id}, {"$set": insert_obj}, upsert=False)

@@ -26,11 +26,14 @@ import useQuickAccessStore from "../store/quickAccessStore";
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { BASE_URL_CLIENT } from "../static/constants";
+import { commands } from "@uiw/react-md-editor";
 
 
 // API Endpoints
 const baseURL_client = process.env.NEXT_PUBLIC_FROM_CLIENT + "api/";
 const leaveCommunityEndpoint = "leaveCommunity";
+const unfollowCommunityEndpoint = "followCommunity";
 const createCommunityEndpoint = "createCommunity";
 const getCommunitiesEndpoint = "getCommunities";
 
@@ -45,6 +48,7 @@ export default function CommunityBox(props) {
   const { communityData, setcommunityData } = useQuickAccessStore();
 
   const [isPublic, setPublic] = useState(props.is_public)
+  const [followDeck, setFollowDeck] = useState(props.followDeck)
 
 
   const handleClick = () => {
@@ -79,7 +83,7 @@ export default function CommunityBox(props) {
       }),
     });
     const responseComm = await resp.json();
-
+    console.log(responseComm)
     setUserDataStoreProps({ userCommunities: responseComm.community_info });
     setcommunityData(responseComm.community_info);
     localStorage.setItem("dropdowndata", JSON.stringify(responseComm));
@@ -198,6 +202,44 @@ export default function CommunityBox(props) {
       handleClick();
     }
   };
+
+  const unfollowCommunity = async (event) => {
+
+    event.preventDefault();
+    var URL = BASE_URL_CLIENT + unfollowCommunityEndpoint;
+    const res = await fetch(URL, {
+      method: "POST",
+      body: JSON.stringify({
+        community_id: props.communityId,
+        command: "unfollow"
+      }),
+      headers: new Headers({
+        Authorization: jsCookie.get("token"),
+        "Content-Type": "application/json",
+      }),
+    });
+
+    const response = await res.json();
+
+    if (res.status == 200) {
+
+      setSeverity("success");
+      setMessage(response.message);
+      handleClick();
+      // updating dropdown data when new comm is created
+      updateDropDownSearch();
+      handleClose();
+      window.location.reload();
+    }
+
+    else {
+      setSeverity("error");
+      setMessage(response.message);
+      handleClick();
+    }
+  }
+
+
 
   return (
     <Paper
@@ -361,7 +403,9 @@ export default function CommunityBox(props) {
         </DialogActions>
       </Dialog>
       <Dialog open={openLeave} onClose={handleCloseLeave}>
-        <DialogTitle style={{ width: "500px" }}> Leave Community </DialogTitle>
+        {followDeck ? <DialogTitle style={{ width: "500px" }}> "Unfollow Community?" </DialogTitle> :
+          <DialogTitle style={{ width: "500px" }}> "Leave Community?" </DialogTitle>
+        }
         <DialogContent>
           <DialogContentText>
             Are you sure you want to leave {props.name}?
@@ -372,7 +416,8 @@ export default function CommunityBox(props) {
         ) : null}
         <DialogActions>
           <Button onClick={handleCloseLeave}>Cancel</Button>
-          <Button style={{ color: "red" }} onClick={leaveCommunity}>
+          <Button style={{ color: "red" }} onClick={() => { folllowDeck ? unfollowCommunity() : leaveCommunity() }}>
+
             I'm Sure
           </Button>
         </DialogActions>
