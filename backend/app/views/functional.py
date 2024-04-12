@@ -1212,13 +1212,15 @@ def search(current_user):
                 requested_communities = [str(x) for x in prior_search.community]
 
                 # case where user is paging a public, non-joined community
-                if requested_communities[0] not in user_communities:
-                    comm_db = Communities()
-                    found_comm = comm_db.find_one({"_id": requested_communities[0]})
-                    if found_comm and found_comm.public:
-                        rc_dict_public[str(requested_communities[0])] = found_comm.name
-                    else:
-                        return response.error("You do not have access to this community.", Status.FORBIDDEN)
+                if len(requested_communities) == 1:
+                    obj_id_first_comm = ObjectId(requested_communities[0])
+                    if  obj_id_first_comm not in user_communities:
+                        comm_db = Communities()
+                        found_comm = comm_db.find_one({"_id": obj_id_first_comm})
+                        if found_comm and found_comm.public:
+                            rc_dict_public[str(obj_id_first_comm)] = found_comm.name
+                        else:
+                            return response.error("You do not have access to this community.", Status.FORBIDDEN)
             else:
                 return response.error("Cannot find search to page.", Status.NOT_FOUND)
 
