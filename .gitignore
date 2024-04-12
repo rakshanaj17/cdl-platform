@@ -140,3 +140,4 @@ dmypy.json
 cicd.sh
 
 vicuna*
+test_prompts_rag.ipynb

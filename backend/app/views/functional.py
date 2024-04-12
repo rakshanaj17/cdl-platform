@@ -932,8 +932,9 @@ def generate(current_user):
         all_results = [{"Title "+str(index+1): item['title'] + ". 'Description' - " +item['description']} for index, item in enumerate(exported_results)]
         context='You are a helpful assistant that summarizes multiple notes about a given topic, clusters important themes, and provides a comprehensive summary of all notes across all the themes.'
         if len(exported_results)==1:
-            context='You are a helpful assistant that explains a given topic, and provides a comprehensive summary.'
-            to_ask_1 = f"""Please provide a summary on a note on the topic and the description as -  {all_results}."""
+            all_results_str = ', '.join([str(result) for result in all_results])
+            context='You are a helpful assistant that captures and summarizes a note of text'
+            to_ask_1 = f""". The note is shown as - {all_results_str}."""
         else:  
             to_ask_1 = f"""\
             The following are a set of text notes known by me - 
