@@ -16,7 +16,8 @@ export default function CommunitiesDeck(props) {
 
   return (
     <div>
-      <h1> Your Communities</h1>
+      {props.followDeck ? <h1>Communities you follow</h1> :
+        <h1> Your Communities</h1>}
       <br />
       <ul
         style={{
@@ -28,7 +29,7 @@ export default function CommunitiesDeck(props) {
         }}
       >
         {[
-          <li
+          !props.followDeck && <li
             style={{
               display: "inline-block",
               marginBottom: gap,
@@ -38,7 +39,7 @@ export default function CommunitiesDeck(props) {
           >
             <JoinCommunityForm auth_token={jsCookie.get("token")} />
           </li>,
-          <li
+          !props.followDeck && <li
             style={{
               display: "inline-block",
               marginBottom: gap,
@@ -60,10 +61,7 @@ export default function CommunitiesDeck(props) {
                 key={idx}
               >
                 <CommunityBox
-                  // link={
-                  //   "/search?community=" + community.community_id + "&page=0"
-                  // }
-                  link={"/community" + community.community_id}
+                  link={"/community/" + community.community_id}
                   isAdmin={community.is_admin}
                   communityId={community.community_id}
                   joinKey={community.join_key}
@@ -80,6 +78,10 @@ export default function CommunitiesDeck(props) {
           })
         )}
       </ul>
+      {props.followDeck && props.community_info.length == 0 && (
+        <p className="text-center mt-5 pb-5">
+          You are not following any communities.</p>
+      )}
     </div>
   );
 }

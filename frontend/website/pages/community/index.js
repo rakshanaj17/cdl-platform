@@ -95,7 +95,7 @@ const TabPanel = styled(TabPanelUnstyled)(
 
 const TabsList = styled(TabsListUnstyled)(
     ({ theme }) => `
-  width: 165px;
+  width: 270px;
   background-color: ${'#1976d2'};
   border-radius: 12px;
   margin: 20px;
@@ -157,13 +157,17 @@ function CommunitiesPage({ data, history_data }, props) {
                     <TabsUnstyled defaultValue={0}>
                         <TabsList>
                             <Tab>Joined</Tab>
+                            <Tab>Following</Tab>
                             <Tab>History</Tab>
                         </TabsList>
                         <TabPanel value={0}>
                             {" "}
-                            <CommunitiesDeck community_info={data.community_info} />
+                            <CommunitiesDeck community_info={data.community_info} followDeck={false} />
                         </TabPanel>
                         <TabPanel value={1}>
+                            <CommunitiesDeck community_info={data.followed_community_info} followDeck={true} />
+                        </TabPanel>
+                        <TabPanel value={2}>
                             <CommunityHistory
                                 auth={jsCookie.get("token")}
                                 data={history_data}

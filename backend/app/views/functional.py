@@ -802,6 +802,10 @@ def autocomplete(current_user):
     cutoff = int(request.args.get("cutoff", 60))
 
     user_communities = [str(x) for x in current_user.communities]
+    for x in current_user.followed_communities:
+        x = str(x)
+        if x not in user_communities:
+            user_communities.append(x)
 
     try:
         _, submissions_hits = elastic_manager.auto_complete(query, user_communities, page=0, page_size=20)
@@ -1403,6 +1407,10 @@ def get_recommendations(current_user, toggle_webpage_results=True):
 
         # convert communities to str for elastic
         requested_communities = [str(x) for x in user_communities]
+        for x in current_user.followed_communities:
+            x = str(x)
+            if x not in requested_communities:
+                requested_communities.append(x)
         if CDLweb_community_id in requested_communities:
             requested_communities.remove(CDLweb_community_id)
 

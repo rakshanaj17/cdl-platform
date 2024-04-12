@@ -86,12 +86,12 @@ export default function CommunityBox(props) {
   };
 
   const handlePublic = async (event) => {
-      if (isPublic) {
-          setPublic(false)
-      } else {
-          setPublic(true)
-      }
-}
+    if (isPublic) {
+      setPublic(false)
+    } else {
+      setPublic(true)
+    }
+  }
 
   const handleSubmitEdit = async () => {
     var URL = baseURL_client + createCommunityEndpoint;
@@ -255,7 +255,7 @@ export default function CommunityBox(props) {
             </IconButton>
           </Tooltip>
         ) : null}
-        
+
         {/* // Visibility toggle not intended for next release
           <Tooltip title="Toggle Permissions">
             <IconButton size="small">

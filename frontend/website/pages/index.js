@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { Paper, Button, IconButton, Skeleton, Tooltip, Typography } from "@mui/material";
 import { ArrowUpwardOutlined } from "@mui/icons-material";
 import { Router, useRouter } from "next/router";
-import RecentlyAccessedSubmissions from "../components/recentlyAccessedSubmissions";
+import QuickSubmissionBox from "../components/quickSubmissionBox";
 import Setup from "./setup";
 import dynamic from "next/dynamic";
 
@@ -245,7 +245,7 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
             <h4>Recently Accessed Submissions</h4>
           </Grid>
           <Grid item width={'100ch'}>
-            <RecentlyAccessedSubmissions rec_acc_sub_data={recently_accessed_submissions} />
+            <QuickSubmissionBox submissionData={recently_accessed_submissions} />
           </Grid>
 
 
@@ -421,19 +421,12 @@ export async function getServerSideProps(context) {
 
     var searchURL = baseURL_server + searchEndpoint;
     searchURL += "own_submissions=True" + "&community=all&source=visualizeConnections";
-    // const userOwnSubmissions = await fetch(searchURL, {
-    //   headers: new Headers({
-    //     Authorization: context.req.cookies.token,
-    //   }),
-    // });
 
     const data = await res.json();
     const recently_accessed_submissions = await recentlyAccessedSubmissions.json();
     const community_joined_data = await fetchCommunities.json();
-    // const user_own_submissions = await userOwnSubmissions.json();
     if (fetchCommunities.status == 200) {
       if (res.status == 200) {
-        // if (userOwnSubmissions.status == 200) {
         if (recentlyAccessedSubmissions.status == 200) {
           if (context.query.page == undefined) {
             data.current_page = "0";
@@ -443,7 +436,6 @@ export async function getServerSideProps(context) {
           return {
             props: {
               data, community_joined_data,
-              // user_own_submissions,
               recently_accessed_submissions
             }
           };
