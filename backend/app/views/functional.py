@@ -93,6 +93,10 @@ def export_helper(user_id, search_id):
             number_of_hits, page = cache.search(user_id, search_id, index)
             number_of_hits = int(number_of_hits)
             all_results += page
+
+    # To query all the results in batch
+    submission_ids_to_find = []
+    webpages_ids_to_find = []
     for result in all_results:
         del result["redirect_url"]
         del result["display_url"]
@@ -110,12 +114,10 @@ def export_helper(user_id, search_id):
         del result["result_hash"]
 
         if result["type"] == "submission":
-            full_sub = cdl_logs.find_one({"_id": ObjectId(result["submission_id"])})
-            result["description"] = full_sub.highlighted_text
+            submission_ids_to_find.append(ObjectId(result["submission_id"]))
         else:
-            full_sub = cdl_webpages.find_one({"_id": ObjectId(result["submission_id"])})
-            result["description"] = full_sub.webpage["metadata"]["description"]
-        
+            webpages_ids_to_find.append(ObjectId(result["submission_id"]))
+
         del result["highlighted_text"]
 
         result["title"] = result["explanation"]
@@ -127,6 +129,25 @@ def export_helper(user_id, search_id):
             del result["children"]
 
         del result["hashtags"]
+
+    submissions = list(cdl_logs.find_db({'_id': {'$in': submission_ids_to_find}}))
+    webpages = list(cdl_webpages.find_db({'_id': {'$in': webpages_ids_to_find}}))
+
+    # Map to hold id -> result obj
+    id_result_map = {}
+    for sub in submissions:
+        id_result_map[str(sub['_id'])] = sub
+
+    for web in webpages:
+        id_result_map[str(web['_id'])] = web
+
+    for result in all_results:
+        # Get the sub/web return from MongoDB
+        curr = id_result_map[result["submission_id"]]
+        if result["type"] == "submission":
+            result["description"] = curr['highlighted_text']
+        else:
+            result["description"] = curr['webpage']["metadata"]["description"]
 
     return {
             "query": query,
