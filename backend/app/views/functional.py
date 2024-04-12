@@ -1911,9 +1911,11 @@ def cache_search(query, search_id, index, communities, user_id, own_submissions=
                 print("\t Neural Rerank not available")
 
 
-            def ranking(x):
-                print("submissionid, keyword match score",x["submission_id"],x["score"])
-                submissions = SubmissionStats()
+            # slightly changed to only re-score the top 50
+            # also to avoid init substats every check
+            # and to only increase score
+            submissions = SubmissionStats()
+            for x in submissions_pages[:50]:
                 metrics = submissions.find_one({"submission_id":ObjectId(x["submission_id"])})
                 metrics_sum = 0
                 if metrics:
@@ -1921,14 +1923,12 @@ def cache_search(query, search_id, index, communities, user_id, own_submissions=
                 else:
                     metrics_sum = 1 #webpages recommendations
                 metric_score = math.log10(metrics_sum)
-                score = (x["score"] * 0.9) + (metric_score * 0.1) 
-                print("submission_id, score", x["submission_id"],score,metrics_sum)
-                return score
-            submission_pages = sorted(submissions_pages, reverse=True, key=ranking)#lambda x: x["score"])
-            
-            
-            #pages = sorted(submissions_pages, reverse=True, key=ranking)
+                x["score"] = (x["score"] * 1.0) + (metric_score * 0.1) 
 
+
+            submission_pages = sorted(submissions_pages, reverse=True, key=lambda x: x["score"])
+            
+            
 
             # issue is now that note pages can have same source url but different content
             # moved inside search
