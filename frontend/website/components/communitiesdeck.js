@@ -8,14 +8,21 @@ import useUserDataStore from "../store/userData";
 let gap = "25px";
 export default function CommunitiesDeck(props) {
 
+
   const { setUserDataStoreProps, userFollowedCommunities } = useUserDataStore();
 
   useEffect(() => {
-    setUserDataStoreProps({ userCommunities: props.community_info });
+    if (!props.followDeck) {
+      setUserDataStoreProps({ userCommunities: props.community_info });
+    }
+    else {
+      setUserDataStoreProps({ userFollowedCommunities: props.community_info });
+    }
   }, [props.community_info])
 
   return (
     <div>
+      {console.log(props)}
       {props.followDeck ? <h1>Communities you follow</h1> :
         <h1> Your Communities</h1>}
       <br />
@@ -50,9 +57,9 @@ export default function CommunitiesDeck(props) {
             <CreateCommunityForm auth_token={jsCookie.get("token")} />
           </li>,
         ].concat(
-          props.community_info.map(function (community, idx) {
+          props.community_info && props.community_info.map(function (community, idx) {
             return (
-              ((props.followDeck && community.isPublic) || (!props.followDeck)) && <li
+              <li
                 style={{
                   display: "inline-block",
                   marginBottom: gap,

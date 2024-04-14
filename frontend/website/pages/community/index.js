@@ -163,14 +163,13 @@ function CommunitiesPage({ data, history_data }, props) {
                             <Tab>Joined</Tab>
                             <Tab>Following</Tab>
                             <Tab>History</Tab>
-                            {console.log(data)}
                         </TabsList>
                         <TabPanel value={0}>
                             {" "}
                             <CommunitiesDeck community_info={data.community_info} followDeck={false} />
                         </TabPanel>
                         <TabPanel value={1}>
-                            <CommunitiesDeck community_info={userFollowedCommunities} followDeck={true} />
+                            <CommunitiesDeck community_info={data.followed_community_info} followDeck={true} />
                         </TabPanel>
                         <TabPanel value={2}>
                             <CommunityHistory

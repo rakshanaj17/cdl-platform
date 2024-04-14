@@ -343,7 +343,7 @@ export default function CommunityBox(props) {
           </Tooltip>
         }
         {
-          <Tooltip title={<Typography>Leave Community</Typography>}>
+          <Tooltip title={<Typography>{followDeck ? "Unfollow Community" : "Leave Community"}</Typography>}>
             <IconButton
               style={{ marginLeft: "auto", marginRight: "-10px" }}
               size="small"
