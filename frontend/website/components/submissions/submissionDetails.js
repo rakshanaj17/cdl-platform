@@ -262,7 +262,8 @@ export default function SubmissionDetails(subData) {
 
                     <Tooltip key={key} title={"Go to community"}>
                         <a
-                            href={'/' + SEARCH_ENDPOINT + "?community=" + key + "&page=0"}
+                            //href={'/' + SEARCH_ENDPOINT + "?community=" + key + "&page=0"}
+                            href={WEBSITE_URL + 'community/' + key}
                             target="_blank"
                             rel="noopener noreferrer"
 

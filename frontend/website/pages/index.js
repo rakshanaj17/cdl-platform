@@ -69,8 +69,7 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
   async function checkOnboarding() {
     const img = await checkExtension();
     if (!img) {
-      if (community_joined_data.community_info.length > 0) {
-        // if (user_own_submissions['nodes'].length >= 1) {
+      if (community_joined_data.community_info.length > 0 || community_joined_data.followed_community_info.length > 0) {
         if (recently_accessed_submissions && recently_accessed_submissions.length >= 1) {
           setOnboardingStep(0);
         } else {
@@ -81,7 +80,7 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
         setOnboardingStep(1);
       }
     } else {
-      if (community_joined_data.community_info.length > 0) {
+      if (community_joined_data.community_info.length > 0 || community_joined_data.followed_community_info.length > 0) {
         if (!(endOfRecommendations && items.length > 0)) {
           //if user has created community but no submission
           setOnboardingStep(3);

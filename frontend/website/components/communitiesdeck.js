@@ -23,8 +23,8 @@ export default function CommunitiesDeck(props) {
   return (
     <div>
       {console.log(props)}
-      {props.followDeck ? <h1>Communities you follow</h1> :
-        <h1> Your Communities</h1>}
+      {props.followDeck ? <h1>Communities You've Followed</h1> :
+        <h1>Communities You've Created or Joined</h1>}
       <br />
       <ul
         style={{

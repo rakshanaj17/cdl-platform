@@ -1,4 +1,5 @@
 import { React, useEffect } from 'react';
+import Head from "next/head";
 import jsCookie from 'js-cookie';
 import { Paper, Button, IconButton, Skeleton, Tooltip, Typography } from "@mui/material";
 import { BASE_URL_CLIENT, BASE_URL_SERVER, GET_COMMUNITY_ENDPOINT, SEARCH_ENDPOINT } from '../../static/constants';
@@ -165,6 +166,10 @@ export default function CommunityHomepage(props) {
 
     return (
         <div className="container mx-auto p-6">
+            <Head>
+                <title>{communityName} - TextData</title>
+                <link rel="icon" href="/images/tree32.png" />
+            </Head>
             <header className="mb-6 flex justify-between items-center">
                 <div>
                     <h1 className="text-4xl font-bold text-gray-800">{communityName}</h1>
