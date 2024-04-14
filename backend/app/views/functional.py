@@ -921,34 +921,34 @@ def generate(current_user):
                                    metadata={"context": context, "query": query, "output": "", "version": "0.1",
                                              "url": url})
         return response.success({"output": "https://www.google.com/search?q=" + query}, Status.OK)
-
+    
     elif mode == "qa":
         if not query:
-            return {"message": "Query required for question-answer mode."}, 400
+            return response.error("Query required for question-answer mode.", Status.BAD_REQUEST)
         prompt = "Answer the following question with fewer than 100 words. Question: " + query + ". Answer: "
 
     elif mode == "contextual_qa":
         if not context:
-            return {"message": "Context required for in-context question generation."}, 400
+            return response.error("Context required for in-context question generation.", Status.BAD_REQUEST)
         if not query:
-            return {"message": "Query required for in-context question generation."}, 400
+            return response.error("Query required for in-context question generation.", Status.BAD_REQUEST)
         
         prompt = context_intent_qgen_prompt + '"' + context + '" INTENT: ' + query + '" --> QUESTIONS:'        
 
     elif mode == "gen_questions":
         if not context:
-            return {"message": "Context required for question generation."}, 400
+            return response.error("Context required for question generation.", Status.BAD_REQUEST)
 
         prompt = context_qgen_prompt + '"' + context + '" --> QUESTIONS:'
 
     elif mode == "summarize":
         if not context:
-            return {"message": "Context required for summarization."}, 400
+            return response.error("Context required for summarization.", Status.BAD_REQUEST)
         prompt = context + "... Please summarize the previous text, and only reply with the summary. Summary: "
 
     elif mode == "summary_rag":
         if not search_id:
-            return {"message": "URL for exporting search results not provided"}, 400
+            return response.error("search_id is required for summarizing search results", Status.BAD_REQUEST)
         exported_results = export_helper(user_id=str(user_id), search_id=str(search_id))['data']
         all_results = [{"Title "+str(index+1): item['title'] + ". 'Description' - " +item['description']} for index, item in enumerate(exported_results)]
         context='You are a helpful assistant that summarizes multiple notes about a given topic, clusters important themes, and provides a comprehensive summary of all notes across all the themes.'
