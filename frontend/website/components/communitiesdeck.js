@@ -8,7 +8,7 @@ import useUserDataStore from "../store/userData";
 let gap = "25px";
 export default function CommunitiesDeck(props) {
 
-  const { setUserDataStoreProps } = useUserDataStore();
+  const { setUserDataStoreProps, userFollowedCommunities } = useUserDataStore();
 
   useEffect(() => {
     setUserDataStoreProps({ userCommunities: props.community_info });
@@ -52,7 +52,7 @@ export default function CommunitiesDeck(props) {
         ].concat(
           props.community_info.map(function (community, idx) {
             return (
-              <li
+              ((props.followDeck && community.isPublic) || (!props.followDeck)) && <li
                 style={{
                   display: "inline-block",
                   marginBottom: gap,
@@ -79,7 +79,7 @@ export default function CommunitiesDeck(props) {
           })
         )}
       </ul>
-      {props.followDeck && props.community_info.length == 0 && (
+      {props.followDeck && userFollowedCommunities.length == 0 && (
         <p className="text-center mt-5 pb-5">
           You are not following any communities.</p>
       )}

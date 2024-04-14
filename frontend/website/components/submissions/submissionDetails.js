@@ -11,7 +11,7 @@ import useSnackbarStore from "../../store/snackBar";
 import Alert from '@mui/material/Alert';
 import Router from 'next/router';
 
-export default function SubmissionDetails(subData ) {
+export default function SubmissionDetails(subData) {
 
     const {
         submissionStats,
@@ -49,81 +49,81 @@ export default function SubmissionDetails(subData ) {
     const [message, setMessage] = useState("");
     const [severity, setSeverity] = useState("error");
     const [openDelete, setOpenDelete] = useState(false);
-    
-    
+
+
     const submitRelevanceJudgements = async function (event, rel) {
         event.preventDefault();
-        try{
+        try {
             let URL = BASE_URL_CLIENT + "submitRelJudgments";
             let judgement = {};
             const submission_id = await submissionId;
             judgement[submissionId] = rel;
             const res = await fetch(URL, {
-            method: "POST",
-            body: JSON.stringify(judgement),
-            headers: new Headers({
-                Authorization: jsCookie.get("token"),
-                "Content-Type": "application/json",
-            }),
-        });
-        const response = await res.json();
-        if (res.status == 200) {
-          setSeverity("success");
-          setMessage(response.message);
-          handleClick();
-          return response.message;
-        } else {
-          setSeverity("error");
-          setMessage(response.message);
-          handleClick();
-          throw new new Error(response.message);
-        }
+                method: "POST",
+                body: JSON.stringify(judgement),
+                headers: new Headers({
+                    Authorization: jsCookie.get("token"),
+                    "Content-Type": "application/json",
+                }),
+            });
+            const response = await res.json();
+            if (res.status == 200) {
+                setSeverity("success");
+                setMessage(response.message);
+                handleClick();
+                return response.message;
+            } else {
+                setSeverity("error");
+                setMessage(response.message);
+                handleClick();
+                throw new new Error(response.message);
+            }
         }
         catch (error) {
-            throw new Error("Failed to submit judgment"|| error);
+            throw new Error("Failed to submit judgment" || error);
         }
     };
-    
+
     const fetchSubmissionStats = async () => {
         try {
-            const URL = BASE_URL_CLIENT + "fetchSubmissionStats?submissionId=" + submissionId; 
+            const URL = BASE_URL_CLIENT + "fetchSubmissionStats?submissionId=" + submissionId;
             const response = await fetch(URL, {
-            method: "GET",
-            headers: {
-                Authorization: jsCookie.get("token"),
-                "Content-Type": "application/json",
+                method: "GET",
+                headers: {
+                    Authorization: jsCookie.get("token"),
+                    "Content-Type": "application/json",
                 },
             });
             if (!response.ok) {
                 throw new Error(`Failed to fetch submission stats: ${response.status}`);
             }
 
-            const result = await response.json(); 
+            const result = await response.json();
             return result.data;
-            } catch (error) {
+        } catch (error) {
             console.error('Error fetching submission stats:', error);
-            }
+        }
     };
 
-      const fetchSubmissionJudgement = async (submissionId) => {
+    const fetchSubmissionJudgement = async (submissionId) => {
         try {
-          const URL = BASE_URL_CLIENT + "fetchSubmissionJudgement?submissionId=" + submissionId; 
-          const response = await fetch(URL, {
-            method: "GET",
-            headers: {
-              Authorization: jsCookie.get("token"),
-              "Content-Type": "application/json",
-            },
-          });
-          if (!response.ok) {
-            throw new Error(`Failed to fetch submission judgement: ${response.status}`);
-          }
-          const result = await response.json();
-          return result.data;
+            const URL = BASE_URL_CLIENT + "fetchSubmissionJudgement?submissionId=" + submissionId;
+            const response = await fetch(URL, {
+                method: "GET",
+                headers: {
+                    Authorization: jsCookie.get("token"),
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch submission judgement: ${response.status}`);
+            }
+            const result = await response.json();
+            return result.data;
         } catch (error) {
-          console.error('Error fetching submission judgement:', error);
+            console.error('Error fetching submission judgement:', error);
         }
-      };
+    };
     const mapCommunitiesToNames = (commResponse) => {
         let idNameMap = {};
         for (var key in commResponse) {
@@ -412,7 +412,8 @@ export default function SubmissionDetails(subData ) {
 
                 temp.push(<Tooltip key={submissionSaveCommunityIDList[i]} title={"Go to community"}>
                     <a
-                        href={'/' + SEARCH_ENDPOINT + "?community=" + submissionSaveCommunityIDList[i] + "&page=0"}
+                        // href={'/' + SEARCH_ENDPOINT + "?community=" + submissionSaveCommunityIDList[i] + "&page=0"}
+                        href={WEBSITE_URL + 'community/' + submissionSaveCommunityIDList[i]}
                         target="_blank"
                         rel="noopener noreferrer"
 
@@ -513,7 +514,7 @@ export default function SubmissionDetails(subData ) {
     };
 
     const changeMode = () => {
-    
+
         if (submissionMode === "edit") {
             let temp = originalDescription
             // if (originalDescription) {
@@ -538,7 +539,7 @@ export default function SubmissionDetails(subData ) {
 
             let tempSourceUrl = submissionSourceUrl
             setSubmissionProps({ originalSourceUrl: tempSourceUrl })
-            
+
             setSubmissionProps({ hasUnsavedChanges: true })
             setSubmissionProps({ ...submissionMode, submissionMode: "edit" });
 
@@ -548,7 +549,7 @@ export default function SubmissionDetails(subData ) {
     const submitSubmissionChanges = () => {
 
         handleSubmit().then(isSuccessful => {
-            if(isSuccessful){
+            if (isSuccessful) {
                 let tempTitle = submissionTitle
                 setSubmissionProps({ originalTitle: tempTitle })
 
@@ -558,7 +559,7 @@ export default function SubmissionDetails(subData ) {
                 let tempSourceUrl = submissionSourceUrl
                 setSubmissionProps({ originalSourceUrl: tempSourceUrl })
                 setSubmissionProps({ ...submissionMode, submissionMode: "view" })
-                
+
                 setSubmissionProps({ hasUnsavedChanges: false })
             }
         })
@@ -608,29 +609,29 @@ export default function SubmissionDetails(subData ) {
 
     useEffect(() => {
         const handleRouteChangeStart = (url) => {
-            if(url == '/'){
+            if (url == '/') {
                 console.log(`Route change to ${url} started`);
                 Router.events.off('routeChangeStart', handleRouteChangeStart);
             } else {
 
-            if (hasUnsavedChanges == true){
+                if (hasUnsavedChanges == true) {
 
-            if(!confirm('You have unsaved changes. Are you sure you want to leave?')) {
-                
-                Router.events.emit('routeChangeError');
-                throw 'Abort route change. Please ignore this error.';
+                    if (!confirm('You have unsaved changes. Are you sure you want to leave?')) {
+
+                        Router.events.emit('routeChangeError');
+                        throw 'Abort route change. Please ignore this error.';
+                    }
                 }
             }
-        }
         };
 
-        if(hasUnsavedChanges == false){
+        if (hasUnsavedChanges == false) {
             Router.events.off('routeChangeStart', handleRouteChangeStart);
         }
-        if(hasUnsavedChanges == true){
+        if (hasUnsavedChanges == true) {
             Router.events.on('routeChangeStart', handleRouteChangeStart);
         }
-        
+
         return () => {
             Router.events.off('routeChangeStart', handleRouteChangeStart);
         };
@@ -638,24 +639,24 @@ export default function SubmissionDetails(subData ) {
 
     useEffect(() => {
         const handleBeforeUnload = (event) => {
-          if (hasUnsavedChanges == true) {
-            event.preventDefault();
-            event.returnValue = '';
-          }
+            if (hasUnsavedChanges == true) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
         };
 
-        if(hasUnsavedChanges == false) {
+        if (hasUnsavedChanges == false) {
             window.removeEventListener('beforeunload', handleBeforeUnload);
         }
 
-        if(hasUnsavedChanges == true) {
+        if (hasUnsavedChanges == true) {
             window.addEventListener('beforeunload', handleBeforeUnload);
         }
-        
+
         return () => {
-          window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-      }, [hasUnsavedChanges]);
+    }, [hasUnsavedChanges]);
 
 
     return (
@@ -1077,8 +1078,8 @@ export default function SubmissionDetails(subData ) {
                             display: "flex",
                             flex: 1,
                         }}>
-                            
-                            <SubmissionStatistics submitRelevanceJudgements={submitRelevanceJudgements} fetchSubmissionStats = {fetchSubmissionStats} fetchSubmissionJudgement={fetchSubmissionJudgement}/>
+
+                            <SubmissionStatistics submitRelevanceJudgements={submitRelevanceJudgements} fetchSubmissionStats={fetchSubmissionStats} fetchSubmissionJudgement={fetchSubmissionJudgement} />
                         </div>
 
                     </Stack>

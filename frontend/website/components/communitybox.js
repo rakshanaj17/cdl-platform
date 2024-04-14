@@ -84,6 +84,7 @@ export default function CommunityBox(props) {
     const responseComm = await resp.json();
     console.log(responseComm)
     setUserDataStoreProps({ userCommunities: responseComm.community_info });
+    setUserDataStoreProps({ userFollowedCommunities: responseComm.followed_community_info });
     setcommunityData(responseComm.community_info);
     localStorage.setItem("dropdowndata", JSON.stringify(responseComm));
   };
@@ -174,7 +175,6 @@ export default function CommunityBox(props) {
   };
 
   const leaveCommunity = async (event) => {
-    event.preventDefault();
     var URL = baseURL_client + leaveCommunityEndpoint;
     const res = await fetch(URL, {
       method: "POST",
@@ -204,7 +204,6 @@ export default function CommunityBox(props) {
 
   const unfollowCommunity = async (event) => {
 
-    event.preventDefault();
     var URL = BASE_URL_CLIENT + unfollowCommunityEndpoint;
     const res = await fetch(URL, {
       method: "POST",
@@ -252,7 +251,7 @@ export default function CommunityBox(props) {
       }}
     >
       <h3 style={{ fontSize: "28px" }} color="blue" >
-        <a href={props.link}>{props.children.slice(0, 35)}</a>
+        <a href={props.link} target="_blank">{props.children.slice(0, 35)}</a>
         {props.children.length > 35 ? ".." : ""}
       </h3>
       <Tooltip
@@ -402,8 +401,8 @@ export default function CommunityBox(props) {
         </DialogActions>
       </Dialog>
       <Dialog open={openLeave} onClose={handleCloseLeave}>
-        {followDeck ? <DialogTitle style={{ width: "500px" }}> "Unfollow Community?" </DialogTitle> :
-          <DialogTitle style={{ width: "500px" }}> "Leave Community?" </DialogTitle>
+        {followDeck ? <DialogTitle style={{ width: "500px" }}> Unfollow Community? </DialogTitle> :
+          <DialogTitle style={{ width: "500px" }}> Leave Community? </DialogTitle>
         }
         <DialogContent>
           <DialogContentText>

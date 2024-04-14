@@ -16,6 +16,7 @@ import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
+import useUserDataStore from "../../store/userData";
 
 const baseURL_server = process.env.NEXT_PUBLIC_FROM_SERVER + "api/";
 const baseURL_client = process.env.NEXT_PUBLIC_FROM_CLIENT + "api/";
@@ -123,6 +124,9 @@ function CommunitiesPage({ data, history_data }, props) {
         setOpen(false);
     };
 
+    const { userFollowedCommunities } = useUserDataStore();
+    console.log(userFollowedCommunities)
+
     if (data.error) {
         return (
             <>
@@ -159,13 +163,14 @@ function CommunitiesPage({ data, history_data }, props) {
                             <Tab>Joined</Tab>
                             <Tab>Following</Tab>
                             <Tab>History</Tab>
+                            {console.log(data)}
                         </TabsList>
                         <TabPanel value={0}>
                             {" "}
                             <CommunitiesDeck community_info={data.community_info} followDeck={false} />
                         </TabPanel>
                         <TabPanel value={1}>
-                            <CommunitiesDeck community_info={data.followed_community_info} followDeck={true} />
+                            <CommunitiesDeck community_info={userFollowedCommunities} followDeck={true} />
                         </TabPanel>
                         <TabPanel value={2}>
                             <CommunityHistory

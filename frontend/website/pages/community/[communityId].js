@@ -1,15 +1,23 @@
 import { React, useEffect } from 'react';
 import jsCookie from 'js-cookie';
 import { Paper, Button, IconButton, Skeleton, Tooltip, Typography } from "@mui/material";
-import { BASE_URL_CLIENT, BASE_URL_SERVER, SEARCH_ENDPOINT } from '../../static/constants';
+import { BASE_URL_CLIENT, BASE_URL_SERVER, GET_COMMUNITY_ENDPOINT, SEARCH_ENDPOINT } from '../../static/constants';
 import useCommunityStore from '../../store/communityStore';
 import QuickSubmissionBox from '../../components/quickSubmissionBox';
 import SearchResult from '../../components/searchresult';
 import Grid from "@mui/material/Grid";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Error from 'next/error';
+import useUserDataStore from '../../store/userData';
 
 
 export default function CommunityHomepage(props) {
+
+    if (props.error) {
+        return <Error statusCode={props.errorCode} />
+    }
+
+    const { setUserDataStoreProps, userFollowedCommunities } = useUserDataStore();
 
     const {
         communityId,
@@ -105,8 +113,21 @@ export default function CommunityHomepage(props) {
         });
 
         if (res.status === 200) {
-            console.log(res)
             setCommunityStoreProps({ isFollowing: true });
+            // update state for userFollowedCommunities
+            setUserDataStoreProps({
+
+                userFollowedCommunities: [...userFollowedCommunities,
+                {
+                    community_id: communityId,
+                    name: communityName,
+                    description: communityDescription,
+                    is_public: isPublic,
+                    isFollowing: true,
+                    pinned: pinnedSubs,
+                }
+                ]
+            });
         }
         else {
             console.error("Error following community");
@@ -132,8 +153,9 @@ export default function CommunityHomepage(props) {
         });
 
         if (res.status === 200) {
-            console.log(res)
             setCommunityStoreProps({ isFollowing: false });
+            // update state for userFollowedCommunities
+            setUserDataStoreProps({ userFollowedCommunities: userFollowedCommunities.filter(item => item !== communityId) });
         }
         else {
             console.error("Error following community");
@@ -152,32 +174,34 @@ export default function CommunityHomepage(props) {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            You have joined this community
+                            You have joined this community {isPublic && isFollowing ? "and are following it" : ""}
                         </div>
                     ) : (
-                        <div className="flex items-center text-sm text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            You have not joined this community
-                        </div>
-                    )}
-                </div>
-                <div>
-                    {isPublic && isFollowing ? (
-                        <div className="flex items-center text-sm text-green-600">
-                            <button className="ml-4 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none"
-                                onClick={() => { unfollowCommunity() }}>Unfollow</button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center text-sm text-gray-400">
-                            <button className="ml-4 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none"
-                                onClick={() => { followCommunity() }}
-                            >Follow</button>
-                        </div>
-                    )}
-                </div>
+                        <>
 
+                            <div className="flex items-center text-sm text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                You have not joined this community {isPublic && isFollowing ? "but are following it" : ""}
+                            </div>
+                            <div>
+                                {isPublic && isFollowing ? (
+                                    <div className="flex items-center text-sm text-green-600">
+                                        <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none"
+                                            onClick={() => { unfollowCommunity() }}>Unfollow</button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center text-sm text-gray-400">
+                                        <button className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none"
+                                            onClick={() => { followCommunity() }}
+                                        >Follow</button>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
             </header>
             <section className="pinned-posts mb-2">
                 <h2 className="text-2xl font-semibold mb-4 text-gray-800">Pinned Submissions</h2>
@@ -285,6 +309,7 @@ export async function getServerSideProps(context) {
                 return {
                     props: {
                         error: data.message,
+                        errorCode: res.status,
                     },
                 };
             }
