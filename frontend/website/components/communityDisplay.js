@@ -55,7 +55,7 @@ const CommunityDisplay = (props) => {
             :
             <Tooltip title={communitiesPartOf[props.k]}>
                 <a
-                    href={websiteURL + searchEndpoint + "?community=" + props.k + "&page=0"}
+                    href={websiteURL + "community/" + props.k}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
