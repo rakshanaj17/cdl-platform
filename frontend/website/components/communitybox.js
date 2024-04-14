@@ -27,7 +27,6 @@ import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { BASE_URL_CLIENT } from "../static/constants";
-import { commands } from "@uiw/react-md-editor";
 
 
 // API Endpoints
@@ -416,7 +415,7 @@ export default function CommunityBox(props) {
         ) : null}
         <DialogActions>
           <Button onClick={handleCloseLeave}>Cancel</Button>
-          <Button style={{ color: "red" }} onClick={() => { folllowDeck ? unfollowCommunity() : leaveCommunity() }}>
+          <Button style={{ color: "red" }} onClick={() => { followDeck ? unfollowCommunity() : leaveCommunity() }}>
 
             I'm Sure
           </Button>
