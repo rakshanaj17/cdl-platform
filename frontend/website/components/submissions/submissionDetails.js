@@ -9,6 +9,7 @@ import LocalLibraryRoundedIcon from '@mui/icons-material/LocalLibraryRounded';
 import useSubmissionStore from "../../store/submissionStore";
 import useSnackbarStore from "../../store/snackBar";
 import Alert from '@mui/material/Alert';
+import Router from 'next/router';
 
 export default function SubmissionDetails(subData ) {
 
@@ -37,7 +38,8 @@ export default function SubmissionDetails(subData ) {
         submissionRedirectUrl,
         isAConnection,
         submissionHashtags,
-        setSubmissionProps
+        setSubmissionProps,
+        hasUnsavedChanges,
     } = useSubmissionStore();
 
     const { isSnackBarOpen, snackBarMessage, snackBarSeverity, openSnackbar, closeSnackbar, setSnackBarProps } = useSnackbarStore();
@@ -511,7 +513,7 @@ export default function SubmissionDetails(subData ) {
     };
 
     const changeMode = () => {
-
+    
         if (submissionMode === "edit") {
             let temp = originalDescription
             // if (originalDescription) {
@@ -524,9 +526,9 @@ export default function SubmissionDetails(subData ) {
 
             let tempSourceUrl = originalSourceUrl
             setSubmissionProps({ submissionSourceUrl: tempSourceUrl })
-
-
+            setSubmissionProps({ hasUnsavedChanges: false })
             setSubmissionProps({ ...submissionMode, submissionMode: "view" });
+
         } else {
             let tempDesc = submissionDescription
             setSubmissionProps({ originalDescription: tempDesc })
@@ -536,15 +538,14 @@ export default function SubmissionDetails(subData ) {
 
             let tempSourceUrl = submissionSourceUrl
             setSubmissionProps({ originalSourceUrl: tempSourceUrl })
-
-
+            
+            setSubmissionProps({ hasUnsavedChanges: true })
             setSubmissionProps({ ...submissionMode, submissionMode: "edit" });
+
         }
     }
 
     const submitSubmissionChanges = () => {
-
-        
 
         handleSubmit().then(isSuccessful => {
             if(isSuccessful){
@@ -557,9 +558,10 @@ export default function SubmissionDetails(subData ) {
                 let tempSourceUrl = submissionSourceUrl
                 setSubmissionProps({ originalSourceUrl: tempSourceUrl })
                 setSubmissionProps({ ...submissionMode, submissionMode: "view" })
+                
+                setSubmissionProps({ hasUnsavedChanges: false })
             }
         })
-        
     }
 
 
@@ -603,6 +605,57 @@ export default function SubmissionDetails(subData ) {
     useEffect(() => {
         getSubmissionData();
     }, []);
+
+    useEffect(() => {
+        const handleRouteChangeStart = (url) => {
+            if(url == '/'){
+                console.log(`Route change to ${url} started`);
+                Router.events.off('routeChangeStart', handleRouteChangeStart);
+            } else {
+
+            if (hasUnsavedChanges == true){
+
+            if(!confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                
+                Router.events.emit('routeChangeError');
+                throw 'Abort route change. Please ignore this error.';
+                }
+            }
+        }
+        };
+
+        if(hasUnsavedChanges == false){
+            Router.events.off('routeChangeStart', handleRouteChangeStart);
+        }
+        if(hasUnsavedChanges == true){
+            Router.events.on('routeChangeStart', handleRouteChangeStart);
+        }
+        
+        return () => {
+            Router.events.off('routeChangeStart', handleRouteChangeStart);
+        };
+    }, [hasUnsavedChanges]);
+
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+          if (hasUnsavedChanges == true) {
+            event.preventDefault();
+            event.returnValue = '';
+          }
+        };
+
+        if(hasUnsavedChanges == false) {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        }
+
+        if(hasUnsavedChanges == true) {
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        }
+        
+        return () => {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+      }, [hasUnsavedChanges]);
 
 
     return (

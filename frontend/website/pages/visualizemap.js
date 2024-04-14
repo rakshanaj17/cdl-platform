@@ -44,17 +44,19 @@ export default function VisualizeMap() {
   }, []);
 
   useEffect(() => {
+    if (!router.isReady)
+      return;
+    // Router is ready, safe to use router.query or other router properties/methods
+    setQueryParams();
+  }, [router.isReady, router.asPath]);
+
+  // Functions
+  const setQueryParams = () => {
     let obj = router.query;
     let src = "";
     let q = "";
     let cid = "";
     let ownSub = "False";
-
-
-    // TODO: there is a bug here where not pushing to router goes to "all" in community
-    // because query empty at time of build: https://nextjs.org/docs/pages/api-reference/functions/use-router#router-object
-    // also commented out detailed visualization because of too many bugs. need to fix
-    // or do in current viz and redeploy
 
     if (obj != undefined || obj != null || obj != "") {
       src = obj["source"];
@@ -74,9 +76,8 @@ export default function VisualizeMap() {
     setCommunityId(cid);
     ownSub = ownSub.trim();
     getUserSubmissions(q, cid, ownSub);
-  }, [router.asPath]);
+  }
 
-  // Functions
   const getUserSubmissions = async (query, communityId, ownSub) => {
     let url = baseURL_client + "search?query=" + query + "&community=" + communityId + "&source=visualizeConnections";
     if (ownSub == "True") {

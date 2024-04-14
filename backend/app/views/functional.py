@@ -93,6 +93,10 @@ def export_helper(user_id, search_id):
             number_of_hits, page = cache.search(user_id, search_id, index)
             number_of_hits = int(number_of_hits)
             all_results += page
+
+    # To query all the results in batch
+    submission_ids_to_find = []
+    webpages_ids_to_find = []
     for result in all_results:
         del result["redirect_url"]
         del result["display_url"]
@@ -110,12 +114,10 @@ def export_helper(user_id, search_id):
         del result["result_hash"]
 
         if result["type"] == "submission":
-            full_sub = cdl_logs.find_one({"_id": ObjectId(result["submission_id"])})
-            result["description"] = full_sub.highlighted_text
+            submission_ids_to_find.append(ObjectId(result["submission_id"]))
         else:
-            full_sub = cdl_webpages.find_one({"_id": ObjectId(result["submission_id"])})
-            result["description"] = full_sub.webpage["metadata"]["description"]
-        
+            webpages_ids_to_find.append(ObjectId(result["submission_id"]))
+
         del result["highlighted_text"]
 
         result["title"] = result["explanation"]
@@ -127,6 +129,25 @@ def export_helper(user_id, search_id):
             del result["children"]
 
         del result["hashtags"]
+
+    submissions = list(cdl_logs.find_db({'_id': {'$in': submission_ids_to_find}}))
+    webpages = list(cdl_webpages.find_db({'_id': {'$in': webpages_ids_to_find}}))
+
+    # Map to hold id -> result obj
+    id_result_map = {}
+    for sub in submissions:
+        id_result_map[str(sub['_id'])] = sub
+
+    for web in webpages:
+        id_result_map[str(web['_id'])] = web
+
+    for result in all_results:
+        # Get the sub/web return from MongoDB
+        curr = id_result_map[result["submission_id"]]
+        if result["type"] == "submission":
+            result["description"] = curr['highlighted_text']
+        else:
+            result["description"] = curr['webpage']["metadata"]["description"]
 
     return {
             "query": query,
@@ -1216,13 +1237,15 @@ def search(current_user):
                 requested_communities = [str(x) for x in prior_search.community]
 
                 # case where user is paging a public, non-joined community
-                if requested_communities[0] not in user_communities:
-                    comm_db = Communities()
-                    found_comm = comm_db.find_one({"_id": requested_communities[0]})
-                    if found_comm and found_comm.public:
-                        rc_dict_public[str(requested_communities[0])] = found_comm.name
-                    else:
-                        return response.error("You do not have access to this community.", Status.FORBIDDEN)
+                if len(requested_communities) == 1:
+                    obj_id_first_comm = ObjectId(requested_communities[0])
+                    if  obj_id_first_comm not in user_communities:
+                        comm_db = Communities()
+                        found_comm = comm_db.find_one({"_id": obj_id_first_comm})
+                        if found_comm and found_comm.public:
+                            rc_dict_public[str(obj_id_first_comm)] = found_comm.name
+                        else:
+                            return response.error("You do not have access to this community.", Status.FORBIDDEN)
             else:
                 return response.error("Cannot find search to page.", Status.NOT_FOUND)
 
@@ -1873,9 +1896,11 @@ def cache_search(query, search_id, index, communities, user_id, own_submissions=
                 print("\t Neural Rerank not available")
 
 
-            def ranking(x):
-                print("submissionid, keyword match score",x["submission_id"],x["score"])
-                submissions = SubmissionStats()
+            # slightly changed to only re-score the top 50
+            # also to avoid init substats every check
+            # and to only increase score
+            submissions = SubmissionStats()
+            for x in submissions_pages[:50]:
                 metrics = submissions.find_one({"submission_id":ObjectId(x["submission_id"])})
                 metrics_sum = 0
                 if metrics:
@@ -1883,14 +1908,12 @@ def cache_search(query, search_id, index, communities, user_id, own_submissions=
                 else:
                     metrics_sum = 1 #webpages recommendations
                 metric_score = math.log10(metrics_sum)
-                score = (x["score"] * 0.9) + (metric_score * 0.1) 
-                print("submission_id, score", x["submission_id"],score,metrics_sum)
-                return score
-            submission_pages = sorted(submissions_pages, reverse=True, key=ranking)#lambda x: x["score"])
-            
-            
-            #pages = sorted(submissions_pages, reverse=True, key=ranking)
+                x["score"] = (x["score"] * 1.0) + (metric_score * 0.1) 
 
+
+            submission_pages = sorted(submissions_pages, reverse=True, key=lambda x: x["score"])
+            
+            
 
             # issue is now that note pages can have same source url but different content
             # moved inside search

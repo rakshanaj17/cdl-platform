@@ -42,10 +42,11 @@ def insert_stats(submission_id, mongo_client, database_name):
             "likes":0,
             "dislikes":0
         }
+        return
 
         try:
             stats_collection.insert_one(stats_data)
-            print(f"Stats inserted for submission: {submission_id}")
+            #print(f"Stats inserted for submission: {submission_id}")
         except Exception as e:
             print(f"Error occurred while inserting stats for submission {submission_id}: {e}")
 
@@ -62,7 +63,12 @@ if __name__ == "__main__":
     searches_clicks_collection = mongo_client[database_name].searches_clicks
     submission_ids = searches_clicks_collection.distinct("submission_id")
 
-    for submission_id in submission_ids:
+    for i,submission_id in enumerate(submission_ids):
         insert_stats(str(submission_id), mongo_client, database_name)
+        print(i)
+        if i % 100 == 0: print(i / len(submission_ids))
 
     print("Backfill completed.")
+
+
+# python backend\elastic\mar2024_stats_fill.py --env_file backend\env_local_offline.ini      
