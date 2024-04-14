@@ -456,12 +456,10 @@ function Header(props) {
     event.preventDefault();
     jsCookie.remove("token");
     localStorage.removeItem("dropdowndata");
-
     setcommunityData([]);
     setUserDataStoreProps({ userCommunities: [] });
     setUserDataStoreProps({ username: [] });
     setLoggedOut(true);
-
     Router.push("/");
   };
 
