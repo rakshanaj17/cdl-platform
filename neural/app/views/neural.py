@@ -23,7 +23,7 @@ except Exception as e:
 # set up generate model
 try:
     sampling_params = SamplingParams(temperature=0, top_p=0.95, max_tokens=2000)
-    generate_model = LLM(model="vicuna-7b-v1.5-awq/", quantization="AWQ", gpu_memory_utilization=0.8)
+    generate_model = LLM(model="vicuna-7b-v1.5-awq/", quantization="AWQ", gpu_memory_utilization=0.5)
     
 except Exception as e:
     generate_model = False
