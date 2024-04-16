@@ -100,7 +100,6 @@ export default function CommunityHomepage(props) {
     };
 
     const updateDropDownSearch = async () => {
-        console.log('calling updateDropDownSearch')
         let resp = await fetch(BASE_URL_CLIENT + GET_COMMUNITIES_ENDPOINT, {
             method: "GET",
             headers: new Headers({
@@ -113,7 +112,6 @@ export default function CommunityHomepage(props) {
         setUserDataStoreProps({ userFollowedCommunities: responseComm.followed_community_info });
         setcommunityData(responseComm.community_info);
         localStorage.setItem("dropdowndata", JSON.stringify(responseComm));
-        console.log('setting: ', responseComm)
     };
 
 
@@ -151,7 +149,6 @@ export default function CommunityHomepage(props) {
                 userFollowedCommunities: tempData
             });
 
-            console.log(tempData, localStorage.getItem("dropdowndata"))
 
             updateDropDownSearch();
         }
@@ -184,7 +181,6 @@ export default function CommunityHomepage(props) {
             var tempData = userFollowedCommunities
             var temp = tempData.filter((item) => item.community_id !== communityId);
             setUserDataStoreProps({ userFollowedCommunities: temp });
-            console.log(temp, localStorage.getItem("dropdowndata"))
             updateDropDownSearch();
 
         }

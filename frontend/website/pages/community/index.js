@@ -132,7 +132,7 @@ function CommunitiesPage({ data, history_data }, props) {
 
         localStorage.setItem("dropdowndata", JSON.stringify(data));
 
-    }, [userFollowedCommunities]);
+    }, []);
 
     if (data.error) {
         return (
