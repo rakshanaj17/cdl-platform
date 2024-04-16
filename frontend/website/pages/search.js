@@ -13,6 +13,8 @@ import Fab from "@mui/material/Fab";
 import Divider from "@mui/material/Divider";
 import Footer from "../components/footer";
 import CommunityDisplay from "../components/communityDisplay";
+import Paper from '@mui/material/Paper';
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 
@@ -33,6 +35,8 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(Math.ceil(data.total_num_results / 10));
   const [searchedCommunity, setSearchedCommunity] = useState("all")
+  const [searchSummary, setSearchSummary] = useState();
+  const [generationSpinner, setGenerationSpinner] = React.useState(false);
 
 
   useEffect(() => {
@@ -42,6 +46,30 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setTotalPages(Math.ceil(data.total_num_results / 10));
     setSearchedCommunity(findCommunityName(community))
   }, [data])
+
+  const handleSearchSummary = async () => {
+    setGenerationSpinner(true)
+    const generateURL = baseURL_server + "generate"
+    try {
+      const searchSummaryApi = await fetch(generateURL, {
+        method: "POST",
+        headers: {
+          Authorization: jsCookie.get("token"),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          "mode": "summary_rag",
+          "search_id": data.search_id,
+        }),
+      })
+      const search_summary = await searchSummaryApi.json()
+      console.log(search_summary);
+      setGenerationSpinner(false)
+      setSearchSummary(search_summary.output);
+    } catch(error) {
+    console.log(error);
+  }
+}
 
   const loadMoreResults = async () => {
 
@@ -135,7 +163,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   }
 
   return (
-    <div className="allResults">
+    <div className="allResults ml-5">
       <Head>
         <title>{data.query != "" ? data.query : "Search"} - TextData</title>
         <link rel="icon" href="/images/tree32.png" />
@@ -166,6 +194,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
                 display: 'inline-block',
                 margin: '5px',
                 fontSize: '14px',
+                color: '#1976d2',
               }}
               target="_blank"
               rel="noopener noreferrer"
@@ -174,6 +203,34 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
             >
               Export Search Results
             </a>
+          </Grid>
+          <Grid item
+            sx={{
+              position: 'absolute',
+              top: 40,
+              right: 5,
+              border: '1px solid #1976d2',
+              padding: '5px 10px',
+              textDecoration: 'none',
+              borderRadius: '5px',
+              display: 'inline-block',
+              margin: '5px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              color: '#1976d2',
+            }}
+            onClick={handleSearchSummary}
+          >
+            Summarize Search Results
+          </Grid>
+          <Grid item sx={{ position: 'absolute', top: 90, right: 5 }}>
+          {searchSummary && !generationSpinner ?  
+          <Paper style={{ alignItems:'right', border: '1px', marginLeft: 'auto', width: '15%', padding: "15px" }}>
+            {searchSummary}
+          </Paper>  : null}
+            {generationSpinner && (
+              <CircularProgress style={{ marginRight: '50px', marginTop: '50px'}} color="success" />
+            )}
           </Grid>
         </Grid>
 
@@ -188,6 +245,13 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           display={"flex"}
           justifyContent={"center"}
           alignItems={"center"}>
+          {searchSummary && !generationSpinner ? 
+            <Paper elevation={2} style={{ marginTop: '10px',  padding: "15px" }}>
+              {searchSummary}
+            </Paper> : null }
+            {generationSpinner && (
+              <CircularProgress style={{ marginTop: '10px'}} color="success" />
+            )}
           <InfiniteScroll
             dataLength={items.length}
             next={loadMoreResults}
