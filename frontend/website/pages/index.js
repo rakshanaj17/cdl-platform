@@ -221,153 +221,256 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
 
   if (onboardingStep == 0) {
     homePageContent = (
-      <div>
-        <Grid
-          container
-          display={"flex"}
-          direction="column"
-          justifyContent={"center"}
-          alignItems={"center"}
-        >
-          <Grid item marginTop={'1%'}>
-            <div style={{ textAlign: 'center' }}>
-              <h1>TextData</h1>
-            </div>
-          </Grid>
+      <div className="px-4 sm:mx-6 lg:mx-60">
+        <div className="text-center">
+          <h1 className="mb-2">TextData</h1>
+        </div>
+        <Divider className="my-2" />
 
-          <Grid item style={{ width: '100ch' }} >
-            <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
-          </Grid>
+        <div className="mb-4">
+          <h4>Recently Accessed Submissions</h4>
+          <QuickSubmissionBox className="mt-2" submissionData={recently_accessed_submissions} />
+        </div>
 
-          <Grid
-            style={{ display: "flex", width: "100ch", flexDirection: "column" }}>
-            <h4>Recently Accessed Submissions</h4>
-          </Grid>
-          <Grid item width={'100ch'}>
-            <QuickSubmissionBox submissionData={recently_accessed_submissions} />
-          </Grid>
+        <Divider className="my-8" />
 
-
-          <Grid item style={{ width: '100ch' }} >
-            <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
-          </Grid>
-
-          <Grid
-            style={{ display: "flex", width: "100ch", height: "500px", flexDirection: "column" }}>
-            <Grid item >
-              <h4 >Visualizing Your Submissions</h4>
-            </Grid>
-            {!userOwnSubmissions ?
-              <Tooltip title={<Typography>Loading</Typography>} placement="top">
-                <Skeleton
-                  animation="wave"
-                  variant="rectangular"
-                  width={"100ch"}
-                  height={"100vh"}
-                />
+        <div className="mb-8">
+          <h4>Visualizing Your Submissions</h4>
+          {!userOwnSubmissions ? (
+            <div className="text-center">
+              <Tooltip title="Loading" placement="top">
+                <Skeleton animation="wave" variant="rectangular" width={300} height={5000} />
               </Tooltip>
-              :
-              <HomeConnections nds={userOwnSubmissions && userOwnSubmissions['nodes']}
-                eds={userOwnSubmissions && userOwnSubmissions['edges']} />
-            }
-          </Grid>
-          <Grid item style={{ width: '100ch', marginTop: '10px' }} >
-            <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
-          </Grid>
-          <Grid
-            container
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            width="57%">
-            <Grid item width={'50%'}>
-              <h4>Recommended for you</h4>
-            </Grid>
-            <Grid item>
-              <FormControl
-                sx={{ m: 1, minWidth: 120 }}
+            </div>
+          ) : (
+            <div style={{ height: '65vh' }}>
+              <HomeConnections nds={userOwnSubmissions && userOwnSubmissions['nodes']} eds={userOwnSubmissions && userOwnSubmissions['edges']} />
+            </div>
+          )}
+        </div>
+
+        <Divider className="my-8" />
+
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h4>Recommended for you</h4>
+            <FormControl sx={{ minWidth: 120 }}>
+              <Select
+                labelId="select-small"
+                id="select-recommendation-type"
+                name="method"
+                defaultValue="recent"
+                value={selectedRecOption}
+                onChange={handleRecTypeChange}
                 size="small"
-                margintop={0}
               >
-                <Select
-                  labelId="select-small"
-                  id="select-recommendation-type"
-                  name="method"
-                  defaultValue={"recent"}
-                  value={selectedRecOption}
-                  onChange={handleRecTypeChange}
-                >
-                  {/* Currently is : User Submission History + Extension opens searches*/}
-                  <MenuItem value="explore_similar_extension">Explore</MenuItem>
-                  <MenuItem value="recent">New Submissions</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid
-          container
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
-          minWidth={'600px'}
-          margin={'auto'}
-          width={'100ch'}
-          direction={'column'}
-          borderTop={"1px solid lightgray"}
-        >
+                <MenuItem value="explore_similar_extension">Explore</MenuItem>
+                <MenuItem value="recent">New Submissions</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+
           <InfiniteScroll
             dataLength={items.length}
             next={fetchNextPage}
             hasMore={!endOfRecommendations}
-            loader={!endOfRecommendations && <h6 style={{ textAlign: 'center' }} >Loading...</h6>}
-            endMessage={endOfRecommendations && items.length > 0 ?
-              <h4 style={{ textAlign: 'center', marginTop: '15px' }} > You've reached the end of your recommendations.</h4>
-              :
-              <>
-                <br />
-                <h6 style={{ textAlign: 'center' }}> No recommendations to display. <br /> <br />
-                  {/* Currently is : href needs to be updated to make new submission model open*/}
-                  <a variant="outline" href={"/community"}>{" Click here to create or join a community!"}</a></h6>
-              </>}
+            loader={!endOfRecommendations && <div className="text-center">Loading...</div>}
+            endMessage={endOfRecommendations && items.length > 0 ? <div className="text-center my-8">You've reached the end of your recommendations.</div> : <div className="text-center my-8">No recommendations to display. <br /> <a href="/community">Click here to create or join a community!</a></div>}
           >
-            <Grid item margin={'auto'}>
-              {(items !== undefined && items.length > 0) &&
-                items.map(function (d, idx) {
-                  return (
-                    <div key={idx}>
-                      <SearchResult
-                        search_idx={idx}
-                        redirect_url={d.redirect_url}
-                        display_url={d.display_url}
-                        submission_id={d.submission_id}
-                        result_hash={d.result_hash}
-                        highlighted_text={d.highlighted_text}
-                        explanation={d.explanation}
-                        time={d.time}
-                        communities_part_of={d.communities_part_of}
-                        auth_token={jsCookie.get("token")}
-                        show_relevant={true}
-                        hashtags={d.hashtags}
-                      ></SearchResult>
-                    </div>
-                  );
-                })}
-            </Grid>
+            <div className="flex flex-col items-center">
+              {items.map((d, idx) => (
+                <div key={idx} className="mb-4 w-full">
+                  <SearchResult
+                    search_idx={idx}
+                    redirect_url={d.redirect_url}
+                    display_url={d.display_url}
+                    submission_id={d.submission_id}
+                    result_hash={d.result_hash}
+                    highlighted_text={d.highlighted_text}
+                    explanation={d.explanation}
+                    time={d.time}
+                    communities_part_of={d.communities_part_of}
+                    auth_token={jsCookie.get("token")}
+                    show_relevant={true}
+                    hashtags={d.hashtags}
+                  />
+                </div>
+              ))}
+            </div>
           </InfiniteScroll>
-        </Grid>
+        </div>
 
-        {visible && <IconButton
-          variant="extended"
-          onClick={scrollToTop}
-          sx={{
-            width: '50px', height: '50px', ml: "85%", position: 'sticky', border: 'solid', bottom: '10px', "&:hover": {
-              backgroundColor: "#1976d2", color: 'white'
-            }
-          }}>
-          <ArrowUpwardOutlined color="white"></ArrowUpwardOutlined>
-        </IconButton>}
+        {visible && (
+          <IconButton
+            variant="extended"
+            onClick={scrollToTop}
+            sx={{
+              width: '50px',
+              height: '50px',
+              ml: "auto",
+              border: 'solid',
+              bottom: '10px',
+              position: 'fixed',
+              right: '10px',
+              backgroundColor: 'white',
+              "&:hover": {
+                backgroundColor: "#1976d2",
+                color: 'white'
+              }
+            }}
+          >
+            <ArrowUpwardOutlined color="primary" />
+          </IconButton>
+        )}
       </div>
+
+      // <div>
+      //   <Grid
+      //     container
+      //     display={"flex"}
+      //     direction="column"
+      //     justifyContent={"center"}
+      //     alignItems={"center"}
+      //   >
+      //     <Grid item marginTop={'1%'}>
+      //       <div style={{ textAlign: 'center' }}>
+      //         <h1>TextData</h1>
+      //       </div>
+      //     </Grid>
+
+      //     <Grid item style={{ width: '100ch' }} >
+      //       <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
+      //     </Grid>
+
+      //     <Grid
+      //       style={{ display: "flex", width: "100ch", flexDirection: "column" }}>
+      //       <h4>Recently Accessed Submissions</h4>
+      //     </Grid>
+      //     <Grid item width={'100ch'}>
+      //       <QuickSubmissionBox submissionData={recently_accessed_submissions} />
+      //     </Grid>
+
+
+      //     <Grid item style={{ width: '100ch' }} >
+      //       <Divider sx={{ border: '1.5px solid', borderColor: 'black', marginY: '20px' }} />
+      //     </Grid>
+
+      //     <Grid
+      //       style={{ display: "flex", width: "100ch", height: "500px", flexDirection: "column" }}>
+      //       <Grid item >
+      //         <h4 >Visualizing Your Submissions</h4>
+      //       </Grid>
+      //       {!userOwnSubmissions ?
+      //         <Tooltip title={<Typography>Loading</Typography>} placement="top">
+      //           <Skeleton
+      //             animation="wave"
+      //             variant="rectangular"
+      //             width={"100ch"}
+      //             height={"100vh"}
+      //           />
+      //         </Tooltip>
+      //         :
+      //         <HomeConnections nds={userOwnSubmissions && userOwnSubmissions['nodes']}
+      //           eds={userOwnSubmissions && userOwnSubmissions['edges']} />
+      //       }
+      //     </Grid>
+      //     <Grid item style={{ width: '100ch', marginTop: '10px' }} >
+      //       <Divider sx={{ border: '1.5px solid', borderColor: 'black' }} />
+      //     </Grid>
+      //     <Grid
+      //       container
+      //       direction="row"
+      //       justifyContent="space-between"
+      //       alignItems="center"
+      //       width="57%">
+      //       <Grid item width={'50%'}>
+      //         <h4>Recommended for you</h4>
+      //       </Grid>
+      //       <Grid item>
+      //         <FormControl
+      //           sx={{ m: 1, minWidth: 120 }}
+      //           size="small"
+      //           margintop={0}
+      //         >
+      //           <Select
+      //             labelId="select-small"
+      //             id="select-recommendation-type"
+      //             name="method"
+      //             defaultValue={"recent"}
+      //             value={selectedRecOption}
+      //             onChange={handleRecTypeChange}
+      //           >
+      //             {/* Currently is : User Submission History + Extension opens searches*/}
+      //             <MenuItem value="explore_similar_extension">Explore</MenuItem>
+      //             <MenuItem value="recent">New Submissions</MenuItem>
+      //           </Select>
+      //         </FormControl>
+      //       </Grid>
+      //     </Grid>
+      //   </Grid>
+      //   <Grid
+      //     container
+      //     display={"flex"}
+      //     justifyContent={"center"}
+      //     alignItems={"center"}
+      //     minWidth={'600px'}
+      //     margin={'auto'}
+      //     width={'100ch'}
+      //     direction={'column'}
+      //     borderTop={"1px solid lightgray"}
+      //   >
+      //     <InfiniteScroll
+      //       dataLength={items.length}
+      //       next={fetchNextPage}
+      //       hasMore={!endOfRecommendations}
+      //       loader={!endOfRecommendations && <h6 style={{ textAlign: 'center' }} >Loading...</h6>}
+      //       endMessage={endOfRecommendations && items.length > 0 ?
+      //         <h4 style={{ textAlign: 'center', marginTop: '15px' }} > You've reached the end of your recommendations.</h4>
+      //         :
+      //         <>
+      //           <br />
+      //           <h6 style={{ textAlign: 'center' }}> No recommendations to display. <br /> <br />
+      //             {/* Currently is : href needs to be updated to make new submission model open*/}
+      //             <a variant="outline" href={"/community"}>{" Click here to create or join a community!"}</a></h6>
+      //         </>}
+      //     >
+      //       <Grid item margin={'auto'}>
+      //         {(items !== undefined && items.length > 0) &&
+      //           items.map(function (d, idx) {
+      //             return (
+      //               <div key={idx}>
+      //                 <SearchResult
+      //                   search_idx={idx}
+      //                   redirect_url={d.redirect_url}
+      //                   display_url={d.display_url}
+      //                   submission_id={d.submission_id}
+      //                   result_hash={d.result_hash}
+      //                   highlighted_text={d.highlighted_text}
+      //                   explanation={d.explanation}
+      //                   time={d.time}
+      //                   communities_part_of={d.communities_part_of}
+      //                   auth_token={jsCookie.get("token")}
+      //                   show_relevant={true}
+      //                   hashtags={d.hashtags}
+      //                 ></SearchResult>
+      //               </div>
+      //             );
+      //           })}
+      //       </Grid>
+      //     </InfiniteScroll>
+      //   </Grid>
+
+      //   {visible && <IconButton
+      //     variant="extended"
+      //     onClick={scrollToTop}
+      //     sx={{
+      //       width: '50px', height: '50px', ml: "85%", position: 'sticky', border: 'solid', bottom: '10px', "&:hover": {
+      //         backgroundColor: "#1976d2", color: 'white'
+      //       }
+      //     }}>
+      //     <ArrowUpwardOutlined color="white"></ArrowUpwardOutlined>
+      //   </IconButton>}
+      // </div>
     );
   }
 

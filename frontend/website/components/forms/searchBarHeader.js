@@ -129,7 +129,7 @@ function searchBarHeader(props) {
 
                 <Stack spacing={2}
                     style={{
-                        width: props.isSmall ? '200px' : '60%', borderRadius: '5px',
+                        width: props.isSmall ? '150px' : '60%', borderRadius: '5px',
                         position: "relative", paddingRight: "5px"
                     }}>
                     <Autocomplete
