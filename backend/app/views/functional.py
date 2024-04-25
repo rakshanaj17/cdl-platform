@@ -954,13 +954,11 @@ def generate(current_user):
         if not search_id:
             return response.error("search_id is required for summarizing search results", Status.BAD_REQUEST)
         exported_results = export_helper(user_id=str(user_id), search_id=str(search_id))['data']
-        all_results = [{"Title "+str(index+1): item['title'] + ". 'Description' - " +item['description']} for index, item in enumerate(exported_results)]
-        context='You are a helpful assistant that summarizes multiple notes about a given topic, clusters important themes, and provides a comprehensive summary of all notes across all the themes.'
         if len(exported_results)==1:
-            all_results_str = ', '.join([str(result) for result in all_results])
-            context='You are a helpful assistant that captures and summarizes a note of text'
-            to_ask_1 = f""". The note is shown as - {all_results_str}."""
+            return response.error("Single Search Result cannot be summarized", Status.BAD_REQUEST)
         else:  
+            all_results = [{"Title "+str(index+1): item['title'] + ". 'Description' - " +item['description']} for index, item in enumerate(exported_results)]
+            context='You are a helpful assistant that summarizes multiple notes about a given topic, clusters important themes, and provides a comprehensive summary of all notes across all the themes.'
             to_ask_1 = f"""\
             The following are a set of text notes known by me - 
             {all_results}
@@ -2245,3 +2243,4 @@ def prep_subs_viz_conns(result_list):
                 edges.append(edge)
 
     return {"nodes": nodes, "edges": edges}
+    
