@@ -63,8 +63,8 @@ function searchBarHeader(props) {
             q = q + "&own_submissions=True"
         }
 
-        //No submit on empty query
-        if (inputValue.length == 0) {
+        //No submit on empty query with all community
+        if (inputValue.length == 0 && event.target.community.value == "all") {
             return
         } else {
             Router.push(q);
@@ -106,6 +106,7 @@ function searchBarHeader(props) {
 
 
     const handleVisualizeCommunity = (event) => {
+
         if (inputValue.length == 0) {
             return
         }
@@ -145,7 +146,6 @@ function searchBarHeader(props) {
                         value={inputValue}
                         renderInput={(params) =>
                             <TextField {...params}
-                                required
                                 variant="outlined"
                                 sx={{ m: 1 }}
                                 style={{
