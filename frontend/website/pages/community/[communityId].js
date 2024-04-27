@@ -307,46 +307,46 @@ export async function getServerSideProps(context) {
 
     const { communityId } = context.params;
 
-    if (
-        context.req.cookies.token === "" ||
-        context.req.cookies.token === undefined
-    ) {
-        return {
-            redirect: {
-                destination: "/auth",
-                permanent: false,
-            },
-        };
-    } else {
-        try {
+    //if (
+    //    context.req.cookies.token === "" ||
+    //    context.req.cookies.token === undefined
+    //) {
+    //    return {
+    //        redirect: {
+    //            destination: "/auth",
+    //            permanent: false,
+    //        },
+    //    };
+    //} else {
+    try {
 
-            var communityHomePageURL = BASE_URL_SERVER + "community/" + communityId;
+        var communityHomePageURL = BASE_URL_SERVER + "community/" + communityId;
 
-            const res = await fetch(communityHomePageURL, {
-                headers: new Headers({
-                    Authorization: context.req.cookies.token,
-                }),
-            });
+        const res = await fetch(communityHomePageURL, {
+            headers: new Headers({
+                Authorization: context.req.cookies.token,
+            }),
+        });
 
-            const data = await res.json();
+        const data = await res.json();
 
-            if (res.status === 200) {
-                return {
-                    props: {
-                        community: data,
-                    },
-                };
-            } else {
-                return {
-                    props: {
-                        error: data.message,
-                        errorCode: res.status,
-                    },
-                };
-            }
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            return { props: { error: "Error fetching data. Please try again later" } };
+        if (res.status === 200) {
+            return {
+                props: {
+                    community: data,
+                },
+            };
+        } else {
+            return {
+                props: {
+                    error: data.message,
+                    errorCode: res.status,
+                },
+            };
         }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return { props: { error: "Error fetching data. Please try again later" } };
     }
+    //}
 }

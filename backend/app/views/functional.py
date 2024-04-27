@@ -13,7 +13,7 @@ import random
 import requests
 
 
-from app.helpers.helpers import token_required, build_display_url, build_result_hash, build_redirect_url, \
+from app.helpers.helpers import token_required, token_required_public, build_display_url, build_result_hash, build_redirect_url, \
     format_time_for_display, validate_submission, hydrate_with_hash_url, create_page, hydrate_with_hashtags, \
     deduplicate, combine_pages, standardize_url, extract_hashtags, format_url, build_display_url
 from app.helpers import response
@@ -357,7 +357,8 @@ def feedback(current_user):
 
 
 @functional.route("/api/submission/<id>", methods=["DELETE", "GET", "PATCH"])
-@token_required
+#@token_required
+@token_required_public
 def submission(current_user, id):
     """
 	Endpoint for viewing, deleting, or updating a submitted webpage.
@@ -1135,7 +1136,8 @@ def context_analysis(current_user):
 
 
 @functional.route("/api/search", methods=["GET"])
-@token_required
+#@token_required
+@token_required_public
 def search(current_user):
     """
 	Endpoint for the webpage search functionality.

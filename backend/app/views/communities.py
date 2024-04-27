@@ -8,7 +8,7 @@ import traceback
 from app.db import *
 from app.helpers.status import Status
 from app.helpers import response
-from app.helpers.helpers import token_required, format_time_for_display, format_url
+from app.helpers.helpers import token_required, token_required_public, format_time_for_display, format_url
 from app.models.communities import Communities, Community
 from app.models.community_logs import CommunityLogs
 from app.models.users import Users
@@ -208,11 +208,17 @@ def get_communities_helper(current_user, return_dict=False):
 		user_followed_communities_struct = new_followed_community_struct
 
 
+	return_obj = {
+		"community_info": community_struct,
+		"followed_community_info": user_followed_communities_struct
+	}
+	try:
+		username = current_user.username
+		return_obj["username"] = username
+	except Exception as e:
+		print("Accessed as public, no username found.")
 
-	return {"community_info": community_struct, 
-		 	"followed_community_info": user_followed_communities_struct, 
-			"username": current_user.username}
-
+	return return_obj
 
 @communities.route("/api/createCommunity", methods=["POST", "PATCH"])
 @token_required
@@ -309,7 +315,8 @@ def create_community(current_user):
 
 
 @communities.route("/api/community/<id>", methods=["GET"])
-@token_required
+#@token_required
+@token_required_public
 def community(current_user, id):
 	"""
 	Getting data on a single community
@@ -678,7 +685,8 @@ def submit_rel_judgments(current_user):
 
 
 @communities.route("/api/fetchSubmissionStats", methods=["GET"])
-@token_required
+#@token_required
+@token_required_public
 def fetch_submission_stats(current_user):
 	"""
 	Endpoint for submitting a relevance judgment
@@ -709,7 +717,8 @@ def fetch_submission_stats(current_user):
 
 
 @communities.route("/api/fetchSubmissionJudgement", methods=["GET"])
-@token_required
+#@token_required
+@token_required_public
 def fetch_submission_judgement(current_user):
 	"""
 	Endpoint for submitting a relevance judgment
