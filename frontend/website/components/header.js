@@ -357,10 +357,9 @@ function Header(props) {
     },
   });
   // const [loggedOut, setLoggedOut] = useState(false);
-  const { communityData, setcommunityData } = useQuickAccessStore();
+  const { isMobileView, setcommunityData, setQuickAccessStoreProps } = useQuickAccessStore();
   const [dropdowndata, setDropDownData] = useState({});
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
 
 
   const toggleMobileMenu = () => {
@@ -404,6 +403,7 @@ function Header(props) {
       // window.location.reload()
     }
 
+    setQuickAccessStoreProps({ isMobileView: isSmall })
     setLoggedOut(jsCookie.get("token") == "" || jsCookie.get("token") == undefined);
 
   }, [jsCookie.get("token")]);
@@ -479,8 +479,6 @@ function Header(props) {
     }
   };
 
-
-
   // for some reason, adding && != undefined makes box render weirdly
   if (!isLoggedOut) {
     return (<>
@@ -491,18 +489,18 @@ function Header(props) {
               container
               justifyContent={"space-between"}
               alignItems={"center"}
-              sx={{ minHeight: "65px", overflow: "hidden" }}
+              sx={{ minHeight: "60px", overflow: "hidden" }}
 
             >
               {!isSmall &&
-                <Grid className="flex items-center space-x-2 text-2xl mr-2 mt-2 font-medium text-white-500 dark:text-white-100">
+                <Grid item className="flex items-center space-x-2 text-2xl mr-2 mt-2 font-medium text-white-500 dark:text-white-100">
                   <a href="/">
                     <a>
                       <Image
                         src="/images/tree48.png"
                         alt="TextData"
-                        width="40"
-                        height="40"
+                        width="35"
+                        height="35"
                         className="w-8"
                       />
                     </a>
@@ -523,7 +521,6 @@ function Header(props) {
                   <DrawerComp
                     settings={settings}
                     handleUserClickMenu={handleUserClickMenu}
-                    // handleClickSubmission={handleClickSubmission}
                     handleClickSubmission={() => { handleClickOpenNewSubTitleDialog(true) }}
                     username={username}
                     style={{ position: 'sticky', top: '0', right: '0' }}
@@ -536,7 +533,6 @@ function Header(props) {
 
                       {setting.value == 'indexSubmission' ?
                         <Grid item sx={{ flexGrow: 0 }}>
-                          {/* <MenuItem onClick={handleClickSubmission}> */}
                           <MenuItem onClick={() => { handleClickOpenNewSubTitleDialog(true) }}>
                             <Tooltip title="Create a submission">
                               <Add />
@@ -546,6 +542,7 @@ function Header(props) {
                         :
                         <Grid item sx={{ flexGrow: 0 }}>
                           <MenuItem
+                            className="text-sm"
                             key={setting.value}
                             value={setting.value}
                             variant="outline"

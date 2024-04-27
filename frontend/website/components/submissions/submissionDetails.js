@@ -668,11 +668,11 @@ export default function SubmissionDetails(subData) {
                     {submissionData.submission &&
                         <Grid container direction={'row'} spacing={2} justifyContent={'space-between'}>
                             <Grid item>
-                                <Typography variant="h5" color='blue' noWrap
+                                <Typography variant="h6" color='blue'
                                     sx={{
-                                        overflow: 'hidden',
+                                        // overflow: 'hidden',
                                         textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
+                                        // whiteSpace: 'nowrap',
                                         maxWidth: '95ch',
                                     }}>
                                     <Link target="_blank" color="inherit" href={submissionData.submission.redirect_url}>

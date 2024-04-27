@@ -9,16 +9,22 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  FormControl,
+  FormControlLabel,
+  Checkbox,
+  Typography
 } from "@mui/material";
 import Divider from '@mui/material/Divider';
 import MenuIcon from "@mui/icons-material/Menu";
 import { BASE_URL_CLIENT, GET_SUBMISSION_ENDPOINT, WEBSITE_URL } from "../../static/constants";
 import Image from "next/image";
+import useQuickAccessStore from "../../store/quickAccessStore";
 
 function DrawerComp(props) {
   const [openDrawer, setOpenDrawer] = useState(false);
 
+  const { ownSubmissionToggle, setQuickAccessStoreProps } = useQuickAccessStore();
   const handleNewSubmissionRequest = async (event) => {
     var DATA = {
       community: "",
@@ -72,10 +78,24 @@ function DrawerComp(props) {
               </a>
               <h4 className="ml-2 mb-0">Hello {props.username ? ',' + props.username : ''}</h4>
             </div>
+            <Divider sx={{ borderColor: 'black', my: '2%' }} />
+            <h6>Search Settings
+            </h6>
+            <FormControl>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={ownSubmissionToggle}
+                    onChange={
+                      (event) => {
+                        setQuickAccessStoreProps({ ownSubmissionToggle: event.target.checked })
+                      }}
+                  />
+                }
+                label={<Typography fontSize={'0.8rem'}>Show only my submissions</Typography>} />
+            </FormControl>
 
-
-
-            <Divider sx={{ borderColor: 'black', my: '5%', mx: '5%' }} />
+            <Divider sx={{ borderColor: 'black' }} />
           </>
 
           {props.settings.map((setting, index) => (

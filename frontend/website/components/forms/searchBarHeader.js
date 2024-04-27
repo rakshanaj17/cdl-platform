@@ -14,6 +14,7 @@ import jsCookie from "js-cookie";
 import Stack from '@mui/material/Stack';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import useUserDataStore from '../../store/userData';
+import useQuickAccessStore from '../../store/quickAccessStore';
 
 
 
@@ -31,11 +32,11 @@ function searchBarHeader(props) {
     }
 
     const [inputValue, setInputValue] = useState(initQuery);
-    const [ownSubmissionToggle, setOwnSubmissionToggle] = useState(true)
+    const { ownSubmissionToggle, setQuickAccessStoreProps } = useQuickAccessStore();
 
     const updateOwnSubmissionToggle = async (event) => {
         const { value, checked } = event.target;
-        setOwnSubmissionToggle(checked)
+        setQuickAccessStoreProps({ ownSubmissionToggle: checked })
     }
 
 
@@ -129,7 +130,7 @@ function searchBarHeader(props) {
 
                 <Stack spacing={2}
                     style={{
-                        width: props.isSmall ? '150px' : '60%', borderRadius: '5px',
+                        width: props.isSmall ? '225px' : '60%', borderRadius: '5px',
                         position: "relative", paddingRight: "5px"
                     }}>
                     <Autocomplete
@@ -152,7 +153,6 @@ function searchBarHeader(props) {
                                     backgroundColor: 'white', borderRadius: '5px',
                                     position: "relative"
                                 }}
-                                size="small"
                                 type="text"
                                 placeholder="Search your communities"
                                 id="query_input"
@@ -163,50 +163,18 @@ function searchBarHeader(props) {
                                         <>
                                             <IconButton type="submit"
                                                 variant="contained"
-                                                sx={{
-                                                    border: "1px solid #efffff",
-                                                    bgcolor: '#eceff1',
-                                                    borderRadius: 1,
-                                                    transition: "transform 0.3s ease, width 0.3s ease",
-                                                    transform: "translateZ(0)",
-                                                    width: '40px',
-                                                    "&:hover": {
-                                                        border: "1px solid #eceff1",
-                                                        bgcolor: "#F5F5F5",
-                                                        color: '#696969',
-                                                        transform: "translateZ(30px)",
-                                                        width: '60px'
-                                                    },
-                                                }}
                                             >
                                                 <Tooltip title={"Search"}>
-                                                    <SearchIcon />
+                                                    <SearchIcon style={{ fontSize: 16 }} />
                                                 </Tooltip>
                                             </IconButton>
                                             <IconButton
                                                 variant="contained"
                                                 onClick={handleVisualizeCommunity}
-                                                sx={{
-                                                    border: "1px solid #efffff",
-                                                    bgcolor: '#eceff1',
-                                                    borderRadius: 1,
-                                                    transition: "transform 0.3s ease, width 0.3s ease",
-                                                    transform: "translateZ(0)",
-                                                    width: '40px',
-                                                    "&:hover": {
-                                                        border: "1px solid #eceff1",
-                                                        bgcolor: "#F5F5F5",
-                                                        color: '#696969',
-                                                        transform: "translateZ(30px)",
-                                                        width: '60px'
-                                                    },
-                                                }}
                                             >
                                                 <Tooltip title={"Visualize"}>
                                                     <BubbleChartIcon
-                                                        style={{ marginLeft: "5px", marginRight: "5px" }}
-                                                        size="medium"
-
+                                                        style={{ fontSize: 16 }}
                                                     />
                                                 </Tooltip>
                                             </IconButton>
@@ -215,30 +183,25 @@ function searchBarHeader(props) {
                                     ),
                                     style: {
                                         padding: 0,
-                                        overflow: "hidden"
+                                        overflow: "hidden",
                                     },
-                                }}
-                            />
+                                }}>
+                            </TextField>
                         }
-
                     />
-
-
                 </Stack>
 
-
-                <FormControl
-                    sx={{ m: 1, maxWidth: '25%', backgroundColor: 'white', borderRadius: '5px', float: "left" }}
-                    size="small">
+                <FormControl className="m-1 max-w-1/4 bg-white rounded-5 float-left" size="small">
                     <Select
-                        style={{ backgroundColor: "white" }}
+                        className="bg-white text-sm"
+                        size='small'
                         name="community"
                         defaultValue={"all"}
                         MenuProps={{
                             PaperProps: {
                                 style: {
                                     maxHeight: "220px",
-                                    overflowY: "scroll"
+                                    overflowY: "scroll",
                                 }
                             }
                         }}
@@ -258,20 +221,21 @@ function searchBarHeader(props) {
                             })}
                     </Select>
                 </FormControl>
-                <FormControl
+                {!props.isSmall && <FormControl
                     sx={{ m: 1, maxWidth: '15%', borderRadius: '5px', float: "left" }}
                 >
                     <FormControlLabel sx={{ color: "white" }}
                         control={
                             <Checkbox
                                 checked={ownSubmissionToggle}
+                                size='small'
                                 sx={{ color: "white", '&.Mui-checked': { color: "white", }, }}
                                 onChange={updateOwnSubmissionToggle}
                             />
                         }
 
-                        label={<Typography fontSize={'0.8rem'}>{!props.isSmall && 'Only My Submissions'}</Typography>} />
-                </FormControl>
+                        label={<Typography fontSize={'0.7rem'}>{!props.isSmall && 'Only My Submissions'}</Typography>} />
+                </FormControl>}
             </form>
         </>
     )
