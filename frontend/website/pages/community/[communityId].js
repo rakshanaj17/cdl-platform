@@ -62,7 +62,6 @@ export default function CommunityHomepage(props) {
 
         if (com_submissions.status == 200) {
             const data = await com_submissions.json();
-            console.log(data);
             setCommunityStoreProps({
                 communitySubmissions: data.search_results_page,
                 communitySubmissionsLoading: false,
@@ -79,16 +78,12 @@ export default function CommunityHomepage(props) {
 
     const loadMoreResults = async () => {
         try {
-            console.log("Hi")
-            console.log(page)
             const response = await fetch(searchURL + "?community=" + props.community.id + '&page=' + page + '&search_id=' + searchId , {
                 headers: new Headers({
                     Authorization: jsCookie.get("token"),
                 }),
             });
             const content = await response.json();
-            console.log(content)
-            console.log(content.search_results_page)
             if(communitySubmissions === null){
                 communitySubmissions = []
             }
@@ -96,17 +91,13 @@ export default function CommunityHomepage(props) {
             
 
             if ((page + 1) % 5 === 0) {
-                console.log("HI")
                 setCommunityStoreProps([communitySubmissionsLoading, true]);
             } else {
-                console.log("HI2")
                 setCommunityStoreProps([communitySubmissionsLoading, false]);
             }
 
             page = page + 1;
             setCommunityStoreProps({page : page})
-            console.log("Before update", useCommunityStore.getState().communitySubmissions);
-
         } catch (error) {
             console.log(error);
         }
