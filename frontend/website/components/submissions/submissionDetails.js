@@ -222,7 +222,6 @@ export default function SubmissionDetails(subData) {
         if (submissionData.status === "ok") {
             setSubmissionProps({ submissionCommunities: submissionData.submission.communities })
             setSubmissionProps({ submissionCommunitiesNameMap: mapCommunitiesToNames(submissionData.submission.communities) })
-            // setCommunityNameMap(mapCommunitiesToNames(submissionData.submission.communities));
 
             let sharableCommunityIds = [];
             let removableCommnuityIds = [];
@@ -238,18 +237,14 @@ export default function SubmissionDetails(subData) {
 
             if (submissionSaveCommunityID && sharableCommunityIds.length > 0) { //saveCommunityID
                 setSubmissionProps({ submissionSaveCommunityID: sharableCommunityIds })
-                // setSaveCommunityID(sharableCommunityIds);
             } else {
                 setSubmissionProps({ submissionSaveCommunityID: [] })
-                // setSaveCommunityID([]);
             }
 
             if (submissionRemoveCommunityID && removableCommnuityIds.length > 0) { //removeCommunityID
                 setSubmissionProps({ submissionRemoveCommunityID: removableCommnuityIds })
-                // setRemoveCommunityID(removableCommnuityIds);
             } else {
                 setSubmissionProps({ submissionRemoveCommunityID: [] })
-                // setRemoveCommunityID([]);
             }
         }
 
@@ -287,7 +282,6 @@ export default function SubmissionDetails(subData) {
                 );
             });
             setSubmissionProps({ submissionCommunitiesNamesList: communityNamesList })
-            // setCommunityNamesList(communityNamesList);
         }
     };
 
@@ -302,10 +296,6 @@ export default function SubmissionDetails(subData) {
                 typeof value === "string" ? value.split(",") : value
         })
 
-        // setSaveCommunityIDList(
-        //     // On autofill we get a stringified value.
-        //     typeof value === "string" ? value.split(",") : value
-        // );
     };
 
     const handleRemoveDropdownChange = (event) => {
@@ -316,10 +306,6 @@ export default function SubmissionDetails(subData) {
             submissionRemoveCommunityIDList:
                 typeof value === "string" ? value.split(",") : value
         })
-        // setRemoveCommunityIDList(
-        //     // On autofill we get a stringified value.
-        //     typeof value === "string" ? value.split(",") : value
-        // );
     };
 
     const deleteSubmissionfromCommunity = async (event) => {
@@ -386,7 +372,6 @@ export default function SubmissionDetails(subData) {
         // console.log("adding to these communities", submissionSaveCommunityIDList);
         var i;
         for (i = 0; i < submissionSaveCommunityIDList.length; i++) {
-            //addToNewCommunity(saveCommunityIDList[i])
             var URL =
                 BASE_URL_CLIENT +
                 GET_SUBMISSION_ENDPOINT +
