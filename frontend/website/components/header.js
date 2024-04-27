@@ -403,7 +403,6 @@ function Header(props) {
       // window.location.reload()
     }
 
-    setQuickAccessStoreProps({ isMobileView: isSmall })
     setLoggedOut(jsCookie.get("token") == "" || jsCookie.get("token") == undefined);
 
   }, [jsCookie.get("token")]);
