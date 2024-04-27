@@ -1,4 +1,4 @@
-import { React, useEffect } from 'react';
+import { React, useState, useEffect } from 'react';
 import Head from "next/head";
 import jsCookie from 'js-cookie';
 import { Paper, Button, IconButton, Skeleton, Tooltip, Typography } from "@mui/material";
@@ -13,9 +13,12 @@ import useUserDataStore from '../../store/userData';
 import useCommunitiesStore from '../../store/communitiesStore';
 import useQuickAccessStore from '../../store/quickAccessStore';
 
+var searchURL = BASE_URL_CLIENT + SEARCH_ENDPOINT;
+
 
 export default function CommunityHomepage(props) {
 
+    const [searchId, setSearchId] = useState('');
     if (props.error) {
         return <Error statusCode={props.errorCode} />
     }
@@ -38,6 +41,7 @@ export default function CommunityHomepage(props) {
 
     useEffect(() => {
         getCommunitySubmissions();
+        loadMoreResults();
         setCommunityStoreProps({ communityId: props.community.id });
         setCommunityStoreProps({ communityName: props.community.name });
         setCommunityStoreProps({ communityDescription: props.community.description });
@@ -50,10 +54,7 @@ export default function CommunityHomepage(props) {
 
     const getCommunitySubmissions = async () => {
 
-        var searchURL = BASE_URL_CLIENT + SEARCH_ENDPOINT;
-        //   "/search?community=" + community.community_id + "&page=0"
-        searchURL += "?community=" + props.community.id + "&page=0";
-        const com_submissions = await fetch(searchURL, {
+        const com_submissions = await fetch(searchURL + "?community=" + props.community.id + "&page=0", {
             headers: new Headers({
                 Authorization: jsCookie.get("token"),
             }),
@@ -61,38 +62,50 @@ export default function CommunityHomepage(props) {
 
         if (com_submissions.status == 200) {
             const data = await com_submissions.json();
-            setCommunityStoreProps({ communitySubmissions: data.search_results_page });
-            setCommunityStoreProps([communitySubmissionsLoading, false]);
-
+            console.log(data);
+            setCommunityStoreProps({
+                communitySubmissions: data.search_results_page,
+                communitySubmissionsLoading: false,
+                page: 1
+            });
+            setSearchId(data.search_id);
         }
         else {
             console.error("Error fetching submissions");
             setCommunityStoreProps({ communitySubmissions: [] });
             setCommunityStoreProps([communitySubmissionsLoading, true]);
-
         }
     }
 
     const loadMoreResults = async () => {
         try {
-            const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=' + page, {
+            console.log("Hi")
+            console.log(page)
+            const response = await fetch(searchURL + "?community=" + props.community.id + '&page=' + page + '&search_id=' + searchId , {
                 headers: new Headers({
                     Authorization: jsCookie.get("token"),
                 }),
             });
             const content = await response.json();
-            setCommunityStoreProps([communitySubmissions, ...content.search_results_page]);
+            console.log(content)
+            console.log(content.search_results_page)
+            if(communitySubmissions === null){
+                communitySubmissions = []
+            }
+            setCommunityStoreProps({communitySubmissions : [...communitySubmissions, ...content.search_results_page]})
+            
 
             if ((page + 1) % 5 === 0) {
+                console.log("HI")
                 setCommunityStoreProps([communitySubmissionsLoading, true]);
             } else {
+                console.log("HI2")
                 setCommunityStoreProps([communitySubmissionsLoading, false]);
             }
 
-            if (page !== totalPages) {
-                setCommunityStoreProps([page, false]);
-            }
-
+            page = page + 1;
+            setCommunityStoreProps({page : page})
+            console.log("Before update", useCommunityStore.getState().communitySubmissions);
 
         } catch (error) {
             console.log(error);
@@ -257,7 +270,7 @@ export default function CommunityHomepage(props) {
                             <InfiniteScroll
                                 dataLength={communitySubmissions.length}
                                 next={loadMoreResults}
-                                hasMore={page % 5 === 0 ? false : true}
+                                hasMore={page % 5 == 0 ? false : true}
                                 loader="" >
                                 <Grid item margin={'auto'}>
                                     {communitySubmissions !== undefined && communitySubmissions.length !== 0 &&
