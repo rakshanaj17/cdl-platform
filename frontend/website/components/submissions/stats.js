@@ -119,6 +119,7 @@ export default function SubmissionStatistics({ submitRelevanceJudgements, fetchS
                     overflow: 'hidden',
                     paddingX: '4px',
                     borderColor: 'gray',
+                    maxWidth: '250px',
                 }}
             >
                 <Tooltip title="Like">

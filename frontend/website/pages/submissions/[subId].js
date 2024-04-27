@@ -137,7 +137,7 @@ export default function SubmissionPage({ errorCode, data, id, target }) {
       <link rel="icon" href="/images/tree32.png" />
     </Head>
 
-    <div>
+    <div className="mr-1 pr-1">
       {
         data ? (
           <Stack marginLeft={3} spacing={1} alignItems={'center'}>
