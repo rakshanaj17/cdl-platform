@@ -8,6 +8,9 @@ import Head from "next/head";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useState } from "react";
 import Grid from "@mui/material/Grid";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
 import Typography from "@mui/material/Typography";
 import Fab from "@mui/material/Fab";
 import Divider from "@mui/material/Divider";
@@ -36,6 +39,8 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(Math.ceil(data.total_num_results / 10));
   const [searchedCommunity, setSearchedCommunity] = useState("all")
+  const [selectedSortByOption,setSelectedSortByOption] = useState("")
+
   const [searchSummary, setSearchSummary] = useState();
   const [generationSpinner, setGenerationSpinner] = React.useState(false);
   const [isSearchSummaryClicked, setIsSearchSummaryClicked] = useState(false);
@@ -48,7 +53,8 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setPage(parseInt(data.current_page) + 1);
     setLoading(false);
     setTotalPages(Math.ceil(data.total_num_results / 10));
-    setSearchedCommunity(findCommunityName(community))
+    setSearchedCommunity(findCommunityName(community));
+    setSelectedSortByOption("");
   }, [data])
 
   const handleSearchSummary = async () => {
@@ -110,6 +116,20 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       console.log(error);
     }
   };
+  const handleSortByOption = async(event)=>{
+    setSelectedSortByOption(event.target.value);
+    //setItems([]);
+    setLoading(true);
+    const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=0'+'&sort_by='+event.target.value , {
+      headers: new Headers({
+        Authorization: jsCookie.get("token"),
+      }),
+    });
+    const content = await response.json();
+    setItems(content.search_results_page);
+    setLoading(false);
+  };
+
 
   function findCommunityName(community_id) {
     if (community_id == "all") return community_id + " of your communities"
@@ -182,38 +202,55 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
 
       <Grid id={'searchResultsBlock'} container display={"flex"} direction={"column"} justifyContent={"center"} alignItems={"center"}>
 
-        <Grid container sx={{ position: 'relative' }} justifyContent={'center'}>
-          <Grid item xs={12} sx={{ textAlign: 'center' }}>
-            <h4>Search Results (Total: {data.total_num_results})</h4>
-            {own_submissions && <Typography textAlign={'center'} variant="caption">Filtered by your own submissions</Typography>}
-          </Grid>
-          <Grid item>
-
+      <Grid container sx={{ position: 'relative' }} justifyContent={'center'}>
+        <Grid item xs={12} sx={{ textAlign: 'center' }}>
+          <h4>Search Results (Total: {data.total_num_results})</h4>
+          {own_submissions && <Typography textAlign={'center'} variant="caption">Filtered by your own submissions</Typography>}
+        </Grid>
+          <Grid item sx={{textAlign:'center'}}>
             <Typography variant="subtitle2">
-            Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
+              Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
             </Typography>
-
           </Grid>
-          <Grid item sx={{ position: 'absolute', top: 0, right: 5 }}>
-            <a
-              style={{
-                border: '1px solid #1976d2',
-                padding: '5px 10px',
-                textDecoration: 'none',
-                borderRadius: '5px',
-                display: 'inline-block',
-                margin: '5px',
-                fontSize: '14px',
+          <Grid item >
+            <FormControl>
+              <Select
+                labelId="sort-by-label"
+                id="select-sort-type"
+                name="method"
+                defaultValue={"relevance"}
+                value={selectedSortByOption.length === 0 ? "Most Relevant" : selectedSortByOption}
+                onChange={handleSortByOption}
+                label="Sort by"
+                sx={{ minWidth: 120, height: 30 }}
+              >
+                <MenuItem value="popularity">Most Votes</MenuItem>
+                <MenuItem value="date">Most Recent</MenuItem>
+                <MenuItem value="relevance">Most Relevant</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        
+
+        <Grid item sx={{ position: 'absolute', top: 0, right: 5 }}>
+          <a
+            style={{
+              border: '1px solid #1976d2',
+              padding: '5px 10px',
+              textDecoration: 'none',
+              borderRadius: '5px',
+              display: 'inline-block',
+              margin: '5px',
+              fontSize: '14px',
                 color: '#1976d2',
-              }}
-              target="_blank"
-              rel="noopener noreferrer"
-              href={"/export?search_id=" + data.search_id}
-
-            >
-              Export Search Results
-            </a>
-          </Grid>
+            }}
+            target="_blank"
+            rel="noopener noreferrer"
+            href={"/export?search_id=" + data.search_id}
+          >
+            Export Search Results
+          </a>
+        </Grid>
           <Grid item
             sx={{
               position: 'absolute',
@@ -234,8 +271,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           >
             Summarize Search Results
           </Grid>
-        </Grid>
-
+      </Grid>
         <Grid item sx={{ textAlign: 'center' }}>
         </Grid>
 
