@@ -78,7 +78,7 @@ export default function CommunityHomepage(props) {
 
     const loadMoreResults = async () => {
         try {
-            const response = await fetch(searchURL + "?community=" + props.community.id + '&page=' + page + '&search_id=' + searchId , {
+            const response = await fetch(searchURL + '?page=' + page + '&search_id=' + searchId , {
                 headers: new Headers({
                     Authorization: jsCookie.get("token"),
                 }),
