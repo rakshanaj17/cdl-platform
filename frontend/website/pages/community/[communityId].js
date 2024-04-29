@@ -12,6 +12,7 @@ import Error from 'next/error';
 import useUserDataStore from '../../store/userData';
 import useCommunitiesStore from '../../store/communitiesStore';
 import useQuickAccessStore from '../../store/quickAccessStore';
+import { WEBSITE_URL } from "../../static/constants";
 
 var searchURL = BASE_URL_CLIENT + SEARCH_ENDPOINT;
 
@@ -41,7 +42,6 @@ export default function CommunityHomepage(props) {
 
     useEffect(() => {
         getCommunitySubmissions();
-        loadMoreResults();
         setCommunityStoreProps({ communityId: props.community.id });
         setCommunityStoreProps({ communityName: props.community.name });
         setCommunityStoreProps({ communityDescription: props.community.description });
@@ -65,7 +65,6 @@ export default function CommunityHomepage(props) {
             setCommunityStoreProps({
                 communitySubmissions: data.search_results_page,
                 communitySubmissionsLoading: false,
-                page: 1
             });
             setSearchId(data.search_id);
         }
@@ -77,30 +76,7 @@ export default function CommunityHomepage(props) {
     }
 
     const loadMoreResults = async () => {
-        try {
-            const response = await fetch(searchURL + '?page=' + page + '&search_id=' + searchId , {
-                headers: new Headers({
-                    Authorization: jsCookie.get("token"),
-                }),
-            });
-            const content = await response.json();
-            if(communitySubmissions === null){
-                communitySubmissions = []
-            }
-            setCommunityStoreProps({communitySubmissions : [...communitySubmissions, ...content.search_results_page]})
-            
-
-            if ((page + 1) % 5 === 0) {
-                setCommunityStoreProps([communitySubmissionsLoading, true]);
-            } else {
-                setCommunityStoreProps([communitySubmissionsLoading, false]);
-            }
-
-            page = page + 1;
-            setCommunityStoreProps({page : page})
-        } catch (error) {
-            console.log(error);
-        }
+        window.open(WEBSITE_URL + "search/" + "?community=" + props.community.id + "&page=0", '_blank');
     };
 
     const updateDropDownSearch = async () => {
@@ -250,7 +226,6 @@ export default function CommunityHomepage(props) {
             <section className="community-submissions" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div style={{ maxWidth: '100ch' }}>
                     <h2 className="text-2xl font-semibold my-4 text-gray-800">Community Submissions</h2>
-
                     {!communitySubmissionsLoading && communitySubmissions ?
                         <Grid container
                             direction={'column'}
@@ -260,8 +235,6 @@ export default function CommunityHomepage(props) {
                             alignItems={"center"}>
                             <InfiniteScroll
                                 dataLength={communitySubmissions.length}
-                                next={loadMoreResults}
-                                hasMore={page % 5 == 0 ? false : true}
                                 loader="" >
                                 <Grid item margin={'auto'}>
                                     {communitySubmissions !== undefined && communitySubmissions.length !== 0 &&
@@ -287,6 +260,22 @@ export default function CommunityHomepage(props) {
                                         })}
                                 </Grid>
                             </InfiniteScroll>
+                            <Grid item
+                                sx={{
+                                    border: '1px solid #1976d2',
+                                    padding: '5px 10px',
+                                    textDecoration: 'none',
+                                    borderRadius: '5px',
+                                    display: 'inline-block',
+                                    margin: '5px',
+                                    fontSize: '14px',
+                                    cursor: 'pointer',
+                                    color: '#1976d2',
+                                    pointerEvents: 'auto'
+                                }}
+                                onClick={() => loadMoreResults()} >
+                                See All Submissions
+                            </Grid>
                         </Grid>
                         :
                         <>
@@ -301,9 +290,8 @@ export default function CommunityHomepage(props) {
                         </>}
                 </div>
             </section>
-
+            
         </div>
-
     );
 }
 
