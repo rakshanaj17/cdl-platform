@@ -15,7 +15,8 @@ import Footer from "../components/footer";
 import CommunityDisplay from "../components/communityDisplay";
 import Paper from '@mui/material/Paper';
 import CircularProgress from "@mui/material/CircularProgress";
-import { Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 
@@ -41,6 +42,12 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [isSearchSummaryClicked, setIsSearchSummaryClicked] = useState(false);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
+  const [expanded, setExpanded] = React.useState(false);
+
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
 
 
   useEffect(() => {
@@ -154,14 +161,6 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           >
             Export
           </a></span></h4>
-          <h4 className="text-center">Search Results (0) <span><a
-            href={"/export?search_id=" + data.search_id}
-            className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-500 hover:text-white"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Summarize Search Results
-          </a></span></h4>
           {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
           <div className="text-center mt-1">
             <Typography variant="subtitle2">
@@ -193,14 +192,14 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       <div id="searchResultsBlock" className="px-4">
         <h4 className="text-center">Search Results ({data.total_num_results}) <span><a
           href={"/export?search_id=" + data.search_id}
-          className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-500 hover:text-white"
+          className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-200 hover:text-black"
           target="_blank"
           rel="noopener noreferrer"
         >
           Export
         </a></span></h4>
         {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
-        <div className="text-center mt-1">
+        <div className="text-center ">
           <Typography variant="subtitle2">
             Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
           </Typography>
@@ -208,6 +207,46 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       </div>
 
       <div className="mx-auto px-4">
+        <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1bh-content"
+            id="panel1bh-header"
+          >
+
+            <div className="flex justify-between items-center">
+              <Typography variant="title">
+                Summary of search results
+              </Typography>
+              <div className="ml-auto">
+                <button
+                  disabled={isSearchSummaryClicked}
+                  onClick={!isSearchSummaryClicked ? handleSearchSummary : () => console.log('asking for summary again')}
+                  className="ml-10 flex p-1 px-2 text-sm border border-green-500 rounded hover:bg-green-200 hover:text-black"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Summarize current search results
+                </button>
+              </div>
+            </div>
+
+          </AccordionSummary>
+          <AccordionDetails>
+            {searchSummary && !generationSpinner && (
+              <Paper elevation={2} className="mt-4 p-4">
+                {searchSummary}
+              </Paper>
+            )}
+            {generationSpinner && (
+              <div className="m-auto">
+                <CircularProgress color="success" />
+              </div>
+            )}
+          </AccordionDetails>
+        </Accordion>
+
+
         <div className="min-w-full max-w-screen-lg">
           <InfiniteScroll
             dataLength={items.length}
@@ -264,7 +303,17 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
             </button>
           </div>
         )}
+
       </div>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
