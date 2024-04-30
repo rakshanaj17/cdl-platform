@@ -654,7 +654,7 @@ export default function SubmissionDetails(subData) {
                     {submissionData.submission &&
                         <Grid container direction={'row'} justifyContent={'space-between'}>
                             <Grid item>
-                                <Typography variant="h5" color='blue'
+                                <Typography color='blue' className="lg:text-2xl text-xl lg:max-w-[1050px] max-w-[230px] overflow-x-auto"
                                     sx={{
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',

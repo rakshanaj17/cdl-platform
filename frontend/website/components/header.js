@@ -830,22 +830,22 @@ function Header(props) {
         <Toolbar>
 
           <div style={{ position: 'sticky', top: '0', right: '0', zIndex: '50' }} className="w-full">
-            <nav className="container relative flex flex-wrap items-center justify-between mx-auto lg:justify-between xl:px-0">
-              {!isSmall &&
-                <div className="flex items-center space-x-2 text-2xl font-medium text-white-500 dark:text-white-100">
-                  <a href="/">
-                    <a>
-                      <Image
-                        src="/images/tree48.png"
-                        alt="TextData"
-                        width="40"
-                        height="40"
-                        className="w-8"
-                      />
-                    </a>
+            <nav className="m-2 relative flex flex-wrap items-center justify-between lg:justify-between xl:px-0">
+
+              <div className="flex items-center space-x-2 text-2xl font-medium text-white-500 dark:text-white-100">
+                <a href="/">
+                  <a>
+                    <Image
+                      src="/images/tree48.png"
+                      alt="TextData"
+                      width="40"
+                      height="40"
+                      className="w-8"
+                    />
                   </a>
-                  <span className="mb-2">TextData</span>
-                </div>}
+                </a>
+                <span className="mb-1">TextData</span>
+              </div>
 
               <div className="mr-3 space-x-4 lg:flex nav__item ">
                 {!isLoggedOut ? (

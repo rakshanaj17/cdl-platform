@@ -148,7 +148,7 @@ function searchBarHeader(props) {
                             <TextField {...params}
                                 required
                                 variant="outlined"
-                                sx={{ m: 1 }}
+                                // sx={{ m: 1 }}
                                 style={{
                                     backgroundColor: 'white', borderRadius: '5px',
                                     position: "relative"
@@ -163,18 +163,50 @@ function searchBarHeader(props) {
                                         <>
                                             <IconButton type="submit"
                                                 variant="contained"
+                                                sx={{
+                                                    border: "1px solid #efffff",
+                                                    bgcolor: '#eceff1',
+                                                    borderRadius: 1,
+                                                    transition: "transform 0.3s ease, width 0.3s ease",
+                                                    transform: "translateZ(0)",
+                                                    width: '40px',
+                                                    "&:hover": {
+                                                        border: "1px solid #eceff1",
+                                                        bgcolor: "#F5F5F5",
+                                                        color: '#696969',
+                                                        transform: "translateZ(30px)",
+                                                        width: '60px'
+                                                    },
+                                                }}
                                             >
                                                 <Tooltip title={"Search"}>
-                                                    <SearchIcon style={{ fontSize: 16 }} />
+                                                    <SearchIcon />
                                                 </Tooltip>
                                             </IconButton>
                                             <IconButton
                                                 variant="contained"
                                                 onClick={handleVisualizeCommunity}
+                                                sx={{
+                                                    border: "1px solid #efffff",
+                                                    bgcolor: '#eceff1',
+                                                    borderRadius: 1,
+                                                    transition: "transform 0.3s ease, width 0.3s ease",
+                                                    transform: "translateZ(0)",
+                                                    width: '40px',
+                                                    "&:hover": {
+                                                        border: "1px solid #eceff1",
+                                                        bgcolor: "#F5F5F5",
+                                                        color: '#696969',
+                                                        transform: "translateZ(30px)",
+                                                        width: '60px'
+                                                    },
+                                                }}
                                             >
                                                 <Tooltip title={"Visualize"}>
                                                     <BubbleChartIcon
-                                                        style={{ fontSize: 16 }}
+                                                        style={{ marginLeft: "5px", marginRight: "5px" }}
+                                                        size="medium"
+
                                                     />
                                                 </Tooltip>
                                             </IconButton>
@@ -193,7 +225,7 @@ function searchBarHeader(props) {
 
                 <FormControl className="m-1 max-w-1/4 bg-white rounded-5 float-left" size="small">
                     <Select
-                        className="bg-white text-sm"
+                        className="bg-white text-md"
                         size='small'
                         name="community"
                         defaultValue={"all"}
