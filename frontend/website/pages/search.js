@@ -215,7 +215,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           >
 
             <div className="flex justify-between items-center">
-              <Typography variant="title">
+              <Typography variant="title" className="text-sm font-bold">
                 Summary of search results
               </Typography>
               <div className="ml-auto">
