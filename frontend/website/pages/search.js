@@ -15,7 +15,7 @@ import Footer from "../components/footer";
 import CommunityDisplay from "../components/communityDisplay";
 import Paper from '@mui/material/Paper';
 import CircularProgress from "@mui/material/CircularProgress";
-import { Snackbar, Alert, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Snackbar, Alert, Accordion, AccordionSummary, AccordionDetails, Button } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
@@ -48,8 +48,6 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setExpanded(isExpanded ? panel : false);
   };
 
-
-
   useEffect(() => {
     setItems(data.search_results_page);
     setPage(parseInt(data.current_page) + 1);
@@ -80,6 +78,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         setIsSearchSummaryClicked(true);
       } else {
         setGenerationSpinner(false)
+        setSearchSummary("Not generated")
         setErrorMessage(search_summary.message)
         setOpenSnackbar(true);
       }
@@ -162,7 +161,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
             Export
           </a></span></h4>
           {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
-          <div className="text-center mt-1">
+          <div className="text-center">
             <Typography variant="subtitle2">
               Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
             </Typography>
@@ -198,8 +197,8 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         >
           Export
         </a></span></h4>
-        {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
-        <div className="text-center ">
+        <div className="text-center">
+          {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
           <Typography variant="subtitle2">
             Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
           </Typography>
@@ -219,24 +218,25 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
                 Summary of search results
               </Typography>
               <div className="ml-auto">
-                <button
+                <Button
                   disabled={isSearchSummaryClicked}
+                  variant="contained"
                   onClick={!isSearchSummaryClicked ? handleSearchSummary : () => console.log('asking for summary again')}
-                  className="ml-10 flex p-1 px-2 text-sm border border-green-500 rounded hover:bg-green-200 hover:text-black"
+                  className="ml-10 flex p-1 px-2 text-sm border border-green-500 rounded hover:bg-gray-200 hover:text-black text-black"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Summarize current search results
-                </button>
+                  Summarize
+                </Button>
               </div>
             </div>
 
           </AccordionSummary>
           <AccordionDetails>
-            {searchSummary && !generationSpinner && (
-              <Paper elevation={2} className="mt-4 p-4">
-                {searchSummary}
-              </Paper>
+            {true && !generationSpinner && (
+              <Typography variant="subtitle2">
+                {searchSummary && searchSummary !== "" ? searchSummary : 'Not generated'}
+              </Typography>
             )}
             {generationSpinner && (
               <div className="m-auto">
