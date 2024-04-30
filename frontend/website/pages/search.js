@@ -233,7 +233,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
 
           </AccordionSummary>
           <AccordionDetails>
-            {true && !generationSpinner && (
+            {searchSummary && !generationSpinner && (
               <Typography variant="subtitle2">
                 {searchSummary && searchSummary !== "" ? searchSummary : 'Not generated'}
               </Typography>
