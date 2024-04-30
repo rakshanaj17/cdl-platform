@@ -13,6 +13,9 @@ import Fab from "@mui/material/Fab";
 import Divider from "@mui/material/Divider";
 import Footer from "../components/footer";
 import CommunityDisplay from "../components/communityDisplay";
+import Paper from '@mui/material/Paper';
+import CircularProgress from "@mui/material/CircularProgress";
+import { Snackbar, Alert } from '@mui/material';
 
 
 
@@ -33,6 +36,11 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(Math.ceil(data.total_num_results / 10));
   const [searchedCommunity, setSearchedCommunity] = useState("all")
+  const [searchSummary, setSearchSummary] = useState();
+  const [generationSpinner, setGenerationSpinner] = React.useState(false);
+  const [isSearchSummaryClicked, setIsSearchSummaryClicked] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
 
   useEffect(() => {
@@ -42,6 +50,36 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setTotalPages(Math.ceil(data.total_num_results / 10));
     setSearchedCommunity(findCommunityName(community))
   }, [data])
+
+  const handleSearchSummary = async () => {
+    setGenerationSpinner(true)
+    const generateURL = baseURL_server + "generate"
+    try {
+      const searchSummaryApi = await fetch(generateURL, {
+        method: "POST",
+        headers: {
+          Authorization: jsCookie.get("token"),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          "mode": "summary_rag",
+          "search_id": data.search_id,
+        }),
+      })
+      const search_summary = await searchSummaryApi.json()
+      if (searchSummaryApi.ok) {
+        setGenerationSpinner(false)
+        setSearchSummary(search_summary.output);
+        setIsSearchSummaryClicked(true);
+      } else {
+        setGenerationSpinner(false)
+        setErrorMessage(search_summary.message)
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const loadMoreResults = async () => {
 
@@ -63,8 +101,6 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       if (page !== totalPages) {
         setPage(page + 1);
       }
-
-      // console.log(content.search_results_page);
 
     } catch (error) {
       console.log(error);
@@ -118,6 +154,14 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           >
             Export
           </a></span></h4>
+          <h4 className="text-center">Search Results (0) <span><a
+            href={"/export?search_id=" + data.search_id}
+            className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-500 hover:text-white"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Summarize Search Results
+          </a></span></h4>
           {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
           <div className="text-center mt-1">
             <Typography variant="subtitle2">
@@ -140,7 +184,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   }
 
   return (
-    <div className="allResults">
+    <div className="allResults ml-5">
       <Head>
         <title>{data.query !== "" ? data.query : "Search"} - TextData</title>
         <link rel="icon" href="/images/tree32.png" />

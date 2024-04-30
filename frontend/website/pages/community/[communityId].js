@@ -1,4 +1,4 @@
-import { React, useEffect } from 'react';
+import { React, useState, useEffect } from 'react';
 import Head from "next/head";
 import jsCookie from 'js-cookie';
 import { Paper, Button, IconButton, Skeleton, Tooltip, Typography } from "@mui/material";
@@ -12,10 +12,14 @@ import Error from 'next/error';
 import useUserDataStore from '../../store/userData';
 import useCommunitiesStore from '../../store/communitiesStore';
 import useQuickAccessStore from '../../store/quickAccessStore';
+import { WEBSITE_URL } from "../../static/constants";
+
+var searchURL = BASE_URL_CLIENT + SEARCH_ENDPOINT;
 
 
 export default function CommunityHomepage(props) {
 
+    const [searchId, setSearchId] = useState('');
     if (props.error) {
         return <Error statusCode={props.errorCode} />
     }
@@ -50,10 +54,7 @@ export default function CommunityHomepage(props) {
 
     const getCommunitySubmissions = async () => {
 
-        var searchURL = BASE_URL_CLIENT + SEARCH_ENDPOINT;
-        //   "/search?community=" + community.community_id + "&page=0"
-        searchURL += "?community=" + props.community.id + "&page=0";
-        const com_submissions = await fetch(searchURL, {
+        const com_submissions = await fetch(searchURL + "?community=" + props.community.id + "&page=0", {
             headers: new Headers({
                 Authorization: jsCookie.get("token"),
             }),
@@ -61,42 +62,21 @@ export default function CommunityHomepage(props) {
 
         if (com_submissions.status == 200) {
             const data = await com_submissions.json();
-            setCommunityStoreProps({ communitySubmissions: data.search_results_page });
-            setCommunityStoreProps([communitySubmissionsLoading, false]);
-
+            setCommunityStoreProps({
+                communitySubmissions: data.search_results_page,
+                communitySubmissionsLoading: false,
+            });
+            setSearchId(data.search_id);
         }
         else {
             console.error("Error fetching submissions");
             setCommunityStoreProps({ communitySubmissions: [] });
             setCommunityStoreProps([communitySubmissionsLoading, true]);
-
         }
     }
 
     const loadMoreResults = async () => {
-        try {
-            const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=' + page, {
-                headers: new Headers({
-                    Authorization: jsCookie.get("token"),
-                }),
-            });
-            const content = await response.json();
-            setCommunityStoreProps([communitySubmissions, ...content.search_results_page]);
-
-            if ((page + 1) % 5 === 0) {
-                setCommunityStoreProps([communitySubmissionsLoading, true]);
-            } else {
-                setCommunityStoreProps([communitySubmissionsLoading, false]);
-            }
-
-            if (page !== totalPages) {
-                setCommunityStoreProps([page, false]);
-            }
-
-
-        } catch (error) {
-            console.log(error);
-        }
+        window.open(WEBSITE_URL + "search/" + "?community=" + props.community.id + "&page=0", '_blank');
     };
 
     const updateDropDownSearch = async () => {
@@ -246,7 +226,6 @@ export default function CommunityHomepage(props) {
             <section className="community-submissions" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div style={{ maxWidth: '100ch' }}>
                     <h2 className="text-2xl font-semibold my-4 text-gray-800">Community Submissions</h2>
-
                     {!communitySubmissionsLoading && communitySubmissions ?
                         <Grid container
                             direction={'column'}
@@ -256,8 +235,6 @@ export default function CommunityHomepage(props) {
                             alignItems={"center"}>
                             <InfiniteScroll
                                 dataLength={communitySubmissions.length}
-                                next={loadMoreResults}
-                                hasMore={page % 5 === 0 ? false : true}
                                 loader="" >
                                 <Grid item margin={'auto'}>
                                     {communitySubmissions !== undefined && communitySubmissions.length !== 0 &&
@@ -283,6 +260,22 @@ export default function CommunityHomepage(props) {
                                         })}
                                 </Grid>
                             </InfiniteScroll>
+                            <Grid item
+                                sx={{
+                                    border: '1px solid #1976d2',
+                                    padding: '5px 10px',
+                                    textDecoration: 'none',
+                                    borderRadius: '5px',
+                                    display: 'inline-block',
+                                    margin: '5px',
+                                    fontSize: '14px',
+                                    cursor: 'pointer',
+                                    color: '#1976d2',
+                                    pointerEvents: 'auto'
+                                }}
+                                onClick={() => loadMoreResults()} >
+                                See All Submissions
+                            </Grid>
                         </Grid>
                         :
                         <>
@@ -297,9 +290,8 @@ export default function CommunityHomepage(props) {
                         </>}
                 </div>
             </section>
-
+            
         </div>
-
     );
 }
 
@@ -307,46 +299,46 @@ export async function getServerSideProps(context) {
 
     const { communityId } = context.params;
 
-    if (
-        context.req.cookies.token === "" ||
-        context.req.cookies.token === undefined
-    ) {
-        return {
-            redirect: {
-                destination: "/auth",
-                permanent: false,
-            },
-        };
-    } else {
-        try {
+    //if (
+    //    context.req.cookies.token === "" ||
+    //    context.req.cookies.token === undefined
+    //) {
+    //    return {
+    //        redirect: {
+    //            destination: "/auth",
+    //            permanent: false,
+    //        },
+    //    };
+    //} else {
+    try {
 
-            var communityHomePageURL = BASE_URL_SERVER + "community/" + communityId;
+        var communityHomePageURL = BASE_URL_SERVER + "community/" + communityId;
 
-            const res = await fetch(communityHomePageURL, {
-                headers: new Headers({
-                    Authorization: context.req.cookies.token,
-                }),
-            });
+        const res = await fetch(communityHomePageURL, {
+            headers: new Headers({
+                Authorization: context.req.cookies.token,
+            }),
+        });
 
-            const data = await res.json();
+        const data = await res.json();
 
-            if (res.status === 200) {
-                return {
-                    props: {
-                        community: data,
-                    },
-                };
-            } else {
-                return {
-                    props: {
-                        error: data.message,
-                        errorCode: res.status,
-                    },
-                };
-            }
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            return { props: { error: "Error fetching data. Please try again later" } };
+        if (res.status === 200) {
+            return {
+                props: {
+                    community: data,
+                },
+            };
+        } else {
+            return {
+                props: {
+                    error: data.message,
+                    errorCode: res.status,
+                },
+            };
         }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return { props: { error: "Error fetching data. Please try again later" } };
     }
+    //}
 }
