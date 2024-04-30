@@ -23,6 +23,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChatWindow from "../components/chatwindow";
 import useUserDataStore from "../store/userData";
 import { BASE_URL_CLIENT, SEARCH_ENDPOINT } from "../static/constants";
+import RecommendedCommunityBox from "../components/recommendedCommunityBox";
 
 const HomeConnections = dynamic(() => import("./homeconnections"), {
   ssr: false,
@@ -34,7 +35,7 @@ const recentlyAccessedSubmissionsEndpoint = "submission/recentlyaccessed";
 const getCommunitiesEndpoint = "getCommunities";
 const searchEndpoint = "search?";
 
-function Home({ data, community_joined_data, recently_accessed_submissions }) {
+function Home({ data, community_joined_data, recently_accessed_submissions, recommendedCommunitiesData }) {
   const router = useRouter();
   const [items, setItems] = useState(data.recommendation_results_page);
   const [page, setPage] = useState(parseInt(data.current_page) + 1);
@@ -115,7 +116,6 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
   useEffect(async () => {
     await checkOnboarding();
     setUserDataStoreProps({ userCommunities: community_joined_data.community_info });
-
     // get viz data
     var temp = await getVizData();
     console.log('received vizdata!');
@@ -221,22 +221,29 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
 
   if (onboardingStep == 0) {
     homePageContent = (
-      <div className="px-4 sm:mx-6 lg:mx-60">
+      <div className="px-4 sm:mx-6">
         <div className="text-center">
           <h1 className="mb-2 text-3xl font-bold text-gray-600">TextData</h1>
         </div>
         <Divider className="my-2" />
 
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-4">Recently Accessed Submissions</h2>
-          <QuickSubmissionBox className="mt-2" submissionData={recently_accessed_submissions} />
+        <div className="mb-4 flex flex-col lg:flex-row lg:ml-60">
+          {/* Recently Accessed Submissions */}
+          <div className="lg:w-3/4 lg:pr-2 mb-4 lg:mb-0">
+            <h2 className="text-xl font-semibold mb-4">Recently Accessed Submissions</h2>
+            <QuickSubmissionBox className="mt-2" submissionData={recently_accessed_submissions} />
+          </div>
+
+          {/* Recommended Communities */}
+          <div className="lg:w-1/4 lg:pl-2 mb-4 lg:mb-0 ml-10">
+            <h2 className="text-xl font-semibold mb-4">Commmunities Recommended Just for You</h2>
+            <RecommendedCommunityBox className="mt-2" recommendedCommunitiesData={recommendedCommunitiesData.recommended_communities} />
+          </div>
         </div>
+        <Divider className="mb-4" />
 
-        <Divider className="my-8" />
-
-        <div className="mb-8">
+        <div className="mb-8 lg:mx-60">
           <h2 className="text-xl font-semibold mb-4">Visualizing Your Submissions</h2>
-          {/* <h4>Visualizing Your Submissions</h4> */}
           {!userOwnSubmissions ? (
             <div className="text-center">
               <Tooltip title="Loading" placement="top">
@@ -252,7 +259,7 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
 
         <Divider className="my-4" />
 
-        <div className="mb-4">
+        <div className="mb-4 lg:mx-60">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Recommended</h2>
             <FormControl className="ml-2" size="small">
@@ -301,28 +308,29 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
           </InfiniteScroll>
         </div >
 
-        {visible && (
-          <IconButton
-            variant="extended"
-            onClick={scrollToTop}
-            sx={{
-              width: '50px',
-              height: '50px',
-              ml: "auto",
-              border: 'solid',
-              bottom: '10px',
-              position: 'fixed',
-              right: '10px',
-              backgroundColor: 'white',
-              "&:hover": {
-                backgroundColor: "#1976d2",
-                color: 'white'
-              }
-            }}
-          >
-            <ArrowUpwardOutlined color="primary" />
-          </IconButton>
-        )
+        {
+          visible && (
+            <IconButton
+              variant="extended"
+              onClick={scrollToTop}
+              sx={{
+                width: '50px',
+                height: '50px',
+                ml: "auto",
+                border: 'solid',
+                bottom: '10px',
+                position: 'fixed',
+                right: '10px',
+                backgroundColor: 'white',
+                "&:hover": {
+                  backgroundColor: "#1976d2",
+                  color: 'white'
+                }
+              }}
+            >
+              <ArrowUpwardOutlined color="primary" />
+            </IconButton>
+          )
         }
       </div >
     );
@@ -341,6 +349,72 @@ function Home({ data, community_joined_data, recently_accessed_submissions }) {
     </>
   );
 }
+
+// export async function getServerSideProps(context) {
+//   // Early return if no token is present
+//   if (!context.req.cookies.token) {
+//     return {
+//       redirect: {
+//         destination: "/about",
+//         permanent: false,
+//       },
+//     };
+//   }
+
+//   const tokenHeaders = new Headers({
+//     Authorization: context.req.cookies.token,
+//   });
+
+//   try {
+//     // Endpoints
+//     const baseURL = baseURL_server;
+//     const recommendationURL = `${baseURL}${recommendationsEndPoint}?method=recent&page=0`;
+//     const recentlyAccessedSubmissionsURL = `${baseURL}${recentlyAccessedSubmissionsEndpoint}`;
+//     const communityURL = `${baseURL}${getCommunitiesEndpoint}`;
+//     const recommendedCommunitiesURL = `${baseURL}communityRecommend`;
+
+//     // Fetch requests
+//     const [res, recentlyAccessedSubmissions, fetchCommunities, recommendedCommunities] = await Promise.all([
+//       fetch(recommendationURL, { headers: tokenHeaders }),
+//       fetch(recentlyAccessedSubmissionsURL, { headers: tokenHeaders }),
+//       fetch(communityURL, { headers: tokenHeaders }),
+//       fetch(recommendedCommunitiesURL, { headers: tokenHeaders })
+//     ]);
+
+//     // Process JSON data
+//     const [data, recently_accessed_submissions, community_joined_data, recommended_communities_data] = await Promise.all([
+//       res.json(),
+//       recentlyAccessedSubmissions.json(),
+//       fetchCommunities.json(),
+//       recommendedCommunities.json()
+//     ]);
+
+//     // Ensure all fetches are successful
+//     if (res.ok && recentlyAccessedSubmissions.ok && fetchCommunities.ok && recommendedCommunities.ok) {
+//       return {
+//         props: {
+//           data,
+//           recently_accessed_submissions,
+//           community_joined_data,
+//           recommended_communities_data
+//         }
+//       };
+//     } else {
+//       throw new Error('Failed to fetch data');
+//     }
+//   } catch (error) {
+//     // Handle errors or invalid status
+//     console.error('Error fetching data:', error);
+//     return {
+//       redirect: {
+//         destination: "/auth",
+//         permanent: false,
+//       },
+//     };
+//   }
+// }
+
+
 export async function getServerSideProps(context) {
   // Fetch data from external API
   if (
@@ -375,6 +449,16 @@ export async function getServerSideProps(context) {
       }),
     });
 
+    // @communities.route("/api/communityRecommend", methods=["GET"])
+
+    var recommenddedCommunitiesURL = baseURL_server + "communityRecommend";
+    const recommendedCommunities = await fetch(recommenddedCommunitiesURL, {
+      headers: new Headers({
+        Authorization: context.req.cookies.token,
+      }),
+    });
+    const recommendedCommunitiesData = await recommendedCommunities.json();
+
     var searchURL = baseURL_server + searchEndpoint;
     searchURL += "own_submissions=True" + "&community=all&source=visualizeConnections";
 
@@ -391,12 +475,12 @@ export async function getServerSideProps(context) {
           }
           return {
             props: {
-              data, community_joined_data,
+              data, community_joined_data, recommendedCommunitiesData,
               recently_accessed_submissions
             }
           };
         }
-        // }
+
       }
     } else if (res.status == 404) {
       return {

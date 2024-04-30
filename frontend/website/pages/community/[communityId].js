@@ -46,7 +46,6 @@ export default function CommunityHomepage(props) {
 
     useEffect(() => {
         getCommunitySubmissions();
-        console.log(props)
         setCommunityStoreProps({ communityId: props.community.id });
         setCommunityStoreProps({ communityName: props.community.name });
         setCommunityStoreProps({ communityDescription: props.community.description });
