@@ -81,7 +81,7 @@ export default function CommunityHomepage(props) {
     }
 
     const loadMoreResults = async () => {
-        window.open(WEBSITE_URL + "search/" + "?community=" + props.community.id + "&page=0", '_blank');
+        window.open(WEBSITE_URL + "search?community=" + props.community.id + "&page=0", '_blank');
     };
 
     const updateDropDownSearch = async () => {
