@@ -15,7 +15,9 @@ import Footer from "../components/footer";
 import CommunityDisplay from "../components/communityDisplay";
 import Paper from '@mui/material/Paper';
 import CircularProgress from "@mui/material/CircularProgress";
-import { Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert, Accordion, AccordionSummary, AccordionDetails, Button } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { maxWidth, width } from "@mui/system";
 
 
 
@@ -41,7 +43,11 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [isSearchSummaryClicked, setIsSearchSummaryClicked] = useState(false);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
+  const [expanded, setExpanded] = React.useState(false);
 
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   useEffect(() => {
     setItems(data.search_results_page);
@@ -68,23 +74,23 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       })
       const search_summary = await searchSummaryApi.json()
       if (searchSummaryApi.ok) {
-      setGenerationSpinner(false)
-      setSearchSummary(search_summary.output);
-      setIsSearchSummaryClicked(true);
+        setGenerationSpinner(false)
+        setSearchSummary(search_summary.output);
+        setIsSearchSummaryClicked(true);
       } else {
         setGenerationSpinner(false)
+        setSearchSummary("Not generated")
         setErrorMessage(search_summary.message)
         setOpenSnackbar(true);
       }
-    } catch(error) {
-    console.log(error);
+    } catch (error) {
+      console.log(error);
+    }
   }
-}
 
   const loadMoreResults = async () => {
 
-    // console.log("search URL:", searchURL + 'search_id=' + data.search_id + '&page=' + page);
-
+    console.log('loading more rez')
     try {
       const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=' + page, {
         headers: new Headers({
@@ -103,8 +109,6 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       if (page !== totalPages) {
         setPage(page + 1);
       }
-
-      // console.log(content.search_results_page);
 
     } catch (error) {
       console.log(error);
@@ -144,30 +148,37 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       <div className="allResults">
         <Head>
           <title>
-            {data.query != "" ? data.query : "Search"} - TextData
+            {data.query !== "" ? data.query : "Search"} - TextData
           </title>
           <link rel="icon" href="/images/tree32.png" />
         </Head>
-        <div className="searchR">
 
-        </div>
+        <div id="searchResultsBlock" className="px-4">
+          <h4 className="text-center">Search Results (0) <span><a
+            href={"/export?search_id=" + data.search_id}
+            className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-500 hover:text-white"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Export
+          </a></span></h4>
+          {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
+          <div className="text-center">
+            <Typography variant="subtitle2">
+              Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
+            </Typography>
+            <div className="relative">
 
-        <div style={{ textAlign: 'center', height: '300px' }}>
-          <div>
-            <Grid item sx={{ textAlign: 'center' }}>
-              <h4>Search Results</h4>{" "}
-              {own_submissions && <Typography textAlign={'center'} variant="caption">Filtered by your own submissions</Typography>}
+            </div>
 
-              <Typography>
-                Community: <CommunityDisplay k={community} name={data.requested_communities[community]} communities_part_of={Object} />
-              </Typography>
-
-            </Grid>
-            <hr />
-            <h5>No results found.</h5>
           </div>
         </div>
-        {/* <Footer alt={true} /> */}
+
+        <hr className="border-t border-black my-3 mx-3" />
+
+        <div className="mx-auto px-4 text-center">
+          <p>No results found for your search query.</p>
+        </div>
       </div>
     );
   }
@@ -175,152 +186,131 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   return (
     <div className="allResults ml-5">
       <Head>
-        <title>{data.query != "" ? data.query : "Search"} - TextData</title>
+        <title>{data.query !== "" ? data.query : "Search"} - TextData</title>
         <link rel="icon" href="/images/tree32.png" />
       </Head>
 
-
-      <Grid id={'searchResultsBlock'} container display={"flex"} direction={"column"} justifyContent={"center"} alignItems={"center"}>
-
-        <Grid container sx={{ position: 'relative' }} justifyContent={'center'}>
-          <Grid item xs={12} sx={{ textAlign: 'center' }}>
-            <h4>Search Results (Total: {data.total_num_results})</h4>
-            {own_submissions && <Typography textAlign={'center'} variant="caption">Filtered by your own submissions</Typography>}
-          </Grid>
-          <Grid item>
-
-            <Typography variant="subtitle2">
+      <div id="searchResultsBlock" className="px-4">
+        <h4 className="text-center">Search Results ({data.total_num_results}) <span><a
+          href={"/export?search_id=" + data.search_id}
+          className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-200 hover:text-black"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Export
+        </a></span></h4>
+        <div className="text-center">
+          {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
+          <Typography variant="subtitle2">
             Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
-            </Typography>
+          </Typography>
+        </div>
+      </div>
 
-          </Grid>
-          <Grid item sx={{ position: 'absolute', top: 0, right: 5 }}>
-            <a
-              style={{
-                border: '1px solid #1976d2',
-                padding: '5px 10px',
-                textDecoration: 'none',
-                borderRadius: '5px',
-                display: 'inline-block',
-                margin: '5px',
-                fontSize: '14px',
-                color: '#1976d2',
-              }}
-              target="_blank"
-              rel="noopener noreferrer"
-              href={"/export?search_id=" + data.search_id}
-
-            >
-              Export Search Results
-            </a>
-          </Grid>
-          <Grid item
-            sx={{
-              position: 'absolute',
-              top: 40,
-              right: 5,
-              border: isSearchSummaryClicked ? '1px solid #ccc' : '1px solid #1976d2',
-              padding: '5px 10px',
-              textDecoration: 'none',
-              borderRadius: '5px',
-              display: 'inline-block',
-              margin: '5px',
-              fontSize: '14px',
-              cursor: isSearchSummaryClicked ? 'not-allowed' : 'pointer',
-              color: isSearchSummaryClicked ? '#ccc' : '#1976d2',
-              pointerEvents: isSearchSummaryClicked ? 'none' : 'auto'
-            }}
-            onClick={!isSearchSummaryClicked ? handleSearchSummary : undefined}
+      <div className="lg:max-w-[960px] lg:mx-auto">
+        <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1bh-content"
+            id="panel1bh-header"
           >
-            Summarize Search Results
-          </Grid>
-        </Grid>
 
-        <Grid item sx={{ textAlign: 'center' }}>
-        </Grid>
+            <div className="flex justify-between items-center">
+              <Typography variant="title" className="text-sm font-bold">
+                Summary of search results
+              </Typography>
+              <div className="ml-5">
+                <Button
+                  className={!isSearchSummaryClicked ? "bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer"
+                    :
+                    "bg-gray-500 text-white py-2 px-4 rounded cursor-not-allowed"
+                  }
+                  disabled={isSearchSummaryClicked}
+                  variant="contained"
+                  onClick={!isSearchSummaryClicked ? handleSearchSummary : () => console.log('asking for summary again')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Summarize
+                </Button>
+              </div>
+            </div>
 
-        <Grid container
-          minWidth={'600px'}
-          width={'100ch'}
-          direction={'column'}
-          borderTop={"1px solid lightgray"}
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}>
-          {searchSummary && !generationSpinner ? 
-            <Paper elevation={2} style={{ marginTop: '10px',  padding: "15px" }}>
-              {searchSummary}
-            </Paper> : null }
-            {generationSpinner && (
-              <CircularProgress style={{ marginTop: '10px'}} color="success" />
+          </AccordionSummary>
+          <AccordionDetails>
+            {searchSummary && !generationSpinner && (
+              <Typography variant="subtitle2">
+                {searchSummary && searchSummary !== "" ? searchSummary : 'Not generated'}
+              </Typography>
             )}
+            {generationSpinner && (
+              <div className="m-auto">
+                <CircularProgress color="success" />
+              </div>
+            )}
+          </AccordionDetails>
+        </Accordion>
+
+        <div className="">
           <InfiniteScroll
             dataLength={items.length}
             next={loadMoreResults}
             hasMore={page % 5 == 0 ? false : true}
-            loader="" >
-            <Grid item margin={'auto'}>
-              {items !== undefined && items.length !== 0 &&
-                items.map(function (d, idx) {
-                  return (
-                    <div key={idx}>
-                      <SearchResult
-                        search_idx={idx}
-                        redirect_url={d.redirect_url}
-                        display_url={d.display_url}
-                        submission_id={d.submission_id}
-                        result_hash={d.result_hash}
-                        hashtags={d.hashtags}
-                        highlighted_text={d.highlighted_text}
-                        explanation={d.explanation}
-                        time={d.time}
-                        communities_part_of={d.communities_part_of}
-                        auth_token={jsCookie.get("token")}
-                        show_relevant={show_relevance_judgment}
-                        username={d.username}
-                      ></SearchResult>
-                    </div>
-                  );
-                })}
-            </Grid>
-          </InfiniteScroll>
-        </Grid>
-
-        <Grid item sx={{ textAlign: 'center' }}>
-          {totalPages !== page && loading &&
-            <div style={{
-              textAlign: 'center'
-            }}>
-              <Fab variant="extended"
-                className="my-1 bg-blue-500 hover:bg-blue-700 cursor-pointer"
-                sx={{ color: 'white', backgroundColor: '#1976d2' }} onClick={loadMoreResults}> Load More
-              </Fab>
-            </div>}
-
-          {totalPages === page &&
-            <div
-              style={{
-                textAlign: 'center'
-              }}
-            >
-              <div>
-                <Typography>
-                  You've reached the end of your search results.
-                </Typography>
-
-                <h1>
-                  <Fab
-                    className='my-1 bg-blue-500 hover:bg-blue-700 cursor-pointer' variant="extended" onClick={scrollToTop} sx={{ backgroundColor: '#1976d2' }} >
-                    <Typography color={"white"}>
-                      Back to top
-                    </Typography>
-                  </Fab>
-                </h1>
+            loader=""
+          >
+            {items.map((d, idx) => (
+              <div key={idx}>
+                <SearchResult
+                  search_idx={idx}
+                  redirect_url={d.redirect_url}
+                  display_url={d.display_url}
+                  submission_id={d.submission_id}
+                  result_hash={d.result_hash}
+                  hashtags={d.hashtags}
+                  highlighted_text={d.highlighted_text}
+                  explanation={d.explanation}
+                  time={d.time}
+                  communities_part_of={d.communities_part_of}
+                  auth_token={jsCookie.get("token")}
+                  show_relevant={show_relevance_judgment}
+                  username={d.username}
+                />
               </div>
-            </div>}
-        </Grid>
+            ))}
+          </InfiniteScroll>
 
-      </Grid>
+          <div className="px-4 py-6 text-center">
+            {totalPages !== page && loading && (
+              <div>
+                <Fab
+                  variant="extended"
+                  className="my-1 bg-blue-500 hover:bg-blue-700 cursor-pointer"
+                  onClick={loadMoreResults}
+                  sx={{ color: "white", backgroundColor: "#1976d2" }}
+                >
+                  Load More
+                </Fab>
+              </div>
+            )}
+
+            {totalPages === page && (
+
+              <div className="text-center">
+                <p className="text-base">You've reached the end of your search results.</p>
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer"
+                  onClick={scrollToTop}
+                >
+                  Back to top
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+
+      </div>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

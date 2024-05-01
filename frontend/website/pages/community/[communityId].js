@@ -13,6 +13,8 @@ import useUserDataStore from '../../store/userData';
 import useCommunitiesStore from '../../store/communitiesStore';
 import useQuickAccessStore from '../../store/quickAccessStore';
 import { WEBSITE_URL } from "../../static/constants";
+import GroupIcon from '@mui/icons-material/Group';
+import GroupsIcon from '@mui/icons-material/Groups';
 
 var searchURL = BASE_URL_CLIENT + SEARCH_ENDPOINT;
 
@@ -38,6 +40,8 @@ export default function CommunityHomepage(props) {
         communitySubmissions,
         communitySubmissionsLoading,
         page,
+        numFollowers,
+        joinedUsers,
         setCommunityStoreProps } = useCommunityStore();
 
     useEffect(() => {
@@ -49,7 +53,8 @@ export default function CommunityHomepage(props) {
         setCommunityStoreProps({ joined: props.community.joined });
         setCommunityStoreProps({ isPublic: props.community.public });
         setCommunityStoreProps({ pinnedSubs: props.community.pinned_submissions });
-
+        setCommunityStoreProps({ numFollowers: props.community.num_followers });
+        setCommunityStoreProps({ joinedUsers: props.community.joined_users });
     }, [props]);
 
     const getCommunitySubmissions = async () => {
@@ -114,6 +119,7 @@ export default function CommunityHomepage(props) {
 
         if (res.status === 200) {
             setCommunityStoreProps({ isFollowing: true });
+            setCommunityStoreProps({ numFollowers: numFollowers + 1 });
             // update state for userFollowedCommunities
             var tempData = [...userFollowedCommunities,
             {
@@ -128,7 +134,6 @@ export default function CommunityHomepage(props) {
             setUserDataStoreProps({
                 userFollowedCommunities: tempData
             });
-
 
             updateDropDownSearch();
         }
@@ -157,6 +162,7 @@ export default function CommunityHomepage(props) {
 
         if (res.status === 200) {
             setCommunityStoreProps({ isFollowing: false });
+            setCommunityStoreProps({ numFollowers: numFollowers - 1 });
             // update state for userFollowedCommunities
             var tempData = userFollowedCommunities
             var temp = tempData.filter((item) => item.community_id !== communityId);
@@ -181,34 +187,63 @@ export default function CommunityHomepage(props) {
                     <h1 className="text-4xl font-bold text-gray-800">{communityName}</h1>
                     <p className="text-gray-500 mt-1">{communityDescription}</p>
                     {joined ? (
-                        <div className="flex items-center text-sm text-green-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            You have joined this community {isPublic && isFollowing ? "and are following it" : ""}
+                        <div className="flex justify-between items-start w-full">
+                            <div>
+                                <div className="flex items-center text-sm text-green-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    You have joined this community
+                                    {isPublic && isFollowing ? "and are following it" : ""}
+                                </div>
+                            </div>
+                            <div className=" ml-9 flex flex-col">
+                                <div className="text-sm text-gray-400 flex items-center">
+                                    <GroupsIcon className="text-gray-400 h-5 w-5 mr-2" />
+                                    {numFollowers} followers
+                                </div>
+                                <div className="text-sm text-gray-400 flex items-center  mt-3">
+                                    <GroupIcon className="text-gray-400 h-5 w-5 mr-2" />
+                                    {joinedUsers.length} joined users
+                                </div>
+                            </div>
                         </div>
+
+
                     ) : (
                         <>
-
-                            <div className="flex items-center text-sm text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                You have not joined this community {isPublic && isFollowing ? "but are following it" : ""}
-                            </div>
-                            <div className='mt-2'>
-                                {isPublic && isFollowing ? (
-                                    <div className="flex items-center text-sm text-green-600">
-                                        <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none"
-                                            onClick={() => { unfollowCommunity() }}>Unfollow</button>
+                            <div className="flex justify-between items-start w-full">
+                                <div className="flex flex-col">
+                                    <div>
+                                        {isPublic && isFollowing ? (
+                                            <div className="flex items-center text-sm text-green-600">
+                                                <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 focus:outline-none"
+                                                    onClick={() => { unfollowCommunity() }}>Unfollow</button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center text-sm text-gray-400">
+                                                <button className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none"
+                                                    onClick={() => { followCommunity() }}>Follow</button>
+                                            </div>
+                                        )}
                                     </div>
-                                ) : (
-                                    <div className="flex items-center text-sm text-gray-400">
-                                        <button className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none"
-                                            onClick={() => { followCommunity() }}
-                                        >Follow</button>
+                                    <div className="text-sm text-gray-400 flex items-center mt-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        You have not joined this community {isPublic && isFollowing ? "but are following it" : ""}
                                     </div>
-                                )}
+                                </div>
+                                <div className=" ml-9 flex flex-col">
+                                    <div className="text-sm text-gray-400 flex items-center">
+                                        <GroupsIcon className="text-gray-400 h-5 w-5 mr-2" />
+                                        {numFollowers} followers
+                                    </div>
+                                    <div className="text-sm text-gray-400 flex items-center  mt-3">
+                                        <GroupIcon className="text-gray-400 h-5 w-5 mr-2" />
+                                        {joinedUsers.length} joined users
+                                    </div>
+                                </div>
                             </div>
                         </>
                     )}
@@ -225,7 +260,7 @@ export default function CommunityHomepage(props) {
 
             <section className="community-submissions" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div style={{ maxWidth: '100ch' }}>
-                    <h2 className="text-2xl font-semibold my-4 text-gray-800">Community Submissions</h2>
+                    <h2 className="text-2xl font-semibold lg:my-4 my:8 text-gray-800">Community Submissions</h2>
                     {!communitySubmissionsLoading && communitySubmissions ?
                         <Grid container
                             direction={'column'}
@@ -290,7 +325,7 @@ export default function CommunityHomepage(props) {
                         </>}
                 </div>
             </section>
-            
+
         </div>
     );
 }

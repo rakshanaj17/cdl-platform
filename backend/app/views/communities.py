@@ -37,7 +37,8 @@ def get_recommended_communities(current_user):
 	textdata_communities = Communities()
 
 	all_public = textdata_communities.find({"public": True})
-	all_public_list = [{"name": x.name, "id": str(x._id)} for x in all_public]
+	# all_public_list = [{"name": x.name, "id": str(x._id)} for x in all_public]
+	all_public_list = [{"name": x.name, "id": str(x.id)} for x in all_public]
 	if method == "random":
 		random.shuffle(all_public_list)
 		return response.success({"recommended_communities": all_public_list[0:top_n]}, Status.OK)
