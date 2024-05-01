@@ -498,8 +498,8 @@ function Header(props) {
                       <Image
                         src="/images/tree48.png"
                         alt="TextData"
-                        width="35"
-                        height="35"
+                        width="40"
+                        height="40"
                         className="w-8"
                       />
                     </a>

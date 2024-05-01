@@ -227,21 +227,22 @@ function Home({ data, community_joined_data, recently_accessed_submissions, reco
         </div>
         <Divider className="my-2" />
 
-        <div className="mb-4 flex flex-col lg:flex-row lg:ml-60">
-          {/* Recently Accessed Submissions */}
-          <div className="lg:w-3/4 lg:pr-2 mb-4 lg:mb-0">
-            <h2 className="text-xl font-semibold mb-4">Recently Accessed Submissions</h2>
-            <QuickSubmissionBox className="mt-2" submissionData={recently_accessed_submissions} />
-          </div>
-
-          {/* Recommended Communities */}
-          <div className="lg:w-1/4 lg:pl-2 mb-4 lg:mb-0 ml-10">
-            <h2 className="text-xl font-semibold mb-4">Commmunities Recommended Just for You</h2>
-            <RecommendedCommunityBox className="mt-2" recommendedCommunitiesData={recommendedCommunitiesData.recommended_communities} />
-          </div>
+        {/* <div className="mb-4 flex flex-col lg:flex-row"> */}
+        {/* Recently Accessed Submissions */}
+        <div className="mb-4 lg:mb-0 lg:mx-60">
+          <h2 className="text-xl font-semibold mb-4">Recently Accessed Submissions</h2>
+          <QuickSubmissionBox className="mt-2" submissionData={recently_accessed_submissions} />
         </div>
+
+        {/* Recommended Communities */}
+        <div className="mb-4 lg:mb-0 lg:mx-60">
+          <h2 className="text-xl font-semibold mb-4">Recommended Commmunities</h2>
+          <RecommendedCommunityBox className="mt-2" recommendedCommunitiesData={recommendedCommunitiesData.recommended_communities} />
+        </div>
+
         <Divider className="mb-4" />
 
+        {/* Submission Graph */}
         <div className="mb-8 lg:mx-60">
           <h2 className="text-xl font-semibold mb-4">Visualizing Your Submissions</h2>
           {!userOwnSubmissions ? (

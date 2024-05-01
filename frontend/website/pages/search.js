@@ -17,6 +17,7 @@ import Paper from '@mui/material/Paper';
 import CircularProgress from "@mui/material/CircularProgress";
 import { Snackbar, Alert, Accordion, AccordionSummary, AccordionDetails, Button } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { maxWidth, width } from "@mui/system";
 
 
 
@@ -89,6 +90,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
 
   const loadMoreResults = async () => {
 
+    console.log('loading more rez')
     try {
       const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=' + page, {
         headers: new Headers({
@@ -205,7 +207,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         </div>
       </div>
 
-      <div className="mx-auto px-4">
+      <div className="lg:max-w-[960px] lg:mx-auto">
         <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -217,12 +219,15 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
               <Typography variant="title" className="text-sm font-bold">
                 Summary of search results
               </Typography>
-              <div className="ml-auto">
+              <div className="ml-5">
                 <Button
+                  className={!isSearchSummaryClicked ? "bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer"
+                    :
+                    "bg-gray-500 text-white py-2 px-4 rounded cursor-not-allowed"
+                  }
                   disabled={isSearchSummaryClicked}
                   variant="contained"
                   onClick={!isSearchSummaryClicked ? handleSearchSummary : () => console.log('asking for summary again')}
-                  className="ml-10 flex p-1 px-2 text-sm border border-green-500 rounded hover:bg-gray-200 hover:text-black text-black"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -246,12 +251,11 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
           </AccordionDetails>
         </Accordion>
 
-
-        <div className="min-w-full max-w-screen-lg">
+        <div className="">
           <InfiniteScroll
             dataLength={items.length}
             next={loadMoreResults}
-            hasMore={page % 5 === 0}
+            hasMore={page % 5 == 0 ? false : true}
             loader=""
           >
             {items.map((d, idx) => (
@@ -274,37 +278,39 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
               </div>
             ))}
           </InfiniteScroll>
+
+          <div className="px-4 py-6 text-center">
+            {totalPages !== page && loading && (
+              <div>
+                <Fab
+                  variant="extended"
+                  className="my-1 bg-blue-500 hover:bg-blue-700 cursor-pointer"
+                  onClick={loadMoreResults}
+                  sx={{ color: "white", backgroundColor: "#1976d2" }}
+                >
+                  Load More
+                </Fab>
+              </div>
+            )}
+
+            {totalPages === page && (
+
+              <div className="text-center">
+                <p className="text-base">You've reached the end of your search results.</p>
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer"
+                  onClick={scrollToTop}
+                >
+                  Back to top
+                </button>
+              </div>
+            )}
+
+          </div>
         </div>
-      </div>
-
-      <div className="px-4 py-6 text-center">
-        {totalPages !== page && loading && (
-          <div>
-            <Fab
-              variant="extended"
-              className="my-1 bg-blue-500 hover:bg-blue-700 cursor-pointer"
-              onClick={loadMoreResults}
-              sx={{ color: "white", backgroundColor: "#1976d2" }}
-            >
-              Load More
-            </Fab>
-          </div>
-        )}
-
-        {totalPages === page && (
-
-          <div className="text-center">
-            <p className="text-base">You've reached the end of your search results.</p>
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer"
-              onClick={scrollToTop}
-            >
-              Back to top
-            </button>
-          </div>
-        )}
 
       </div>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
