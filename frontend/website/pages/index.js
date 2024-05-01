@@ -227,17 +227,19 @@ function Home({ data, community_joined_data, recently_accessed_submissions, reco
         </div>
         <Divider className="my-2" />
 
-        {/* <div className="mb-4 flex flex-col lg:flex-row"> */}
+
+        {/* Recommended Communities */}
+        <div className="mb-4 lg:mb-0 lg:mx-60 flex flex-col lg:flex-row items-start lg:items-center ">
+          <h2 className="text-xl font-semibold lg:mb-0">Recommended Communities:</h2>
+          <RecommendedCommunityBox recommendedCommunitiesData={recommendedCommunitiesData.recommended_communities} />
+        </div>
+
+        <Divider className="my-2" />
+
         {/* Recently Accessed Submissions */}
         <div className="mb-4 lg:mb-0 lg:mx-60">
           <h2 className="text-xl font-semibold mb-4">Recently Accessed Submissions</h2>
           <QuickSubmissionBox className="mt-2" submissionData={recently_accessed_submissions} />
-        </div>
-
-        {/* Recommended Communities */}
-        <div className="mb-4 lg:mb-0 lg:mx-60">
-          <h2 className="text-xl font-semibold mb-4">Recommended Commmunities</h2>
-          <RecommendedCommunityBox className="mt-2" recommendedCommunitiesData={recommendedCommunitiesData.recommended_communities} />
         </div>
 
         <Divider className="mb-4" />

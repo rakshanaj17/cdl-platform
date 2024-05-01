@@ -4,7 +4,7 @@ import { WEBSITE_URL } from '../static/constants';
 
 const RecommendedCommunityBox = ({ recommendedCommunitiesData }) => {
     return (
-        <div>
+        <div className='lg:ml-5 flex flex-row items-start lg:items-center lg:justify-between'>
 
             {recommendedCommunitiesData.map((community, index) => (
                 <div key={index} className="inline-block mr-2">
