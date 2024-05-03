@@ -41,7 +41,8 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(Math.ceil(data.total_num_results / 10));
   const [searchedCommunity, setSearchedCommunity] = useState("all")
-  const [selectedSortByOption,setSelectedSortByOption] = useState("")
+  const [selectedSortByOption,setSelectedSortByOption] = useState("relevance")
+
 
   const [searchSummary, setSearchSummary] = useState();
   const [generationSpinner, setGenerationSpinner] = React.useState(false);
@@ -60,7 +61,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setLoading(false);
     setTotalPages(Math.ceil(data.total_num_results / 10));
     setSearchedCommunity(findCommunityName(community));
-    setSelectedSortByOption("");
+    setSelectedSortByOption("relevance");
   }, [data])
 
   const handleSearchSummary = async () => {
@@ -183,11 +184,31 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
             Export
           </a></span></h4>
           {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
-          <div className="text-center">
+
+          <div className="flex items-center justify-center">
             <Typography variant="subtitle2">
               Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
             </Typography>
-            <div className="relative">
+            <div className="ml-auto">
+              <FormControl>
+                <Select
+                  labelId="select-sortBy-type"
+                  id="select-sortBy-type"
+                  name="method"selectedSortByOption
+                  value={selectedSortByOption}
+                  onChange={handleSortByOption}
+                  style={{ backgroundColor: 'white', color: 'black', width: '7rem' }}
+                  className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-500 hover:text-white"
+                >
+                  <MenuItem value="popularity">Most Votes</MenuItem>
+                  <MenuItem value="date">Most Recent</MenuItem>
+                  <MenuItem value="relevance">Most Relevant</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            <div >
+
+            
 
             </div>
 
@@ -219,11 +240,32 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         >
           Export
         </a></span></h4>
-        <div className="text-center">
-          {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
-          <Typography variant="subtitle2">
-            Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
-          </Typography>
+        <div className="flex justify-center item-center" style={{ position: 'relative' }}>
+          <div className="text-center">
+            {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
+            <Typography variant="subtitle2">
+              Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
+            </Typography>
+          </div>
+          <div className="ml-50">
+            <FormControl className="w-24 h-18 " size="small">
+              <Select
+                labelId="select-sortBy-type"
+                id="select-sortBy-type"
+                name="method"selectedSortByOption
+                value={selectedSortByOption}
+                onChange={handleSortByOption}
+                // size="small"
+                // className="w-40"
+               className="text-xs"
+                
+              >
+                <MenuItem value="popularity">Top Voted</MenuItem>
+                <MenuItem value="date">Latest</MenuItem>
+                <MenuItem value="relevance">Relevant</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
         </div>
       </div>
 
