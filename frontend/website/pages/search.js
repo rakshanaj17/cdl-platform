@@ -231,7 +231,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         <link rel="icon" href="/images/tree32.png" />
       </Head>
 
-      <div id="searchResultsBlock" className="px-4">
+      <div id="searchResultsBlock" className="px-4 justify-center">
         <h4 className="text-center">Search Results ({data.total_num_results}) <span><a
           href={"/export?search_id=" + data.search_id}
           className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-200 hover:text-black"
@@ -240,33 +240,33 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         >
           Export
         </a></span></h4>
-        <div className="flex justify-center item-center" style={{ position: 'relative' }}>
-          <div className="text-center">
-            {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
-            <Typography variant="subtitle2">
-              Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
-            </Typography>
-          </div>
-          <div className="ml-50">
-            <FormControl className="w-24 h-18 " size="small">
+        <div  style={{display: 'flex', justifyContent: 'center'}}>
+          <FormControl className="w-24 h-18" size="small">
               <Select
                 labelId="select-sortBy-type"
                 id="select-sortBy-type"
                 name="method"selectedSortByOption
                 value={selectedSortByOption}
                 onChange={handleSortByOption}
-                // size="small"
-                // className="w-40"
-               className="text-xs"
-                
+               className="text-xs"  
               >
                 <MenuItem value="popularity">Top Voted</MenuItem>
                 <MenuItem value="date">Latest</MenuItem>
                 <MenuItem value="relevance">Relevant</MenuItem>
               </Select>
             </FormControl>
-          </div>
         </div>
+          
+          
+          
+          <div className="text-center py-1">
+            
+          
+            {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
+            <Typography variant="subtitle2">
+              Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
+            </Typography>
+          </div>
       </div>
 
       <div className="lg:max-w-[960px] lg:mx-auto">
