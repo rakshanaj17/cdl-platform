@@ -8,6 +8,9 @@ import Head from "next/head";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useState } from "react";
 import Grid from "@mui/material/Grid";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
 import Typography from "@mui/material/Typography";
 import Fab from "@mui/material/Fab";
 import Divider from "@mui/material/Divider";
@@ -38,6 +41,9 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(Math.ceil(data.total_num_results / 10));
   const [searchedCommunity, setSearchedCommunity] = useState("all")
+  const [selectedSortByOption,setSelectedSortByOption] = useState("relevance")
+
+
   const [searchSummary, setSearchSummary] = useState();
   const [generationSpinner, setGenerationSpinner] = React.useState(false);
   const [isSearchSummaryClicked, setIsSearchSummaryClicked] = useState(false);
@@ -54,6 +60,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setPage(parseInt(data.current_page) + 1);
     setLoading(false);
     setTotalPages(Math.ceil(data.total_num_results / 10));
+    setSelectedSortByOption("relevance");
     setSearchedCommunity(findCommunityName(community))
     setSearchSummary(false);
     setIsSearchSummaryClicked(false);
@@ -118,6 +125,20 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       console.log(error);
     }
   };
+  const handleSortByOption = async(event)=>{
+    setSelectedSortByOption(event.target.value);
+    //setItems([]);
+    setLoading(true);
+    const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=0'+'&sort_by='+event.target.value , {
+      headers: new Headers({
+        Authorization: jsCookie.get("token"),
+      }),
+    });
+    const content = await response.json();
+    setItems(content.search_results_page);
+    setLoading(false);
+  };
+
 
   function findCommunityName(community_id) {
     if (community_id == "all") return community_id + " of your communities"
@@ -167,11 +188,31 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
             Export
           </a></span></h4>
           {own_submissions && <p className="text-center text-sm">Filtered by your own submissions</p>}
-          <div className="text-center">
+
+          <div className="flex items-center justify-center">
             <Typography variant="subtitle2">
               Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
             </Typography>
-            <div className="relative">
+            <div className="ml-auto">
+              <FormControl>
+                <Select
+                  labelId="select-sortBy-type"
+                  id="select-sortBy-type"
+                  name="method"selectedSortByOption
+                  value={selectedSortByOption}
+                  onChange={handleSortByOption}
+                  style={{ backgroundColor: 'white', color: 'black', width: '7rem' }}
+                  className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-500 hover:text-white"
+                >
+                  <MenuItem value="popularity">Most Votes</MenuItem>
+                  <MenuItem value="date">Most Recent</MenuItem>
+                  <MenuItem value="relevance">Most Relevant</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            <div >
+
+            
 
             </div>
 
@@ -194,7 +235,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         <link rel="icon" href="/images/tree32.png" />
       </Head>
 
-      <div id="searchResultsBlock" className="px-4">
+      <div id="searchResultsBlock" className="px-4 justify-center">
         <h4 className="text-center">Search Results ({data.total_num_results}) <span><a
           href={"/export?search_id=" + data.search_id}
           className="inline-block py-1 px-3 text-sm border border-blue-500 rounded hover:bg-blue-200 hover:text-black"
@@ -203,12 +244,33 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         >
           Export
         </a></span></h4>
-        <div className="text-center">
-          {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
-          <Typography variant="subtitle2">
-            Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
-          </Typography>
+        <div  style={{display: 'flex', justifyContent: 'center'}}>
+          <FormControl className="w-24 h-18" size="small">
+              <Select
+                labelId="select-sortBy-type"
+                id="select-sortBy-type"
+                name="method"selectedSortByOption
+                value={selectedSortByOption}
+                onChange={handleSortByOption}
+               className="text-xs"  
+              >
+                <MenuItem value="popularity">Top Voted</MenuItem>
+                <MenuItem value="date">Latest</MenuItem>
+                <MenuItem value="relevance">Relevant</MenuItem>
+              </Select>
+            </FormControl>
         </div>
+          
+          
+          
+          <div className="text-center py-1">
+            
+          
+            {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
+            <Typography variant="subtitle2">
+              Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
+            </Typography>
+          </div>
       </div>
 
       <div className="lg:max-w-[960px] lg:mx-auto">
