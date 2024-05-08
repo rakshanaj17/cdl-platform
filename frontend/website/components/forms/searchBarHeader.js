@@ -22,7 +22,6 @@ function searchBarHeader(props) {
 
 
     let initQuery = "";
-    let selectedCommunity = "all";
     const router = useRouter();
     const obj = router.query;
 
@@ -33,6 +32,7 @@ function searchBarHeader(props) {
     }
 
     const [inputValue, setInputValue] = useState(initQuery);
+    const [selectedCommunity, setSelectedCommunity] = useState("all");
     const { ownSubmissionToggle, setQuickAccessStoreProps } = useQuickAccessStore();
 
     const updateOwnSubmissionToggle = async (event) => {
@@ -108,7 +108,7 @@ function searchBarHeader(props) {
 
     const captureCommunityChange = (e) => {
         e.preventDefault();
-        selectedCommunity = e.target.value;
+        setSelectedCommunity(e.target.value);
     };
 
     const handleVisualizeCommunity = (event) => {
