@@ -22,6 +22,7 @@ function searchBarHeader(props) {
 
 
     let initQuery = "";
+    let selectedCommunity = "all";
     const router = useRouter();
     const obj = router.query;
 
@@ -105,6 +106,10 @@ function searchBarHeader(props) {
         }
     }, [inputValue]);
 
+    const captureCommunityChange = (e) => {
+        e.preventDefault();
+        selectedCommunity = e.target.value;
+    };
 
     const handleVisualizeCommunity = (event) => {
 
@@ -114,7 +119,8 @@ function searchBarHeader(props) {
 
         let url = "/visualizemap?query=" +
             encodeURIComponent(inputValue) +
-            "&community=all" +
+            "&community=" +
+            selectedCommunity +
             "&source=visualizeConnections";
 
         if (ownSubmissionToggle)
@@ -229,6 +235,7 @@ function searchBarHeader(props) {
                         size='small'
                         name="community"
                         defaultValue={"all"}
+                        onChange={captureCommunityChange}
                         MenuProps={{
                             PaperProps: {
                                 style: {
