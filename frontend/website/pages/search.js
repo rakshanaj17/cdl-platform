@@ -55,6 +55,10 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setLoading(false);
     setTotalPages(Math.ceil(data.total_num_results / 10));
     setSearchedCommunity(findCommunityName(community))
+    setSearchSummary(false);
+    setIsSearchSummaryClicked(false);
+    setGenerationSpinner(false);
+    setExpanded(false);
   }, [data])
 
   const handleSearchSummary = async () => {
