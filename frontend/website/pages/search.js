@@ -60,8 +60,12 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
     setPage(parseInt(data.current_page) + 1);
     setLoading(false);
     setTotalPages(Math.ceil(data.total_num_results / 10));
-    setSearchedCommunity(findCommunityName(community));
     setSelectedSortByOption("relevance");
+    setSearchedCommunity(findCommunityName(community))
+    setSearchSummary(false);
+    setIsSearchSummaryClicked(false);
+    setGenerationSpinner(false);
+    setExpanded(false);
   }, [data])
 
   const handleSearchSummary = async () => {
