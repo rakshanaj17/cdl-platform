@@ -1254,7 +1254,6 @@ def search(current_user):
         query = request.args.get("query", "")
         source = request.args.get("source", "webpage_search")
         sort_by = request.args.get("sort_by") if "sort_by" in request.args else None
-        print("sorty by in request args",sort_by,request.args)
         requested_communities = request.args.get("community")
 
         if requested_communities == "all":
