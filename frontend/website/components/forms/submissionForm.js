@@ -64,7 +64,7 @@ export default function SubmissionForm(props) {
         setSubmissionProps,
         hasUnsavedChanges,
     } = useSubmissionStore();
-    
+
     // States for Alerts
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [severity, setSeverity] = React.useState("error");
@@ -110,11 +110,11 @@ export default function SubmissionForm(props) {
         else {
             if (submissionIsAnonymous) {
                 setSubmissionProps({ ...submissionIsAnonymous, submissionIsAnonymous: false })
-                setSubmissionProps({hasUnsavedChanges : true})
+                setSubmissionProps({ hasUnsavedChanges: true })
 
             } else {
                 setSubmissionProps({ ...submissionIsAnonymous, submissionIsAnonymous: true })
-                setSubmissionProps({hasUnsavedChanges : true})
+                setSubmissionProps({ hasUnsavedChanges: true })
             }
         }
     }
@@ -355,46 +355,46 @@ export default function SubmissionForm(props) {
     };
 
     useEffect(() => { }, [submissionIncomingConnections]);
-    
+
     useEffect(() => {
-        const handleRouteChangeStart = () => { 
-            if (replySubHasUnsavedChanges == true){
-             if(!confirm('You have unsaved changes. Are you sure you want to leave?')) {
-                Router.events.emit('routeChangeError');
-                throw 'Abort route change. Please ignore this error.';
+        const handleRouteChangeStart = () => {
+            if (replySubHasUnsavedChanges == true) {
+                if (!confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                    Router.events.emit('routeChangeError');
+                    throw 'Abort route change. Please ignore this error.';
+                }
             }
-        }
         };
-        if(replySubHasUnsavedChanges == false) {
+        if (replySubHasUnsavedChanges == false) {
             Router.events.off('routeChangeStart', handleRouteChangeStart);
         }
-        if(replySubHasUnsavedChanges == true) {
+        if (replySubHasUnsavedChanges == true) {
             Router.events.on('routeChangeStart', handleRouteChangeStart);
         }
-       
+
         return () => {
             Router.events.off('routeChangeStart', handleRouteChangeStart);
         };
     }, [replySubHasUnsavedChanges]);
     useEffect(() => {
         const handleBeforeUnload = (event) => {
-          if (replySubHasUnsavedChanges == true) {
-            event.preventDefault();
-            event.returnValue = '';
-          }
+            if (replySubHasUnsavedChanges == true) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
         };
 
-        if(replySubHasUnsavedChanges == false) {
+        if (replySubHasUnsavedChanges == false) {
             window.removeEventListener('beforeunload', handleBeforeUnload);
         }
-        if(replySubHasUnsavedChanges == true) {
+        if (replySubHasUnsavedChanges == true) {
             window.addEventListener('beforeunload', handleBeforeUnload);
         }
-      
+
         return () => {
-          window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-      }, [replySubHasUnsavedChanges]);
+    }, [replySubHasUnsavedChanges]);
 
     return (
 
@@ -479,7 +479,9 @@ export default function SubmissionForm(props) {
                         </Select>
 
                     </FormControl>
-                    <br />
+                    <div className="lg:hidden mt-20">
+
+                    </div>
                     <div data-color-mode="light" >
                         <MDEditor
                             id="submissionDescription"
@@ -579,7 +581,7 @@ export default function SubmissionForm(props) {
                                 value={submissionSourceUrl}
                                 onChange={(event) => {
                                     setSubmissionProps({ submissionSourceUrl: event.target.value })
-                                    setSubmissionProps({hasUnsavedChanges: true})
+                                    setSubmissionProps({ hasUnsavedChanges: true })
                                 }}
                             />
                             <TextField
@@ -591,7 +593,7 @@ export default function SubmissionForm(props) {
                                 value={submissionTitle}
                                 onChange={(event) => {
                                     setSubmissionProps({ submissionTitle: event.target.value })
-                                    setSubmissionProps({ hasUnsavedChanges : true})
+                                    setSubmissionProps({ hasUnsavedChanges: true })
                                 }}
                             />
                             <br />
@@ -765,7 +767,7 @@ export default function SubmissionForm(props) {
                                 value={submissionSourceUrl}
                                 onChange={(event) => {
                                     setSubmissionProps({ submissionSourceUrl: event.target.value })
-                                    setSubmissionProps({hasUnsavedChanges: true})
+                                    setSubmissionProps({ hasUnsavedChanges: true })
                                 }}
                             />
                             <TextField
@@ -777,7 +779,7 @@ export default function SubmissionForm(props) {
                                 value={submissionTitle}
                                 onChange={(event) => {
                                     setSubmissionProps({ submissionTitle: event.target.value })
-                                    setSubmissionProps({ hasUnsavedChanges : true})
+                                    setSubmissionProps({ hasUnsavedChanges: true })
                                 }}
                             />
                             <br />

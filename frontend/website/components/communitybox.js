@@ -20,7 +20,6 @@ import { useState } from "react";
 import jsCookie from "js-cookie";
 import Router, { useRouter } from 'next/router';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
-import useCommunitiesStore from "../store/communitiesStore";
 import useUserDataStore from "../store/userData";
 import useQuickAccessStore from "../store/quickAccessStore";
 import FormGroup from '@mui/material/FormGroup';

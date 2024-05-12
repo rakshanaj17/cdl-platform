@@ -273,12 +273,12 @@ function SearchResult(props) {
   return (
     <Paper
       elevation={0}
+      className="mt-1"
       id={"card_id" + props.search_idx}
-      className="mt-2"
       sx={{
         // width: '85%',
-        minWidth: '100ch',
-        padding: "15px",
+        minWidth: '35ch',
+        padding: "12px",
         border: "1px solid #ddd",
         margin: 'auto',
         wordBreak: 'break-word'
@@ -309,7 +309,7 @@ function SearchResult(props) {
               <Tooltip title={props.explanation}>
                 <a
                   style={{
-                    fontSize: "18px", maxWidth: '100%', display: '-webkit-box', WebkitBoxOrient: 'vertical',
+                    fontSize: "16px", maxWidth: '100%', display: '-webkit-box', WebkitBoxOrient: 'vertical',
                     WebkitLineClamp: '1', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}
                   href={props.redirect_url}
@@ -449,7 +449,7 @@ function SearchResult(props) {
 
         {/* restricting text to only 500 characters per result to make it more uniform */}
         <p style={{
-          fontSize: '14px', marginTop: '1%', marginBottom: '1%', textAlign: 'justify', maxWidth: '100%',
+          fontSize: '13px', textAlign: 'justify', maxWidth: '100%',
           display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: '5', overflow: 'hidden', textOverflow: 'ellipsis'
         }}>
           {props.highlighted_text && props.highlighted_text.length > 0 && (
@@ -494,10 +494,10 @@ function SearchResult(props) {
           </div>
 
 
-        
 
-      </div> 
-      
+
+        </div>
+
 
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} onClick={(event) => { event.preventDefault() }}>
           <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
