@@ -35,6 +35,7 @@ const CommunityDisplay = (props) => {
 
     }, []);
 
+
     return (<>
         {(props.k === 'all') ?
             <Tooltip title="All Communities">
@@ -75,7 +76,7 @@ const CommunityDisplay = (props) => {
                         background: "aliceblue",
                     }}
                 >
-                    {communitiesPartOf[props.k] || props.k}
+                    {communitiesPartOf[props.k] || props.name}
                 </a>
             </Tooltip>
         }</>
