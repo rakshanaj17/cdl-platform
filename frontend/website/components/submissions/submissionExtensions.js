@@ -17,35 +17,13 @@ export default function SubmissionExtensions({ data, id, target }) {
             <Grid container justifyContent={'space-between'}>
 
                 <Grid item width={"80%"}>
-
-                    {selectedOption === 'connections' &&
-                        <AddConnectionsButton setSelectedOption={setSelectedOption} />}
-
-                </Grid>
-                <Grid item style={{ marginLeft: '16px', marginRight: '16px' }}>
-                    <FormControl component="fieldset">
-                        <Typography variant='subtitle2' gutterBottom style={{ fontSize: '0.9rem' }}>
-                            Data Format
-                        </Typography>
-                        <RadioGroup
-                            row
-                            aria-label="submission-toggle"
-                            name="submission-toggle"
-                            value={selectedOption}
-                            onChange={handleChange}
-                        >
-
-                            <FormControlLabel value="connections" control={<Radio />} label={<span style={{ fontSize: '0.8rem' }}>Mentions</span>} />
-                            <FormControlLabel value="graph" control={<Radio />} label={<span style={{ fontSize: '0.8rem' }}>Graph</span>} />
-                        </RadioGroup>
-                    </FormControl>
+                    <AddConnectionsButton setSelectedOption={setSelectedOption} />  
                 </Grid>
 
             </Grid>
 
             <div style={{ width: "100%", display: 'flex', justifyContent: 'center' }}>
-                {selectedOption === 'graph' && <SubmissionGraph id={id} target={target} />}
-                {selectedOption === 'connections' && <Connections submissionDataResponse={data} id={id} />}
+                <Connections submissionDataResponse={data} id={id} />
             </div>
         </div>
 
