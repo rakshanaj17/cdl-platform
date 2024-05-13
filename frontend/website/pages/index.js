@@ -351,71 +351,6 @@ function Home({ data, community_joined_data, recently_accessed_submissions, reco
   );
 }
 
-// export async function getServerSideProps(context) {
-//   // Early return if no token is present
-//   if (!context.req.cookies.token) {
-//     return {
-//       redirect: {
-//         destination: "/about",
-//         permanent: false,
-//       },
-//     };
-//   }
-
-//   const tokenHeaders = new Headers({
-//     Authorization: context.req.cookies.token,
-//   });
-
-//   try {
-//     // Endpoints
-//     const baseURL = baseURL_server;
-//     const recommendationURL = `${baseURL}${recommendationsEndPoint}?method=recent&page=0`;
-//     const recentlyAccessedSubmissionsURL = `${baseURL}${recentlyAccessedSubmissionsEndpoint}`;
-//     const communityURL = `${baseURL}${getCommunitiesEndpoint}`;
-//     const recommendedCommunitiesURL = `${baseURL}communityRecommend`;
-
-//     // Fetch requests
-//     const [res, recentlyAccessedSubmissions, fetchCommunities, recommendedCommunities] = await Promise.all([
-//       fetch(recommendationURL, { headers: tokenHeaders }),
-//       fetch(recentlyAccessedSubmissionsURL, { headers: tokenHeaders }),
-//       fetch(communityURL, { headers: tokenHeaders }),
-//       fetch(recommendedCommunitiesURL, { headers: tokenHeaders })
-//     ]);
-
-//     // Process JSON data
-//     const [data, recently_accessed_submissions, community_joined_data, recommended_communities_data] = await Promise.all([
-//       res.json(),
-//       recentlyAccessedSubmissions.json(),
-//       fetchCommunities.json(),
-//       recommendedCommunities.json()
-//     ]);
-
-//     // Ensure all fetches are successful
-//     if (res.ok && recentlyAccessedSubmissions.ok && fetchCommunities.ok && recommendedCommunities.ok) {
-//       return {
-//         props: {
-//           data,
-//           recently_accessed_submissions,
-//           community_joined_data,
-//           recommended_communities_data
-//         }
-//       };
-//     } else {
-//       throw new Error('Failed to fetch data');
-//     }
-//   } catch (error) {
-//     // Handle errors or invalid status
-//     console.error('Error fetching data:', error);
-//     return {
-//       redirect: {
-//         destination: "/auth",
-//         permanent: false,
-//       },
-//     };
-//   }
-// }
-
-
 export async function getServerSideProps(context) {
   // Fetch data from external API
   if (
@@ -449,8 +384,6 @@ export async function getServerSideProps(context) {
         Authorization: context.req.cookies.token,
       }),
     });
-
-    // @communities.route("/api/communityRecommend", methods=["GET"])
 
     var recommenddedCommunitiesURL = baseURL_server + "communityRecommend";
     const recommendedCommunities = await fetch(recommenddedCommunitiesURL, {

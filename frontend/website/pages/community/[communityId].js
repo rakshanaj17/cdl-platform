@@ -261,11 +261,11 @@ export default function CommunityHomepage(props) {
             <Divider />
 
             <section className="community-submissions mt-2" >
-                <h2 className="text-2xl font-semibold mb-4 text-gray-800">Community Submissions</h2>
+                <h2 className="text-2xl font-semibold mb-2 text-gray-800">Community Submissions</h2>
                 {!communitySubmissionsLoading && communitySubmissions ?
                     <Grid container
                         direction={'column'}
-                        borderTop={"1px solid lightgray"}
+                        // borderTop={"1px solid lightgray"}
                         display={"flex"}
                         justifyContent={"center"}
                         alignItems={"center"}>

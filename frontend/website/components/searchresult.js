@@ -25,7 +25,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import { Snackbar, Alert, Box, Typography } from "@mui/material";
 import React, { useState, useContext, useEffect } from "react";
 import { ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
-import { Bookmark, BookmarkAddOutlined, Close, Launch, PersonPin } from "@mui/icons-material";
+import { Bookmark, BookmarkAddOutlined, Close, Launch, PersonPin, WorkspacePremium } from "@mui/icons-material";
 
 import rehypeSanitize from "rehype-sanitize";
 import CommunityDisplay from "./communityDisplay";
@@ -270,6 +270,7 @@ function SearchResult(props) {
     image_url = "https://t1.gstatic.com/faviconV2";
   }
 
+  console.log(props)
   return (
     <Paper
       elevation={0}
@@ -279,7 +280,7 @@ function SearchResult(props) {
         // width: '85%',
         minWidth: '35ch',
         padding: "12px",
-        border: "1px solid #ddd",
+        border: props.auth_token == jsCookie.get("token") ? "1px solid #72A0C1" : "1px solid #ddd",
         margin: 'auto',
         wordBreak: 'break-word'
       }}
@@ -371,7 +372,14 @@ function SearchResult(props) {
                 <PersonPin />
               </IconButton>
             </Tooltip>}
-
+            {props.auth_token == jsCookie.get("token") && (
+              <Tooltip title="Your Submission">
+                <IconButton size="small" color="#72A0C1" >
+                  <WorkspacePremium sx={{ 'color': "#72A0C1" }} />
+                </IconButton>
+              </Tooltip>
+            )
+            }
             <Tooltip title="Options">
               <IconButton size="small" onClick={handleOpenOptionsMenu}>
                 <MoreVert />
