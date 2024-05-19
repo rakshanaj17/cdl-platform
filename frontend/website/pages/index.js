@@ -248,7 +248,7 @@ function Home({ data, community_joined_data, recently_accessed_submissions, reco
           {!userOwnSubmissions ? (
             <div className="text-center">
               <Tooltip title="Loading" placement="top">
-                <Skeleton animation="wave" variant="rectangular" width={300} height={5000} />
+                <Skeleton animation="wave" variant="rectangular" width={'100ch'} height={300} />
               </Tooltip>
             </div>
           ) : (
