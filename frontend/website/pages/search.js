@@ -41,7 +41,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(Math.ceil(data.total_num_results / 10));
   const [searchedCommunity, setSearchedCommunity] = useState("all")
-  const [selectedSortByOption,setSelectedSortByOption] = useState("relevance")
+  const [selectedSortByOption, setSelectedSortByOption] = useState("relevance")
 
 
   const [searchSummary, setSearchSummary] = useState();
@@ -125,11 +125,11 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
       console.log(error);
     }
   };
-  const handleSortByOption = async(event)=>{
+  const handleSortByOption = async (event) => {
     setSelectedSortByOption(event.target.value);
     //setItems([]);
     setLoading(true);
-    const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=0'+'&sort_by='+event.target.value , {
+    const response = await fetch(searchURL + 'search_id=' + data.search_id + '&page=0' + '&sort_by=' + event.target.value, {
       headers: new Headers({
         Authorization: jsCookie.get("token"),
       }),
@@ -217,78 +217,93 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         >
           Export
         </a></span></h4>
-        <div  style={{display: 'flex', justifyContent: 'center'}}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
           <FormControl className="w-24 h-18" size="small">
+            <Select
+              labelId="select-sortBy-type"
+              id="select-sortBy-type"
+              name="method" selectedSortByOption
+              value={selectedSortByOption}
+              onChange={handleSortByOption}
+              className="text-xs"
+            >
+              <MenuItem value="popularity">Popularity</MenuItem>
+              <MenuItem value="date">Most Recent</MenuItem>
+              <MenuItem value="relevance">Relevant</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
+        <div className="text-center py-1">
+          {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
+          <Typography variant="subtitle2">
+            Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
+          </Typography>
+        </div>
+      </div>
+
+      <div className="lg:max-w-[960px] lg:mx-auto">
+        <div className="flex items-center">
+          <Accordion className="lg:w-[840px]" expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1bh-content"
+              id="panel1bh-header"
+            >
+
+              <div className="flex justify-between items-center">
+                <Typography variant="title" className="text-sm font-bold">
+                  Summary of search results
+                </Typography>
+                <div className="ml-5">
+                  <Button
+                    className={!isSearchSummaryClicked ? "bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 rounded cursor-pointer"
+                      :
+                      "bg-gray-500 text-white py-2 px-2 rounded cursor-not-allowed"
+                    }
+                    disabled={isSearchSummaryClicked}
+                    variant="contained"
+                    size="small"
+                    onClick={!isSearchSummaryClicked ? handleSearchSummary : () => console.log('asking for summary again')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Summarize
+                  </Button>
+                </div>
+              </div>
+
+            </AccordionSummary>
+            <AccordionDetails>
+              {searchSummary && !generationSpinner && (
+                <Typography variant="subtitle2">
+                  {searchSummary && searchSummary !== "" ? searchSummary : 'Not generated'}
+                </Typography>
+              )}
+              {generationSpinner && (
+                <div className="m-auto">
+                  <CircularProgress color="success" />
+                </div>
+              )}
+            </AccordionDetails>
+          </Accordion>
+          <div className="ml-4">
+            <FormControl className="w-24 h-18">
               <Select
                 labelId="select-sortBy-type"
                 id="select-sortBy-type"
-                name="method"selectedSortByOption
+                name="method" selectedSortByOption
                 value={selectedSortByOption}
                 onChange={handleSortByOption}
-               className="text-xs"  
+                className="text-xs"
               >
                 <MenuItem value="popularity">Popularity</MenuItem>
                 <MenuItem value="date">Most Recent</MenuItem>
                 <MenuItem value="relevance">Relevant</MenuItem>
               </Select>
             </FormControl>
-        </div>
-          
-          
-          
-          <div className="text-center py-1">
-            
-          
-            {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
-            <Typography variant="subtitle2">
-              Community: <CommunityDisplay k={community} name={data.requested_communities[community]} />
-            </Typography>
           </div>
-      </div>
-
-      <div className="lg:max-w-[960px] lg:mx-auto">
-        <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1bh-content"
-            id="panel1bh-header"
-          >
-
-            <div className="flex justify-between items-center">
-              <Typography variant="title" className="text-sm font-bold">
-                Summary of search results
-              </Typography>
-              <div className="ml-5">
-                <Button
-                  className={!isSearchSummaryClicked ? "bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer"
-                    :
-                    "bg-gray-500 text-white py-2 px-4 rounded cursor-not-allowed"
-                  }
-                  disabled={isSearchSummaryClicked}
-                  variant="contained"
-                  onClick={!isSearchSummaryClicked ? handleSearchSummary : () => console.log('asking for summary again')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Summarize
-                </Button>
-              </div>
-            </div>
-
-          </AccordionSummary>
-          <AccordionDetails>
-            {searchSummary && !generationSpinner && (
-              <Typography variant="subtitle2">
-                {searchSummary && searchSummary !== "" ? searchSummary : 'Not generated'}
-              </Typography>
-            )}
-            {generationSpinner && (
-              <div className="m-auto">
-                <CircularProgress color="success" />
-              </div>
-            )}
-          </AccordionDetails>
-        </Accordion>
+        </div>
 
         <div className="">
           <InfiniteScroll
