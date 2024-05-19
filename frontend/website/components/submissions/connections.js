@@ -52,7 +52,7 @@ export default function Connections({ submissionDataResponse, id }) {
                 <Typography variant='h5' gutterBottom>
                     Mentions {" "}
 
-                    <Tooltip title="Submissions that mention this one">
+                    <Tooltip title="Submissions that contain this submission's hyperlink">
                         <InfoOutlined fontSize="xs" />
                     </Tooltip>
                 </Typography>
