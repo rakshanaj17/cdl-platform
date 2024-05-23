@@ -217,22 +217,7 @@ function SearchResults({ data, show_relevance_judgment, own_submissions, communi
         >
           Export
         </a></span></h4>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <FormControl className="w-24 h-18" size="small">
-            <Select
-              labelId="select-sortBy-type"
-              id="select-sortBy-type"
-              name="method" selectedSortByOption
-              value={selectedSortByOption}
-              onChange={handleSortByOption}
-              className="text-xs"
-            >
-              <MenuItem value="popularity">Popularity</MenuItem>
-              <MenuItem value="date">Most Recent</MenuItem>
-              <MenuItem value="relevance">Relevant</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
+
 
         <div className="text-center py-1">
           {own_submissions && <p className="text-center text-xs">Filtered by your own submissions</p>}
